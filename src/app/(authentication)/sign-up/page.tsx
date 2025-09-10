@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,10 +10,14 @@ import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
 import Logo from "@/components/utilities/logo";
 import { GoArrowUpRight } from "react-icons/go";
+import { authClient } from "../../../../auth-client";
+import { useToast } from "@/hooks/use-toast";
+import { usernameSchema } from "@/schema/username";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const signUpSchema = z
     .object({
-        username: z.string().min(3, "Username must be at least 3 characters"),
+        username: usernameSchema,
         email: z.string().email("Enter a valid email"),
         password: z.string().min(8, "Password must be at least 8 characters"),
         confirmPassword: z.string(),
@@ -54,6 +58,7 @@ const fields = [
 
 const SignUpPage: React.FC = () => {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, setPending] = useState(false);
 
     const form = useForm<SignUpValues>({
@@ -66,13 +71,95 @@ const SignUpPage: React.FC = () => {
         },
     });
 
-    const handleSignUp = async (values: SignUpValues) => {
-        try {
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setPending(false);
+    const username = form.watch("username");
+    const debouncedUsername = useDebounce(username, 500);
+
+    const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+        null
+    );
+    const [checking, setChecking] = useState(false);
+
+    useEffect(() => {
+        if (!debouncedUsername) {
+            setUsernameAvailable(null);
+            form.clearErrors("username");
+            return;
         }
+
+        async function checkUsername() {
+            setChecking(true);
+            setUsernameAvailable(null);
+            try {
+                const res = await fetch(
+                    `/api/check-username?username=${debouncedUsername}`
+                );
+                const data = await res.json();
+
+                if (data.available === 0) {
+                    setUsernameAvailable(false);
+                    form.setError("username", {
+                        type: "manual",
+                        message: "Username is already taken",
+                    });
+                } else if (data.available === 2) {
+                    form.setError("username", {
+                        type: "manual",
+                        message: "Invalid username",
+                    });
+                } else {
+                    form.clearErrors("username");
+                }
+            } catch (err) {
+                console.error(err);
+                setUsernameAvailable(null);
+            } finally {
+                setChecking(false);
+            }
+        }
+
+        checkUsername();
+    }, [debouncedUsername, form]);
+
+    const handleSignUp = async (values: SignUpValues) => {
+        if (usernameAvailable === false) {
+            toast({
+                title: "Username taken",
+                description: "Please choose another username.",
+            });
+            return;
+        }
+
+        setPending(true);
+        await authClient.signUp.email(
+            {
+                email: values.email,
+                password: values.password,
+                username: values.username,
+                name: values.username,
+            },
+            {
+                onRequest: () => {
+                    setPending(true);
+                },
+                onSuccess: () => {
+                    toast({
+                        title: "Account created",
+                        description:
+                            "Your account has been created. Please check your email for a verification link.",
+                    });
+
+                    router.push(`/email-verification?email=${values.email}`);
+                },
+                onError: (error) => {
+                    toast({
+                        title: "Error",
+                        description:
+                            error.error.message ?? "Something went wrong.",
+                    });
+                    setPending(false);
+                },
+            }
+        );
     };
 
     return (
@@ -80,8 +167,12 @@ const SignUpPage: React.FC = () => {
             <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
                 <div className="mb-6 w-full flex flex-col items-center space-y-4">
                     <Logo />
-                    <p className="md:text-xl lg:text-xl sm:text-xl text-md">
+                    <p className="text-md md:text-xl lg:text-xl sm:text-xl">
                         Create an account
+                    </p>
+                    <p className="text-muted-foreground text-sm text-center">
+                        Enter your details below to create your account and get
+                        started.
                     </p>
                 </div>
 
@@ -92,12 +183,28 @@ const SignUpPage: React.FC = () => {
                             className="grid gap-4"
                         >
                             {fields.map((f) => (
-                                <div key={f.name} className="py-1">
+                                <div key={f.name} className="py-1 relative">
                                     <FormInput
                                         name={f.name}
                                         label={f.label}
                                         placeHolder={f.placeHolder}
                                         type={f.type}
+                                        {...(f.name === "username" && {
+                                            // Show username availability
+                                            suffix: checking
+                                                ? "Checking..."
+                                                : usernameAvailable === false
+                                                ? "Taken"
+                                                : usernameAvailable === true
+                                                ? "Available"
+                                                : "",
+                                            suffixClassName:
+                                                usernameAvailable === false
+                                                    ? "text-red-500"
+                                                    : usernameAvailable === true
+                                                    ? "text-green-500"
+                                                    : "",
+                                        })}
                                     />
                                 </div>
                             ))}
@@ -107,6 +214,9 @@ const SignUpPage: React.FC = () => {
                                     isLoading={pending}
                                     type="submit"
                                     className="w-full"
+                                    disabled={
+                                        usernameAvailable === false || checking
+                                    }
                                 >
                                     Sign Up & Verify Email
                                 </Button>

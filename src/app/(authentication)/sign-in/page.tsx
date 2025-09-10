@@ -11,6 +11,7 @@ import Logo from "@/components/utilities/logo";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 const signInSchema = z.object({
     username: z.string().min(3, "Username must be at least 3 characters"),
@@ -36,6 +37,7 @@ const fields = [
 
 const SignInPage: React.FC = () => {
     const [pending, setPending] = useState(false);
+    const router = useRouter();
 
     const form = useForm<SignUpValues>({
         resolver: zodResolver(signInSchema),
@@ -61,6 +63,9 @@ const SignInPage: React.FC = () => {
                     <Logo />
                     <p className="md:text-xl lg:text-xl sm:text-xl text-md">
                         Sign in to your account
+                    </p>
+                    <p className="text-muted-foreground text-sm text-center">
+                        Enter your credentials below to access your account.
                     </p>
                 </div>
 
@@ -94,6 +99,9 @@ const SignInPage: React.FC = () => {
                                 <Button
                                     variant="link"
                                     className="text-blue-500 px-0"
+                                    onClick={() => {
+                                        router.push("/forgot-password");
+                                    }}
                                 >
                                     Forgot Password?
                                 </Button>
@@ -119,6 +127,7 @@ const SignInPage: React.FC = () => {
                         isLoading={pending}
                         type="submit"
                         className="w-full px-auto"
+                        variant={"outline"}
                     >
                         <FcGoogle size={26} className="pr-1" /> Google
                     </Button>
