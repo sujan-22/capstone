@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
 import Logo from "@/components/utilities/logo";
+import { authClient } from "../../../../auth-client";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { ErrorContext } from "better-auth/react";
+import useAuthStore from "@/context/use-auth-store";
 
 const forgotPasswordSchema = z.object({
     email: z.email("Enter a valid email"),
@@ -26,6 +31,9 @@ const fields = [
 
 const ForgotPasswordPage: React.FC = () => {
     const [pending, setPending] = useState(false);
+    const { setEmail } = useAuthStore();
+    const router = useRouter();
+    const { toast } = useToast();
 
     const form = useForm<VerificationValues>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -35,14 +43,34 @@ const ForgotPasswordPage: React.FC = () => {
     });
 
     const handleVerification = async (values: VerificationValues) => {
-        setPending(true);
-        try {
-            console.log("Verification code entered:", values.email);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setPending(false);
-        }
+        await authClient.forgetPassword.emailOtp(
+            {
+                email: values.email,
+            },
+            {
+                onRequest: () => {
+                    setPending(true);
+                },
+                onSuccess: async () => {
+                    setEmail(values.email);
+                    toast({
+                        title: "Verification code sent",
+                        description:
+                            "Please check your email for the verification code.",
+                    });
+                    router.push("/password-reset");
+                },
+                onError: (ctx: ErrorContext) => {
+                    toast({
+                        title: "Something went wrong",
+                        description:
+                            ctx.error.message ?? "Something went wrong.",
+                        variant: "destructive",
+                    });
+                },
+            }
+        );
+        setPending(false);
     };
 
     return (
@@ -55,7 +83,7 @@ const ForgotPasswordPage: React.FC = () => {
                     </p>
                     <p className="text-muted-foreground text-sm text-center">
                         Enter your registered email address and we will send you
-                        a password reset link.
+                        a verification code.
                     </p>
                 </div>
 
@@ -81,7 +109,7 @@ const ForgotPasswordPage: React.FC = () => {
                                 type="submit"
                                 className="w-full mt-2"
                             >
-                                Send Reset Link
+                                Send Code
                             </Button>
                         </form>
                     </Form>

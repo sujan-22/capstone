@@ -12,6 +12,9 @@ import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { authClient } from "../../../../auth-client";
+import { ErrorContext } from "better-auth/react";
 
 const signInSchema = z.object({
     username: z.string().min(3, "Username must be at least 3 characters"),
@@ -38,6 +41,7 @@ const fields = [
 const SignInPage: React.FC = () => {
     const [pending, setPending] = useState(false);
     const router = useRouter();
+    const { toast } = useToast();
 
     const form = useForm<SignUpValues>({
         resolver: zodResolver(signInSchema),
@@ -48,12 +52,66 @@ const SignInPage: React.FC = () => {
     });
 
     const handleSignUp = async (values: SignUpValues) => {
-        try {
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setPending(false);
-        }
+        await authClient.signIn.username(
+            {
+                username: values.username,
+                password: values.password,
+            },
+            {
+                onRequest: () => {
+                    setPending(true);
+                },
+                onSuccess: async () => {
+                    toast({
+                        title: "Signed in successfully",
+                        description: "You have been signed in successfully.",
+                    });
+                    router.push("/");
+                    router.refresh();
+                },
+                onError: (ctx: ErrorContext) => {
+                    toast({
+                        title: "Something went wrong",
+                        description:
+                            ctx.error.message ?? "Something went wrong.",
+                        variant: "destructive",
+                    });
+                },
+            }
+        );
+        setPending(false);
+    };
+
+    const handleGoogleSignUp = async () => {
+        setPending(true);
+        await authClient.signIn.social(
+            {
+                provider: "google",
+                callbackURL: "/",
+            },
+            {
+                onRequest: () => {
+                    setPending(true);
+                },
+                onSuccess: () => {
+                    toast({
+                        title: "Signed in successfully",
+                        description: "You have been signed in successfully.",
+                    });
+                    router.push("/");
+                    router.refresh();
+                },
+                onError: (error) => {
+                    toast({
+                        title: "Error",
+                        description:
+                            error.error.message ?? "Something went wrong.",
+                        variant: "destructive",
+                    });
+                    setPending(false);
+                },
+            }
+        );
     };
 
     return (
@@ -125,9 +183,9 @@ const SignInPage: React.FC = () => {
                 <div className="mt-4 w-full flex justify-center">
                     <Button
                         isLoading={pending}
-                        type="submit"
                         className="w-full px-auto"
                         variant={"outline"}
+                        onClick={handleGoogleSignUp}
                     >
                         <FcGoogle size={26} className="pr-1" /> Google
                     </Button>

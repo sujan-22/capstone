@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import FormInput from "@/components/utilities/auth-utilities/form-input";
 import Logo from "@/components/utilities/logo";
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "../../../../auth-client";
+import useAuthStore from "@/context/use-auth-store";
 
 const emailVerificationSchema = z.object({
     verificationCode: z
@@ -34,26 +35,17 @@ const RESEND_COOLDOWN = 60;
 
 const EmailVerificationPage: React.FC = () => {
     const router = useRouter();
-    const searchParams = useSearchParams();
+    const { email } = useAuthStore();
     const { toast } = useToast();
 
     const [pending, setPending] = useState(false);
     const [resendPending, setResendPending] = useState(false);
     const [cooldown, setCooldown] = useState<number>(RESEND_COOLDOWN);
-    const [email, setEmail] = useState<string | null>(null);
 
     const form = useForm<VerificationValues>({
         resolver: zodResolver(emailVerificationSchema),
         defaultValues: { verificationCode: "" },
     });
-
-    useEffect(() => {
-        const qEmail = searchParams?.get("email") ?? null;
-        if (qEmail) {
-            setEmail(qEmail);
-            return;
-        }
-    }, [searchParams]);
 
     useEffect(() => {
         if (cooldown <= 0) return;
@@ -102,7 +94,7 @@ const EmailVerificationPage: React.FC = () => {
                 description: "Your email has been verified.",
             });
 
-            router.push("/email-verified");
+            router.push("/sign-in");
         } catch (err) {
             console.error("verify error:", err);
             form.setError("verificationCode", {

@@ -1,4 +1,5 @@
 import { Italiana } from "next/font/google";
+import Link from "next/link";
 import React from "react";
 
 const italiana = Italiana({
@@ -8,11 +9,12 @@ const italiana = Italiana({
 
 const Logo = () => {
     return (
-        <div
-            className={`${italiana.className} text-3xl sm:text-4xl md:text-5xl lg:text-5xl tracking-wide`}
+        <Link
+            href={"/"}
+            className={`${italiana.className} text-3xl sm:text-4xl md:text-4xl lg:text-4xl tracking-wide`}
         >
             DESIGNMYCASE
-        </div>
+        </Link>
     );
 };
 
