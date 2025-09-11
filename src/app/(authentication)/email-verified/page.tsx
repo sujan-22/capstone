@@ -1,10 +1,12 @@
+"use client";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/utilities/logo";
 import { authClient } from "../../../../auth-client";
 
-const EmailVerificationPage: React.FC = async () => {
-    const session = await authClient.getSession();
+const EmailVerificationPage: React.FC = () => {
+    const session = authClient.getSession().then((res) => console.log(res));
     console.log(session);
     return (
         <div className="min-h-screen flex items-center justify-center bg-transparent">

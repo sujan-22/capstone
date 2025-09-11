@@ -14,6 +14,8 @@ import { authClient } from "../../../../auth-client";
 import { useToast } from "@/hooks/use-toast";
 import { usernameSchema } from "@/schema/username";
 import { useDebounce } from "@/hooks/use-debounce";
+import useAuthStore from "@/context/use-auth-store";
+import { FcGoogle } from "react-icons/fc";
 
 const signUpSchema = z
     .object({
@@ -60,6 +62,7 @@ const SignUpPage: React.FC = () => {
     const router = useRouter();
     const { toast } = useToast();
     const [pending, setPending] = useState(false);
+    const { setEmail } = useAuthStore();
 
     const form = useForm<SignUpValues>({
         resolver: zodResolver(signUpSchema),
@@ -142,19 +145,52 @@ const SignUpPage: React.FC = () => {
                     setPending(true);
                 },
                 onSuccess: () => {
+                    setEmail(values.email);
                     toast({
                         title: "Account created",
                         description:
-                            "Your account has been created. Please check your email for a verification link.",
+                            "Your account has been created. Please check your email for a verification code.",
                     });
 
-                    router.push(`/email-verification?email=${values.email}`);
+                    router.push("/email-verification");
                 },
                 onError: (error) => {
                     toast({
                         title: "Error",
                         description:
                             error.error.message ?? "Something went wrong.",
+                    });
+                    setPending(false);
+                },
+            }
+        );
+    };
+
+    const handleGoogleSignUp = async () => {
+        setPending(true);
+        await authClient.signIn.social(
+            {
+                provider: "google",
+                callbackURL: "/",
+            },
+            {
+                onRequest: () => {
+                    setPending(true);
+                },
+                onSuccess: () => {
+                    toast({
+                        title: "Signed in successfully",
+                        description: "You have been signed in successfully.",
+                    });
+                    router.push("/");
+                    router.refresh();
+                },
+                onError: (error) => {
+                    toast({
+                        title: "Error",
+                        description:
+                            error.error.message ?? "Something went wrong.",
+                        variant: "destructive",
                     });
                     setPending(false);
                 },
@@ -233,6 +269,16 @@ const SignUpPage: React.FC = () => {
                     >
                         Already have an account? Sign In{" "}
                         <GoArrowUpRight className="w-4 h-4" />
+                    </Button>
+                </div>
+                <div className="mt-4 w-full flex justify-center">
+                    <Button
+                        isLoading={pending}
+                        className="w-full px-auto"
+                        variant={"outline"}
+                        onClick={handleGoogleSignUp}
+                    >
+                        <FcGoogle size={26} className="pr-1" /> Google
                     </Button>
                 </div>
             </div>

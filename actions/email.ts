@@ -18,8 +18,6 @@ export async function sendEmail({
             text: text,
         });
 
-        console.log(data);
-
         return { success: true, messageId: data.messageId };
     } catch (err) {
         console.error("Error sending email:", err);

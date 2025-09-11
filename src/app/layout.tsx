@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import MaxWidthWrapper from "@/components/utilities/max-width-wrapper";
 import { Toaster } from "@/components/ui/toaster";
+import UseNavbarWrapper from "@/components/navbar/use-nav-wrapper";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${poppins.className} antialiased`}>
+                <UseNavbarWrapper />
                 <MaxWidthWrapper>{children}</MaxWidthWrapper>
                 <Toaster />
             </body>

@@ -1,5 +1,5 @@
 import { betterAuth, BetterAuthOptions } from "better-auth";
-import { openAPI } from "better-auth/plugins";
+import { openAPI, username } from "better-auth/plugins";
 import { admin } from "better-auth/plugins";
 import { emailOTP } from "better-auth/plugins";
 import { Pool } from "pg";
@@ -25,17 +25,10 @@ export const auth = betterAuth({
         deleteUser: {
             enabled: true,
         },
-        additionalFields: {
-            username: {
-                type: "string",
-                unique: true,
-                required: true,
-                input: true,
-            },
-        },
     },
     plugins: [
         openAPI(),
+        username(),
         admin({
             impersonationSessionDuration: 60 * 60 * 24 * 7,
         }),
@@ -57,6 +50,13 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
+    },
+
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
     },
 
     // emailVerification: {
