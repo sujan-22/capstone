@@ -13,7 +13,7 @@ const Logo = () => {
             href={"/"}
             className={`${italiana.className} text-3xl sm:text-4xl md:text-4xl lg:text-4xl tracking-wide`}
         >
-            DESIGNMYCASE
+            DESIGN<span className=" text-blue-600">MY</span>CASE
         </Link>
     );
 };
