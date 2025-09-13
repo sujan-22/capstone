@@ -1,0 +1,48 @@
+import { cn } from "@/lib/utils";
+import { HTMLAttributes } from "react";
+
+interface PhoneProps extends HTMLAttributes<HTMLDivElement> {
+    imgSrc: string;
+    dark?: boolean;
+    altText?: string;
+}
+
+const Phone = ({
+    imgSrc,
+    className,
+    dark = false,
+    altText,
+    ...props
+}: PhoneProps) => {
+    return (
+        <div
+            className={cn(
+                "relative pointer-events-none z-50 overflow-hidden",
+                className
+            )}
+            {...props}
+        >
+            {/*  eslint-disable-next-line @next/next/no-img-element */}
+            <img
+                src={
+                    dark
+                        ? "/assets/phone-template/phone-template-dark-edges.png"
+                        : "/assets/phone-template/phone-template-white-edges.png"
+                }
+                className="pointer-events-none z-50 select-none"
+                alt={altText ? altText : "phone image"}
+            />
+
+            <div className="absolute -z-10 inset-0">
+                {/*  eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    className="object-cover min-w-full min-h-full"
+                    src={imgSrc}
+                    alt={altText ? altText : "overlaying phone image"}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default Phone;
