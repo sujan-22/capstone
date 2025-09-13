@@ -115,7 +115,7 @@ const SignInPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-transparent">
+        <div className="min-h-[calc(100vh-96px)] flex items-center justify-center bg-transparent">
             <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
                 <div className="mb-6 w-full flex flex-col items-center space-y-4">
                     <Logo />
@@ -179,6 +179,18 @@ const SignInPage: React.FC = () => {
                 </div>
                 <div className="mt-4 w-full flex justify-center">
                     Or continue with
+                </div>
+                <div className="mt-2 w-full text-center">
+                    <p className="text-sm text-muted-foreground">
+                        Don’t have an account?{" "}
+                        <Button
+                            variant="link"
+                            className="text-blue-500 px-0"
+                            onClick={() => router.push("/sign-up")}
+                        >
+                            Sign Up
+                        </Button>
+                    </p>
                 </div>
                 <div className="mt-4 w-full flex justify-center">
                     <Button
