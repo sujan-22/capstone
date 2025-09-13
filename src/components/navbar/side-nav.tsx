@@ -52,7 +52,7 @@ const SideMenu = ({ user }: SideMenuProps) => {
             : []),
         ...(user
             ? [{ label: "Sign out", action: handleSignOut }]
-            : [{ label: "Sign In", href: "/sign-in" }]),
+            : [{ label: "Sign in", href: "/sign-in" }]),
     ];
 
     return (

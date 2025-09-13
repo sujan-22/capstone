@@ -6,17 +6,17 @@ import Link from "next/link";
 import Logo from "../utilities/logo";
 import { Button } from "../ui/button";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { FaUserAlt } from "react-icons/fa";
 import SideMenu from "./side-nav";
+import { UserDropdown } from "./user-dropdown";
 
 const Navbar = ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     session,
     user,
 }: {
     session: ISession | null;
     user: IUser | null | undefined;
 }) => {
-    console.log("Navbar session:", session);
     return (
         <div className="sticky top-0 inset-x-0 z-1000">
             <div
@@ -61,13 +61,7 @@ const Navbar = ({
                                     Create Case{" "}
                                     <FaArrowRightLong className="ml-1" />
                                 </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="rounded-full"
-                                >
-                                    <FaUserAlt className="w-5 h-5" />
-                                </Button>
+                                <UserDropdown user={user} />
                                 <SideMenu user={user} />
                             </div>
                         </nav>

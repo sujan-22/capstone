@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
 import Logo from "@/components/utilities/logo";
-import { GoArrowUpRight } from "react-icons/go";
 import { authClient } from "../../../../auth-client";
 import { useToast } from "@/hooks/use-toast";
 import { usernameSchema } from "@/schema/username";
@@ -199,7 +198,7 @@ const SignUpPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-transparent">
+        <div className="min-h-[calc(100vh-96px)] flex items-center justify-center bg-transparent">
             <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
                 <div className="mb-6 w-full flex flex-col items-center space-y-4">
                     <Logo />
@@ -261,17 +260,19 @@ const SignUpPage: React.FC = () => {
                     </Form>
                 </div>
 
-                <div className="mt-4 w-full flex justify-end">
-                    <Button
-                        variant="link"
-                        onClick={() => router.push("/sign-in")}
-                        className="px-0"
-                    >
-                        Already have an account? Sign In{" "}
-                        <GoArrowUpRight className="w-4 h-4" />
-                    </Button>
+                <div className="mt-3 w-full text-center">
+                    <p className="text-sm text-muted-foreground">
+                        Already have an account?{" "}
+                        <Button
+                            variant="link"
+                            className="text-blue-500 px-0"
+                            onClick={() => router.push("/sign-in")}
+                        >
+                            Sign In
+                        </Button>
+                    </p>
                 </div>
-                <div className="mt-4 w-full flex justify-center">
+                <div className="mt-3 w-full flex justify-center">
                     <Button
                         isLoading={pending}
                         className="w-full px-auto"
