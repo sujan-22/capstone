@@ -21,6 +21,16 @@ export const auth = betterAuth({
     user: {
         changeEmail: {
             enabled: true,
+            sendChangeEmailVerification: async (
+                { user, newEmail, url, token },
+                request
+            ) => {
+                await sendEmail({
+                    to: user.email,
+                    subject: "Approve email change",
+                    text: `Click the link to approve the change: ${url}`,
+                });
+            },
         },
         deleteUser: {
             enabled: true,
@@ -58,20 +68,6 @@ export const auth = betterAuth({
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
     },
-
-    // emailVerification: {
-    //     sendOnSignUp: true,
-    //     autoSignInAfterVerification: true,
-    //     sendVerificationEmail: async ({ user, token }) => {
-    //         const verificationUrl = `${process.env.BETTER_AUTH_URL}/api/auth/verify-email?token=${token}&callbackURL=${process.env.EMAIL_VERIFICATION_CALLBACK_URL}`;
-
-    //         await sendEmail({
-    //             to: user.email,
-    //             subject: "Verify your email",
-    //             text: `Please verify your email by clicking the following link: ${verificationUrl}`,
-    //         });
-    //     },
-    // },
 } satisfies BetterAuthOptions);
 
 export type Session = typeof auth.$Infer.Session;

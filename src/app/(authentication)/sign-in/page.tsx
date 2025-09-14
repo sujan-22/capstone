@@ -40,6 +40,7 @@ const fields = [
 
 const SignInPage: React.FC = () => {
     const [pending, setPending] = useState(false);
+    const [remember, setRemember] = useState(true);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -56,6 +57,7 @@ const SignInPage: React.FC = () => {
             {
                 username: values.username,
                 password: values.password,
+                rememberMe: remember,
             },
             {
                 onRequest: () => {
@@ -83,24 +85,12 @@ const SignInPage: React.FC = () => {
     };
 
     const handleGoogleSignUp = async () => {
-        setPending(true);
         await authClient.signIn.social(
             {
                 provider: "google",
                 callbackURL: "/",
             },
             {
-                onRequest: () => {
-                    setPending(true);
-                },
-                onSuccess: () => {
-                    toast({
-                        title: "Signed in successfully",
-                        description: "You have been signed in successfully.",
-                    });
-                    router.push("/");
-                    router.refresh();
-                },
                 onError: (error) => {
                     toast({
                         title: "Error",
@@ -108,7 +98,6 @@ const SignInPage: React.FC = () => {
                             error.error.message ?? "Something went wrong.",
                         variant: "destructive",
                     });
-                    setPending(false);
                 },
             }
         );
@@ -144,7 +133,14 @@ const SignInPage: React.FC = () => {
                                 </div>
                             ))}
                             <div className="flex items-center mt-2">
-                                <Checkbox id="remember-me" className="mr-2" />
+                                <Checkbox
+                                    id="remember-me"
+                                    className="mr-2"
+                                    checked={remember}
+                                    onCheckedChange={(val) =>
+                                        setRemember(Boolean(val))
+                                    }
+                                />
                                 <Label
                                     htmlFor="remember-me"
                                     className="text-sm"
@@ -168,6 +164,7 @@ const SignInPage: React.FC = () => {
                             <div className="pt-2">
                                 <Button
                                     isLoading={pending}
+                                    loadingText="Signing in..."
                                     type="submit"
                                     className="w-full"
                                 >
@@ -194,7 +191,6 @@ const SignInPage: React.FC = () => {
                 </div>
                 <div className="mt-4 w-full flex justify-center">
                     <Button
-                        isLoading={pending}
                         className="w-full px-auto"
                         variant={"outline"}
                         onClick={handleGoogleSignUp}

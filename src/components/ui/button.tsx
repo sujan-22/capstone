@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { BeatLoader } from "react-spinners";
+import { ClipLoader } from "react-spinners";
 
 const buttonVariants = cva(
     "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:cursor-pointer",
@@ -47,29 +47,40 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     (
         {
             className,
-            loadingText,
             isLoading,
             variant,
             size,
             children,
+            loadingText,
             asChild = false,
             ...props
         },
         ref
     ) => {
         const Comp = asChild ? Slot : "button";
+
+        if (isLoading) {
+            return (
+                <Comp
+                    className={cn(buttonVariants({ variant, size, className }))}
+                    ref={ref}
+                >
+                    {loadingText}
+                    <ClipLoader
+                        size={"20"}
+                        color={variant ? "black" : "white"}
+                        className="ml-2"
+                    />
+                </Comp>
+            );
+        }
         return (
             <Comp
                 className={cn(buttonVariants({ variant, size, className }))}
                 ref={ref}
                 {...props}
             >
-                {isLoading && loadingText ? loadingText : children}
-                {isLoading ? (
-                    <span className="ml-1.5 flex items-center gap-1">
-                        <BeatLoader margin={1} size={8} />
-                    </span>
-                ) : null}
+                {children}
             </Comp>
         );
     }
