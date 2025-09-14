@@ -15,6 +15,8 @@ import { usernameSchema } from "@/schema/username";
 import { useDebounce } from "@/hooks/use-debounce";
 import useAuthStore from "@/context/use-auth-store";
 import { FcGoogle } from "react-icons/fc";
+import PasswordStrengthMeter from "@/components/ui/password-strength-meter";
+import { usePasswordStrength } from "@/hooks/use-password-strength";
 
 const signUpSchema = z
     .object({
@@ -80,6 +82,8 @@ const SignUpPage: React.FC = () => {
         null
     );
     const [checking, setChecking] = useState(false);
+    const password = form.watch("password");
+    const strength = usePasswordStrength(password);
 
     useEffect(() => {
         if (!debouncedUsername) {
@@ -166,24 +170,12 @@ const SignUpPage: React.FC = () => {
     };
 
     const handleGoogleSignUp = async () => {
-        setPending(true);
         await authClient.signIn.social(
             {
                 provider: "google",
                 callbackURL: "/",
             },
             {
-                onRequest: () => {
-                    setPending(true);
-                },
-                onSuccess: () => {
-                    toast({
-                        title: "Signed in successfully",
-                        description: "You have been signed in successfully.",
-                    });
-                    router.push("/");
-                    router.refresh();
-                },
                 onError: (error) => {
                     toast({
                         title: "Error",
@@ -191,7 +183,6 @@ const SignUpPage: React.FC = () => {
                             error.error.message ?? "Something went wrong.",
                         variant: "destructive",
                     });
-                    setPending(false);
                 },
             }
         );
@@ -241,6 +232,13 @@ const SignUpPage: React.FC = () => {
                                                     : "",
                                         })}
                                     />
+                                    {f.name === "password" && (
+                                        <div className="mt-2">
+                                            <PasswordStrengthMeter
+                                                password={password}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             ))}
 
@@ -249,8 +247,11 @@ const SignUpPage: React.FC = () => {
                                     isLoading={pending}
                                     type="submit"
                                     className="w-full"
+                                    loadingText="Signing up..."
                                     disabled={
-                                        usernameAvailable === false || checking
+                                        usernameAvailable === false ||
+                                        checking ||
+                                        strength.score < 2
                                     }
                                 >
                                     Sign Up & Verify Email
@@ -274,7 +275,6 @@ const SignUpPage: React.FC = () => {
                 </div>
                 <div className="mt-3 w-full flex justify-center">
                     <Button
-                        isLoading={pending}
                         className="w-full px-auto"
                         variant={"outline"}
                         onClick={handleGoogleSignUp}

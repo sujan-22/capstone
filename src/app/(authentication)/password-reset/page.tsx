@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import useAuthStore from "@/context/use-auth-store";
 import { authClient } from "../../../../auth-client";
 import { ErrorContext } from "better-auth/react";
+import PasswordStrengthMeter from "@/components/ui/password-strength-meter";
+import { usePasswordStrength } from "@/hooks/use-password-strength";
 
 const passwordResetSchema = z
     .object({
@@ -66,6 +68,9 @@ const PasswordResetPage: React.FC = () => {
         },
     });
 
+    const password = form.watch("password");
+    const strength = usePasswordStrength(password);
+
     const handleSignUp = async (values: SignUpValues) => {
         if (!email) {
             return;
@@ -86,7 +91,7 @@ const PasswordResetPage: React.FC = () => {
                         description:
                             "Your password has been updated successfully.",
                     });
-                    router.push("/");
+                    router.push("/sign-in");
                 },
                 onError: (ctx: ErrorContext) => {
                     toast({
@@ -129,6 +134,13 @@ const PasswordResetPage: React.FC = () => {
                                         placeHolder={f.placeHolder}
                                         type={f.type}
                                     />
+                                    {f.name === "password" && (
+                                        <div className="mt-2">
+                                            <PasswordStrengthMeter
+                                                password={password}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             ))}
 
@@ -137,6 +149,7 @@ const PasswordResetPage: React.FC = () => {
                                     isLoading={pending}
                                     type="submit"
                                     className="w-full"
+                                    disabled={strength.score < 2}
                                 >
                                     Update Password
                                 </Button>

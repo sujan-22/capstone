@@ -9,18 +9,11 @@ export function useSignOut() {
     const { toast } = useToast();
     const signOut = async () => {
         try {
-            await authClient.signOut({
-                fetchOptions: {
-                    onSuccess: () => {
-                        router.refresh();
-                    },
-                },
-            });
+            await authClient.signOut({});
             toast({
                 title: "Signed out",
                 description: "You have been signed out successfully.",
             });
-            router.push("/");
         } catch (error) {
             toast({
                 title: "Error",
@@ -30,6 +23,9 @@ export function useSignOut() {
             });
             console.error("Error signing out:", error);
         }
+
+        router.replace("/");
+        router.refresh();
     };
 
     return { signOut };

@@ -21,8 +21,6 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
         { label: "Orders", href: "/orders" },
     ];
 
-    console.log(user);
-
     const { signOut } = useSignOut();
     return (
         <DropdownMenu>
@@ -44,10 +42,9 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                    onClick={() => {
+                    onClick={async () => {
                         if (user) {
-                            signOut();
-                            window.location.reload();
+                            await signOut();
                         } else {
                             router.push("/sign-in");
                         }
