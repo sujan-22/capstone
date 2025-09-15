@@ -18,7 +18,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     const router = useRouter();
     const MY_ACCOUNT_URL = [
         { label: "Account", href: "/account" },
-        { label: "Orders", href: "/orders" },
+        { label: "Orders", href: "/account/orders" },
     ];
 
     const { signOut } = useSignOut();

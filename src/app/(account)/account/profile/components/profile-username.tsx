@@ -5,16 +5,56 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import AccountInfo from "../../components/account-info";
 import { authClient, IUser } from "../../../../../../auth-client";
-import { z } from "zod";
 import { usernameSchema } from "@/schema/username";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const ProfileUsername = ({ currentUser }: { currentUser: IUser }) => {
     const [successState, setSuccessState] = useState(false);
     const [errorState, setErrorState] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState("");
+    const debouncedUsername = useDebounce(username, 500);
+
+    const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+        null
+    );
+    const [checking, setChecking] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
+
+    useEffect(() => {
+        if (!debouncedUsername) {
+            setUsernameAvailable(null);
+            return;
+        }
+
+        async function checkUsername() {
+            setChecking(true);
+            setUsernameAvailable(null);
+            try {
+                const res = await fetch(
+                    `/api/check-username?username=${debouncedUsername}`
+                );
+                const data = await res.json();
+
+                if (data.available === 0) {
+                    setUsernameAvailable(false);
+                    setErrorState("Username is already taken");
+                } else if (data.available === 2) {
+                    setErrorState("Invalid username");
+                } else {
+                    setErrorState("");
+                }
+            } catch (err) {
+                console.error(err);
+                setUsernameAvailable(null);
+            } finally {
+                setChecking(false);
+            }
+        }
+
+        checkUsername();
+    }, [debouncedUsername, username]);
 
     useEffect(() => {
         if (currentUser?.username || currentUser?.displayUsername) {
@@ -27,28 +67,41 @@ const ProfileUsername = ({ currentUser }: { currentUser: IUser }) => {
     const hasChanges = username.trim() !== currentUser?.name;
 
     const updateUsername = async () => {
+        if (usernameAvailable === false) {
+            toast({
+                title: "Username taken",
+                description: "Please choose another username.",
+            });
+            return;
+        }
         setLoading(true);
         setErrorState(null);
+        usernameSchema.parse(username.trim());
 
-        try {
-            usernameSchema.parse(username.trim());
-
-            await authClient.updateUser({ username: username.trim() });
-
-            setSuccessState(true);
-            router.refresh();
-            toast({ description: "Username updated successfully" });
-        } catch (error: unknown) {
-            if (error instanceof z.ZodError) {
-                setErrorState(error.issues[0]?.message ?? "Invalid username");
-            } else if (error instanceof Error) {
-                setErrorState(error.message);
-            } else {
-                setErrorState("Failed to update username.");
+        await authClient.updateUser(
+            { username: username.trim() },
+            {
+                onRequest: () => {
+                    setLoading(true);
+                    setErrorState(null);
+                    setSuccessState(false);
+                },
+                onSuccess: () => {
+                    setSuccessState(true);
+                    setLoading(false);
+                    router.refresh();
+                    toast({ description: "Username updated successfully." });
+                },
+                onError: (error) => {
+                    setErrorState(
+                        error instanceof Error
+                            ? error.message
+                            : "Failed to update username."
+                    );
+                    setLoading(false);
+                },
             }
-        } finally {
-            setLoading(false);
-        }
+        );
     };
 
     const handleSubmit = (event: React.FormEvent) => {
@@ -73,7 +126,7 @@ const ProfileUsername = ({ currentUser }: { currentUser: IUser }) => {
                 isSuccess={successState}
                 isError={!!errorState}
                 clearState={clearState}
-                isLoading={loading}
+                isLoading={loading || checking}
             >
                 <Input
                     name="username"
