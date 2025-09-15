@@ -5,13 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { authClient } from "../../../../../../auth-client";
 import AccountInfo from "../../components/account-info";
+import PasswordStrengthMeter from "@/components/ui/password-strength-meter";
+import { usePasswordStrength } from "@/hooks/use-password-strength";
 
-// Password validation schema
 const profileFormSchema = z.object({
-    password: z
-        .string()
-        .min(8, "Password must be at least 8 characters long")
-        .optional(),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
 const ProfilePassword = () => {
@@ -22,49 +20,51 @@ const ProfilePassword = () => {
     const [newPassword, setNewPassword] = useState("");
     const { toast } = useToast();
 
-    // Function to validate the form
-    const validatePassword = (newPassword: string) => {
-        try {
-            profileFormSchema.parse({ password: newPassword });
-            return null; // Return null if no errors
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-            }
-            return "An unexpected error occurred.";
-        }
-    };
-
-    const updateCustomerPassword = async () => {
-        setLoading(true);
-        setErrorState(null);
-        try {
-            await authClient.changePassword({
-                newPassword: newPassword,
-                currentPassword: currentPassword,
-                revokeOtherSessions: true,
-            });
-            setSuccessState(true);
-            toast({ description: `Password updated successfully` });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            console.error("Error updating password:", error);
-            setErrorState(error.toString());
-        } finally {
-            setLoading(false);
-        }
-    };
+    const strength = usePasswordStrength(newPassword);
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        // Validate the new password before submitting
-        const validationError = validatePassword(newPassword);
-        if (validationError) {
-            setErrorState(validationError);
+        // Validate new password with Zod
+        const validation = profileFormSchema.safeParse({
+            password: newPassword,
+        });
+        if (!validation.success) {
+            setErrorState(
+                validation.error.issues[0]?.message ?? "Invalid password"
+            );
             return;
         }
 
-        updateCustomerPassword();
+        authClient.changePassword(
+            {
+                newPassword,
+                currentPassword,
+                revokeOtherSessions: true,
+            },
+            {
+                onRequest: () => {
+                    setLoading(true);
+                    setErrorState(null);
+                    setSuccessState(false);
+                },
+                onSuccess: () => {
+                    setSuccessState(true);
+                    setLoading(false);
+                    toast({ description: "Password updated successfully" });
+                    setCurrentPassword("");
+                    setNewPassword("");
+                },
+                onError: (error) => {
+                    setErrorState(
+                        error instanceof Error
+                            ? error.message
+                            : "Failed to update password."
+                    );
+                    setLoading(false);
+                },
+            }
+        );
     };
 
     const clearState = () => {
@@ -76,12 +76,12 @@ const ProfilePassword = () => {
         <form onSubmit={handleSubmit} className="w-full overflow-visible">
             <AccountInfo
                 label="Password"
-                currentInfo={"The password is not shown for security reasons."}
+                currentInfo="The password is not shown for security reasons."
                 isSuccess={successState}
                 isError={!!errorState}
                 clearState={clearState}
-                data-testid="account-password-editor"
                 isLoading={loading}
+                disabled={strength.score < 2}
             >
                 <div className="mb-1">
                     <p className="text-sm text-muted-foreground">
@@ -90,24 +90,25 @@ const ProfilePassword = () => {
                     <Input
                         name="current-password"
                         type="password"
-                        required
+                        value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         disabled={loading}
                         data-testid="current-password-input"
                     />
                 </div>
-                <div className="">
+                <div>
                     <p className="text-sm text-muted-foreground">
                         New Password
                     </p>
                     <Input
                         name="password"
                         type="password"
-                        required
+                        value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         disabled={loading}
                         data-testid="new-password-input"
                     />
+                    <PasswordStrengthMeter password={newPassword} />
                 </div>
                 {errorState && (
                     <p className="text-red-500 mt-2">{errorState}</p>

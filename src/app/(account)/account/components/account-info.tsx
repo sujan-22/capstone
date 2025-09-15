@@ -12,6 +12,7 @@ type AccountInfoProps = {
     clearState: () => void;
     children?: React.ReactNode;
     isLoading?: boolean;
+    disabled?: boolean;
 };
 
 const AccountInfo = ({
@@ -21,6 +22,7 @@ const AccountInfo = ({
     clearState,
     children,
     isLoading,
+    disabled,
 }: AccountInfoProps) => {
     const [isOpen, setIsOpen] = useState(false); // Local state for toggle
 
@@ -85,6 +87,7 @@ const AccountInfo = ({
                             className="w-full sm:w-auto sm:mt-4 mt-4 lg:mt-auto sm:ml-auto"
                             type="submit"
                             isLoading={isLoading}
+                            disabled={disabled}
                         >
                             Save changes
                         </Button>

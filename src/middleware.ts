@@ -8,7 +8,7 @@ const passwordRoutes = [
     "/forgot-password",
     "/email-verification",
 ];
-const protectedRoutes = ["/account", "/orders"];
+const protectedRoutes = ["/account"];
 
 export default async function authMiddleware(request: NextRequest) {
     const pathName = request.nextUrl.pathname;
