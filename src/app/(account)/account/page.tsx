@@ -15,6 +15,9 @@ export const metadata: Metadata = {
 
 const Page = async () => {
     const { user, session } = await getServerSideSession();
+    if (!user || !session) {
+        return;
+    }
     return <AccountOverview user={user} session={session} />;
 };
 
