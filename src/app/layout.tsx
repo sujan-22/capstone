@@ -4,6 +4,7 @@ import "./globals.css";
 import MaxWidthWrapper from "@/components/utilities/max-width-wrapper";
 import { Toaster } from "@/components/ui/toaster";
 import UseNavbarWrapper from "@/components/navbar/use-nav-wrapper";
+import ReactQueryProvider from "@/providers/react-query-provider";
 const inter = Inter({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
@@ -23,9 +24,11 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${inter.className} antialiased`}>
-                <UseNavbarWrapper />
-                <MaxWidthWrapper>{children}</MaxWidthWrapper>
-                <Toaster />
+                <ReactQueryProvider>
+                    <UseNavbarWrapper />
+                    <MaxWidthWrapper>{children}</MaxWidthWrapper>
+                    <Toaster />
+                </ReactQueryProvider>
             </body>
         </html>
     );

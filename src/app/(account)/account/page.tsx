@@ -1,6 +1,17 @@
 import React from "react";
 import AccountOverview from "./components/account-overview";
 import { getServerSideSession } from "@/hooks/use-session";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "ACCOUNT | DESIGNMYCASE",
+    description:
+        "Manage your account details, view your profile, and access your order history with DESIGNMYCASE.",
+    robots: {
+        index: false,
+        follow: true,
+    },
+};
 
 const Page = async () => {
     const { user, session } = await getServerSideSession();

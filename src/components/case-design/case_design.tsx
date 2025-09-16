@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { useFavorite } from "@/hooks/use-favorite";
 import { IUser } from "../../../auth-client";
 import { useRouter } from "next/navigation";
+import { formatPrice } from "@/lib/utils";
 
 export interface ICaseDesignProps {
     id: string;
@@ -19,9 +20,6 @@ export interface ICaseDesignProps {
     isFavorited: boolean;
     user: IUser | null | undefined;
 }
-
-const formatPrice = (p: number) =>
-    p.toLocaleString(undefined, { style: "currency", currency: "USD" });
 
 const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     id,

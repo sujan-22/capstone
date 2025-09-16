@@ -1,12 +1,12 @@
 import React from "react";
 import { getServerSideSession } from "@/hooks/use-session";
-import AccountProfilePage from "./components/profile";
+import OrdersPage from "./components/orders-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "PROFILE | DESIGNMYCASE",
+    title: "ORDERS | DESIGNMYCASE",
     description:
-        "Update your profile information to personalize your shopping experience.",
+        "View and manage your past phone case orders. Track order status, view details, and reorder your favorite designs.",
     robots: {
         index: false,
         follow: true,
@@ -15,7 +15,10 @@ export const metadata: Metadata = {
 
 const Page = async () => {
     const { user } = await getServerSideSession();
-    return <AccountProfilePage user={user} />;
+    if (!user || !user.id) {
+        return;
+    }
+    return <OrdersPage userId={user.id} />;
 };
 
 export default Page;

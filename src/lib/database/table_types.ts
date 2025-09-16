@@ -330,7 +330,7 @@ const gallery_image = {
 export interface Order {
     id: string;
     user_id: string;
-    order_number: number;
+    order_number: string;
     case_design_id: string;
     subtotal: number;
     tax: number;
@@ -345,7 +345,7 @@ export interface Order {
 export interface OrderInput {
     id?: string;
     user_id: string;
-    order_number?: number;
+    order_number?: string;
     case_design_id: string;
     subtotal: number;
     tax: number;

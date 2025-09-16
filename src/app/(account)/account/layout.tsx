@@ -8,7 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AccountSidebar } from "./components/account-sidebar";
 
 const sidebarNavItems = [
@@ -46,6 +46,7 @@ export default function SettingsLayoutClient({
     children,
 }: SettingsLayoutClientProps) {
     const router = useRouter();
+    const pathName = usePathname();
 
     return (
         <>
@@ -61,16 +62,13 @@ export default function SettingsLayoutClient({
                 </div>
                 <Separator className="my-6" />
                 <div className="flex flex-col lg:flex-row lg:space-x-12 lg:space-y-0">
-                    {/* Sidebar for larger screens */}
                     <aside className="hidden space-y-8 lg:block lg:w-1/5">
                         <AccountSidebar items={sidebarNavItems} />
                     </aside>
-
-                    {/* Dropdown for smaller screens */}
                     <div className="block lg:hidden mb-6">
                         <Select
                             onValueChange={(value) => router.push(value)}
-                            defaultValue={sidebarNavItems[0].href}
+                            defaultValue={pathName}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a page" />
@@ -87,8 +85,6 @@ export default function SettingsLayoutClient({
                             </SelectContent>
                         </Select>
                     </div>
-
-                    {/* Main content */}
                     <div className="flex-1 lg:max-w-full">{children}</div>
                 </div>
             </div>
