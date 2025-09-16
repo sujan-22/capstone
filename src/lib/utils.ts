@@ -14,3 +14,6 @@ export function formatDate(date?: string | Date) {
         day: "numeric",
     }).format(d);
 }
+
+export const formatPrice = (p: number) =>
+    p.toLocaleString(undefined, { style: "currency", currency: "USD" });

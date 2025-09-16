@@ -24,16 +24,16 @@ const AccountInfo = ({
     isLoading,
     disabled,
 }: AccountInfoProps) => {
-    const [isOpen, setIsOpen] = useState(false); // Local state for toggle
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleToggle = () => {
-        clearState(); // Reset error/success states
-        setIsOpen((prev) => !prev); // Toggle the local state
+        clearState();
+        setIsOpen((prev) => !prev);
     };
 
     useEffect(() => {
         if (isSuccess) {
-            setIsOpen(false); // Close the panel on success
+            setIsOpen(false);
         }
     }, [isSuccess]);
 
@@ -66,7 +66,6 @@ const AccountInfo = ({
                 </div>
             </div>
 
-            {/* Editable state */}
             <Disclosure>
                 <Disclosure.Panel
                     static
@@ -79,10 +78,7 @@ const AccountInfo = ({
                     )}
                 >
                     <div className="lg:flex flex-wrap gap-x-4 py-4 sm:block sm:flex-nowrap ">
-                        {/* Ensure full width on small screens */}
                         <div className="w-full sm:space-y-2">{children}</div>
-
-                        {/* Add margin-top only on small screens */}
                         <Button
                             className="w-full sm:w-auto sm:mt-4 mt-4 lg:mt-auto sm:ml-auto"
                             type="submit"
