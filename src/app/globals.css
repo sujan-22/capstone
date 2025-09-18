@@ -12,6 +12,17 @@ body {
 
 @custom-variant dark (&:is(.dark *));
 
+/* Best effort for iOS viewport differences */
+.full-viewport {
+    height: 100dvh; /* modern browsers */
+    min-height: -webkit-fill-available; /* older iOS fallback */
+}
+
+/* Optional debugging helpers — remove when done */
+.debug-viewport {
+    outline: 3px dashed rgba(255, 0, 0, 0.6);
+}
+
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
