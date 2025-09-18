@@ -14,7 +14,7 @@ export const getOrdersByUser = async (
 ): Promise<OrdersResponse> => {
     try {
         const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/get-orders-by-user-id`,
+            `${NEXT_PUBLIC_URL}/api/account/get-orders-by-user-id`,
             {
                 method: "GET",
                 headers: {

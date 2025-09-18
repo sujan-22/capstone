@@ -6,11 +6,12 @@ import { useFavorite } from "@/hooks/use-favorite";
 import { IUser } from "../../../auth-client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface ICaseDesignProps {
     id: string;
     imgSrc: string;
-    altText: string;
+    altText?: string;
     caseName: string;
     modelName: string;
     color: string;
@@ -40,11 +41,12 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
         caseDesignId: id,
         initialFavorited,
     });
+    const queryClient = useQueryClient();
 
     return (
         <article className="max-w-xs mx-auto p-1">
             <div className="flex justify-center">
-                <Phone imgSrc={imgSrc} altText={altText} />
+                <Phone imgSrc={imgSrc} altText={altText ?? caseName} />
             </div>
             <h2 className="mt-4 text-left text-xl font-semibold leading-tight tracking-tight line-clamp-2 h-14">
                 {caseName}
@@ -82,6 +84,9 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                                 return;
                             }
                             toggleFavorite(userId);
+                            queryClient.invalidateQueries({
+                                queryKey: ["get-favorite-designs"],
+                            });
                         }}
                         aria-label={`Favorite ${caseName}`}
                         disabled={loading}

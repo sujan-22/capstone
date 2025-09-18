@@ -14,14 +14,17 @@ export const getOrderById = async (
     orderId: string
 ): Promise<OrdersResponse> => {
     try {
-        const res = await fetch(`${NEXT_PUBLIC_URL}/api/get-order-by-id`, {
-            method: "GET",
-            headers: {
-                "x-order-id": orderId,
-                "x-user-id": userId,
-            },
-            cache: "default",
-        });
+        const res = await fetch(
+            `${NEXT_PUBLIC_URL}/api/account/get-order-by-id`,
+            {
+                method: "GET",
+                headers: {
+                    "x-order-id": orderId,
+                    "x-user-id": userId,
+                },
+                cache: "default",
+            }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch orders");
 

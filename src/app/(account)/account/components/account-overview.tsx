@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/utils";
 import { useSignOut } from "@/hooks/use-sign-out";
 import { useQuery } from "@tanstack/react-query";
 import { getUserInfo } from "../actions/actions";
-import { ClipLoader } from "react-spinners";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountOverviewProps {
     user: IUser;
@@ -30,6 +30,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ user, session }) => {
 
     return (
         <div className="space-y-6">
+            {/* Heading + sign out always visible */}
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-xl">
@@ -63,14 +64,18 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ user, session }) => {
 
             <Separator />
 
-            {isLoading ? (
-                <div className="flex items-center gap-2">
-                    <ClipLoader size={24} />
-                    <p className="text-sm sm:text-base">
-                        Loading account details...
-                    </p>
+            {isLoading && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+                    <div className="gap-y-1 flex flex-col">
+                        <Skeleton className="h-6 w-1/2 mb-3 rounded" />
+                        <Skeleton className="h-4 w-2/3 mb-1 rounded" />
+                        <Skeleton className="h-4 w-1/3 mb-1 rounded" />
+                        <Skeleton className="h-4 w-1/2 mb-1 rounded" />
+                    </div>
                 </div>
-            ) : isError || !data?.success || !data.user ? (
+            )}
+
+            {!isLoading && (isError || !data?.success || !data.user) && (
                 <div className="flex items-center gap-2">
                     <p className="text-sm sm:text-base">
                         Failed to load account details.
@@ -83,7 +88,9 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ user, session }) => {
                         Retry
                     </Button>
                 </div>
-            ) : (
+            )}
+
+            {!isLoading && data?.success && data.user && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h4 className="text-lg mb-2">Recent Activity</h4>

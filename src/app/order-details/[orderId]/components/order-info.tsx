@@ -5,7 +5,7 @@ const OrderInfo = ({ order }: { order: IUserOrderWithDesign }) => {
     return (
         <div className="text-sm">
             <p>
-                Order date:{" "}
+                Order Date:{" "}
                 <span className=" text-muted-foreground">
                     {new Date(order.createdAt).toDateString()}
                 </span>
@@ -19,7 +19,7 @@ const OrderInfo = ({ order }: { order: IUserOrderWithDesign }) => {
             <div className="flex items-center text-compact-small gap-x-4 mt-2">
                 <>
                     <p>
-                        Order status:{" "}
+                        Order Status:{" "}
                         <span
                             className={`px-2 py-1 rounded-3xl text-white ${
                                 order.orderStatus === "Pending"
