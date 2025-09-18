@@ -16,7 +16,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
 }) => {
     return (
         <div
-            className={`flex flex-col items-center justify-center gap-3 text-center text-red-600 min-h-[calc(100vh-96px)] ${className}`}
+            className={`flex flex-col items-center justify-center gap-3 text-center text-red-600 min-h-auto ${className}`}
         >
             <p className="text-sm sm:text-base">{message}</p>
             {onRetry && (

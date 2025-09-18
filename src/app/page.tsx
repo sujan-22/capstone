@@ -1,7 +1,6 @@
 import Phone from "@/components/utilities/phone";
 import { Check } from "lucide-react";
-import { Icons } from "@/components/utilities/icons";
-import FeaturedDesigns from "@/components/case-design/featured-designs";
+import RenderFeaturedDesigns from "@/components/case-design/render-featured-designs";
 
 export default function Home() {
     return (
@@ -85,23 +84,8 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-
             {/* featured designs*/}
-            <section className="py-16">
-                <div className="flex flex-col items-center gap-16 sm:gap-32">
-                    <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
-                        <h2 className="order-1 tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl">
-                            Explore our{" "}
-                            <span className="relative px-2">
-                                featured{" "}
-                                <Icons.underlineDashed className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-6 text-blue-600" />
-                            </span>{" "}
-                            designs
-                        </h2>
-                    </div>
-                    <FeaturedDesigns />
-                </div>
-            </section>
+            <RenderFeaturedDesigns />=
         </div>
     );
 }

@@ -33,14 +33,16 @@ const Phone = ({
                 alt={altText ? altText : "phone image"}
             />
 
-            <div className="absolute -z-10 inset-0">
-                {/*  eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    className="object-cover min-w-full min-h-full"
-                    src={imgSrc}
-                    alt={altText ? altText : "overlaying phone image"}
-                />
-            </div>
+            {imgSrc && (
+                <div className="absolute -z-10 inset-0">
+                    {/*  eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        className="object-cover min-w-full min-h-full"
+                        src={imgSrc}
+                        alt={altText ? altText : "overlaying phone image"}
+                    />
+                </div>
+            )}
         </div>
     );
 };

@@ -4,51 +4,26 @@ import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import { getOrdersByUser } from "../actions/actions";
 import OrderOverview from "./orders-overview";
-import LoadingMessage from "@/components/utilities/loading";
 import ErrorMessage from "@/components/utilities/error";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import OrderCardSkeleton from "./skeleton/order-skeleton";
 
-const OrdersPage = ({ userId }: { userId: string }) => {
+interface OrdersPageProps {
+    userId: string;
+}
+
+const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
     const { data, isLoading, isError, refetch } = useQuery({
-        queryKey: ["get-orders"],
+        queryKey: ["get-orders", userId],
         queryFn: async () => await getOrdersByUser(userId),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,
+        enabled: !!userId,
     });
 
-    if (isLoading) {
-        return <LoadingMessage message="Loading orders..." size={24} />;
-    }
-
-    if (isError)
-        return (
-            <ErrorMessage
-                message="Failed to load orders."
-                onRetry={() => refetch()}
-            />
-        );
-    const orders = data?.orders;
-
-    if (!orders?.length)
-        return (
-            <div
-                className="w-full flex flex-col items-center gap-y-4"
-                data-testid="no-orders-container"
-            >
-                <h2 className="text-large-semi">Nothing to see here</h2>
-                <p className="text-base-regular">
-                    You don&apos;t have any orders yet, let us change that{" "}
-                    {":)"}
-                </p>
-                <div className="mt-4">
-                    <Link href="/" passHref>
-                        <Button>Continue shopping</Button>
-                    </Link>
-                </div>
-            </div>
-        );
+    const orders = data?.orders ?? [];
 
     return (
         <div className="space-y-6">
@@ -60,7 +35,42 @@ const OrdersPage = ({ userId }: { userId: string }) => {
             </div>
 
             <Separator />
-            <OrderOverview orders={orders} />
+            {isLoading && (
+                <section className="flex flex-col gap-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="flex flex-col gap-y-6 sm:gap-y-8 w-full"
+                        >
+                            <OrderCardSkeleton />
+                            <Separator />
+                        </div>
+                    ))}
+                </section>
+            )}
+            {isError && (
+                <ErrorMessage
+                    message="Failed to load orders."
+                    onRetry={() => refetch()}
+                />
+            )}
+            {!isLoading && !isError && orders.length === 0 && (
+                <div className="w-full flex flex-col items-center gap-y-4">
+                    <h2 className="text-large-semi">Nothing to see here</h2>
+                    <p className="text-base-regular">
+                        You don&apos;t have any orders yet, let us change that{" "}
+                        {":)"}
+                    </p>
+                    <div className="mt-4">
+                        <Link href="/" passHref>
+                            <Button>Continue shopping</Button>
+                        </Link>
+                    </div>
+                </div>
+            )}
+            {!isLoading && !isError && orders.length > 0 && (
+                <OrderOverview orders={orders} />
+            )}
         </div>
     );
 };

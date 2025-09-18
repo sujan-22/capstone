@@ -37,7 +37,7 @@ const OrderCard = ({ order }: { order: IUserOrderWithDesign }) => {
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
                     {/* Phone preview */}
                     <div className="flex-shrink-0 mx-auto sm:mx-0">
-                        <div className="relative w-28 sm:w-32 md:w-36 h-auto rounded-md bg-muted overflow-hidden flex items-center justify-center">
+                        <div className="relative w-44 h-auto rounded-md bg-muted overflow-hidden flex items-center justify-center">
                             <Phone
                                 imgSrc={order.design.imgSrc}
                                 altText={order.design.caseName}

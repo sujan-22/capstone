@@ -1,20 +1,20 @@
 "use server";
 
 import { NEXT_PUBLIC_URL } from "@/lib/constants";
-import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
+import { IFavoriteDesign } from "@/lib/types/user-favorite-designs.types";
 
-export interface OrdersResponse {
+export interface FavoriteDesignsResponse {
     success: boolean;
-    orders: IUserOrderWithDesign[];
+    designs: IFavoriteDesign[];
     error?: string;
 }
 
-export const getOrdersByUser = async (
+export const getFavoriteDesignsByUser = async (
     userId: string
-): Promise<OrdersResponse> => {
+): Promise<FavoriteDesignsResponse> => {
     try {
         const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/account/get-orders-by-user-id`,
+            `${NEXT_PUBLIC_URL}/api/account/get-favorite-designs`,
             {
                 method: "GET",
                 headers: {
@@ -24,18 +24,18 @@ export const getOrdersByUser = async (
             }
         );
 
-        if (!res.ok) throw new Error("Failed to fetch orders");
+        if (!res.ok) throw new Error("Failed to fetch favorite designs");
 
-        const data: { orders: IUserOrderWithDesign[] } = await res.json();
+        const data: { favoriteDesigns: IFavoriteDesign[] } = await res.json();
 
         return {
             success: true,
-            orders: data.orders,
+            designs: data.favoriteDesigns,
         };
     } catch (err) {
         return {
             success: false,
-            orders: [],
+            designs: [],
             error: err instanceof Error ? err.message : "Unknown error",
         };
     }

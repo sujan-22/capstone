@@ -13,13 +13,16 @@ export const getUserInfo = async (
     userId: string
 ): Promise<UserInfoResponse> => {
     try {
-        const res = await fetch(`${NEXT_PUBLIC_URL}/api/get-account-info`, {
-            method: "GET",
-            headers: {
-                "x-user-id": userId,
-            },
-            cache: "default",
-        });
+        const res = await fetch(
+            `${NEXT_PUBLIC_URL}/api/account/get-account-info`,
+            {
+                method: "GET",
+                headers: {
+                    "x-user-id": userId,
+                },
+                cache: "default",
+            }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch user info");
 

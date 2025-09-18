@@ -1,4 +1,4 @@
-import { ICaseDesignProps } from "@/components/case-design/case_design";
+import { ICaseDesignProps } from "@/components/case-design/case-design";
 import { pool } from "@/lib/database/db";
 import { NextResponse } from "next/server";
 
