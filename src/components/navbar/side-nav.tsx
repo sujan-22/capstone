@@ -64,7 +64,12 @@ const SideMenu = ({ user }: SideMenuProps) => {
             </SheetTrigger>
             <SheetContent
                 side={"right"}
-                className="flex w-full flex-col sm:max-w-sm z-[1000000] h-full"
+                className="fixed right-0 top-0 bottom-0 w-full sm:max-w-sm z-[1000000] flex flex-col full-viewport debug-viewport"
+                style={{
+                    height: "100dvh",
+                    minHeight: "-webkit-fill-available",
+                    paddingBottom: "env(safe-area-inset-bottom)",
+                }}
             >
                 <SheetTitle className="sr-only">Main menu</SheetTitle>
                 <div className="flex flex-col h-full justify-between p-2">
