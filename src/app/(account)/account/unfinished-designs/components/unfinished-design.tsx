@@ -6,10 +6,7 @@ import Link from "next/link";
 import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IUnfinishedDesign } from "@/lib/types/unfinished-designs.types";
-import {
-    dismissUnfinishedDesign,
-    deleteUnfinishedDesign,
-} from "../actions/actions";
+import { deleteUnfinishedDesign } from "../actions/actions";
 
 interface Props {
     design: IUnfinishedDesign;
@@ -18,11 +15,6 @@ interface Props {
 
 const UnfinishedDesign = ({ design, userId }: Props) => {
     const queryClient = useQueryClient();
-
-    const dismissMutation = useMutation({
-        mutationFn: () => dismissUnfinishedDesign(userId, design.id),
-        onSettled: () => queryClient.invalidateQueries(),
-    });
 
     const deleteMutation = useMutation({
         mutationFn: () => deleteUnfinishedDesign(userId, design.id),
@@ -72,16 +64,6 @@ const UnfinishedDesign = ({ design, userId }: Props) => {
                 </div>
 
                 <div className="mt-auto flex flex-wrap gap-2">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => dismissMutation.mutate()}
-                        disabled={dismissMutation.isPending}
-                        isLoading={dismissMutation.isPending}
-                    >
-                        Dismiss Reminder
-                    </Button>
-
                     <Link href={`/customize/${design.id}`} passHref>
                         <Button size="sm">Continue Customizing</Button>
                     </Link>

@@ -1,4 +1,3 @@
-// api/favorite/route.ts
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 
@@ -20,16 +19,27 @@ export async function POST(req: Request) {
     const client = await pool.connect();
 
     try {
-        // Fetch current favorites
+        const q = `
+      UPDATE case_design
+      SET favorited_by_user_ids = 
+        CASE 
+          WHEN $2 = ANY(favorited_by_user_ids) THEN array_remove(favorited_by_user_ids, $2)
+          ELSE array_append(favorited_by_user_ids, $2)
+        END,
+        total_favorites = array_length(
+          CASE 
+            WHEN $2 = ANY(favorited_by_user_ids) THEN array_remove(favorited_by_user_ids, $2)
+            ELSE array_append(favorited_by_user_ids, $2)
+          END, 1
+        )
+      WHERE id = $1
+      RETURNING favorited_by_user_ids, total_favorites;
+    `;
+
         const { rows } = await client.query<{
             favorited_by_user_ids: string[];
             total_favorites: number;
-        }>(
-            `SELECT favorited_by_user_ids, total_favorites
-       FROM case_design
-       WHERE id = $1`,
-            [caseDesignId]
-        );
+        }>(q, [caseDesignId, userId]);
 
         if (!rows.length) {
             return NextResponse.json(
@@ -38,29 +48,11 @@ export async function POST(req: Request) {
             );
         }
 
-        const { favorited_by_user_ids } = rows[0];
-
-        let updatedFavorites: string[];
-        let action: "added" | "removed";
-
-        if (favorited_by_user_ids.includes(userId)) {
-            updatedFavorites = favorited_by_user_ids.filter(
-                (id) => id !== userId
-            );
-            action = "removed";
-        } else {
-            updatedFavorites = [...favorited_by_user_ids, userId];
-            action = "added";
-        }
-
-        const totalFavorites = updatedFavorites.length;
-        await client.query(
-            `UPDATE case_design
-       SET favorited_by_user_ids = $1,
-           total_favorites = $2
-       WHERE id = $3`,
-            [updatedFavorites, totalFavorites, caseDesignId]
-        );
+        const updatedFavorites = rows[0].favorited_by_user_ids;
+        const totalFavorites = rows[0].total_favorites;
+        const action: "added" | "removed" = updatedFavorites.includes(userId)
+            ? "added"
+            : "removed";
 
         return NextResponse.json({ success: true, action, totalFavorites });
     } catch (error) {

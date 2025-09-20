@@ -20,15 +20,15 @@ export async function GET(req: NextRequest) {
                   o.user_id,
                   o.order_number,
                   o.case_design_id,
-                  o.subtotal,
+                  o.sub_total,
                   o.tax,
                   o.total_amount,
                   o.order_status,
                   o.tracking_number,
                   o.billing_address_id,
                   o.shipping_address_id,
-                  o.createdat AS order_createdat,
-                  o.updatedat AS order_updatedat,
+                  o.created_at AS order_createdat,
+                  o.updated_at AS order_updatedat,
 
                   -- Case design info
                   cd.id AS design_id,
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
                 LEFT JOIN billing_address ba ON o.billing_address_id = ba.id
                 LEFT JOIN shipping_address sa ON o.shipping_address_id = sa.id
                 WHERE o.user_id = $1
-                ORDER BY o.createdat DESC
+                ORDER BY o.created_at DESC
             `;
 
             const { rows } = await client.query<OrderRow>(q, [userId]);
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
                 id: String(r.order_id),
                 userId: String(r.user_id),
                 orderNumber: r.order_number,
-                subtotal: Number(r.subtotal),
+                subtotal: Number(r.sub_total),
                 tax: Number(r.tax),
                 totalAmount: Number(r.total_amount),
                 orderStatus: String(r.order_status),

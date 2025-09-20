@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
-import { IReminder, ReminderRow } from "@/lib/types/reminders.types";
+import { IReminder, IReminderRow } from "@/lib/types/reminders.types";
 
 export async function GET(req: NextRequest) {
     try {
@@ -15,58 +15,61 @@ export async function GET(req: NextRequest) {
         const client = await pool.connect();
         try {
             const q = `
-        SELECT
-          cd.id,
-          cd.user_id,
-          cd.name AS case_name,
-          COALESCE(cd.image, gi.url) AS imgsrc,
-          pm.model_name AS modelname,
-          cc.name AS color,
-          cm.name AS material,
-          cf.name AS finish,
-          cd.last_reminder_sent_at,
-          cd.reminder_count,
-          cd.createdat,
-          cd.has_dismissed,
-          (COALESCE(cd.last_reminder_sent_at, cd.createdat) + (COALESCE(cd.remind_after_days, 1) * INTERVAL '1 day')) AS next_reminder_at
-        FROM case_design cd
-        JOIN phone_model pm ON cd.phone_model_id = pm.id
-        JOIN case_color cc ON cd.case_color_id = cc.id
-        JOIN case_material cm ON cd.case_material_id = cm.id
-        JOIN case_finish cf ON cd.case_finish_id = cf.id
-        LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
-        WHERE
-          cd.user_id = $1
-          AND cd.unfinished = true
-          AND cd.has_dismissed = false
-          AND (COALESCE(cd.last_reminder_sent_at, cd.createdat) + (COALESCE(cd.remind_after_days, 1) * INTERVAL '1 day')) <= now()
-          AND cd.reminder_count > 0
-          AND cd.reminder_count < 4
-        ORDER BY last_reminder_sent_at DESC
-      `;
+                SELECT
+                  r.id AS reminder_id,
+                  r.user_id,
+                  r.case_design_id,
+                  r.status,
+                  r.reminder_sent_count,
+                  r.last_sent_at,
+                  r.dismissed_at,
+                  r.created_at,
+                  r.updated_at,
 
-            const { rows } = await client.query<ReminderRow>(q, [userId]);
+                  cd.name AS case_name,
+                  COALESCE(cd.image, gi.url) AS imgsrc,
+                  pm.model_name AS modelname,
+                  cc.name AS color,
+                  cm.name AS material,
+                  cf.name AS finish
+                FROM reminders r
+                JOIN case_design cd ON r.case_design_id = cd.id
+                JOIN phone_model pm ON cd.phone_model_id = pm.id
+                JOIN case_color cc ON cd.case_color_id = cc.id
+                JOIN case_material cm ON cd.case_material_id = cm.id
+                JOIN case_finish cf ON cd.case_finish_id = cf.id
+                LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
+                WHERE r.user_id = $1
+                ORDER BY r.updated_at DESC
+            `;
+
+            const { rows } = await client.query<IReminderRow>(q, [userId]);
 
             const reminders: IReminder[] = rows.map((r) => ({
-                id: String(r.id),
+                id: String(r.reminder_id),
                 userId: String(r.user_id),
-                caseName: String(r.case_name),
-                imgSrc: r.imgsrc ?? null,
-                modelName: String(r.modelname),
-                color: String(r.color),
-                material: String(r.material),
-                finish: String(r.finish),
-                hasDismissed: r.has_dismissed,
-                lastReminderSentAt: r.last_reminder_sent_at
-                    ? new Date(r.last_reminder_sent_at).toISOString()
+                caseDesignId: String(r.case_design_id),
+                status: r.status,
+                reminderSentCount: Number(r.reminder_sent_count ?? 0),
+                lastSentAt: r.last_sent_at
+                    ? new Date(r.last_sent_at).toISOString()
                     : null,
-                reminderCount: Number(r.reminder_count ?? 0),
-                createdAt: r.createdat
-                    ? new Date(r.createdat).toISOString()
+                dismissedAt: r.dismissed_at
+                    ? new Date(r.dismissed_at).toISOString()
+                    : null,
+                createdAt: r.created_at
+                    ? new Date(r.created_at).toISOString()
                     : "",
-                nextReminderAt: r.next_reminder_at
-                    ? new Date(r.next_reminder_at).toISOString()
-                    : null,
+                updatedAt: r.updated_at
+                    ? new Date(r.updated_at).toISOString()
+                    : "",
+
+                caseName: r.case_name,
+                imgSrc: r.imgsrc ?? null,
+                modelName: r.modelname,
+                color: r.color,
+                material: r.material,
+                finish: r.finish,
             }));
 
             return NextResponse.json({ reminders }, { status: 200 });

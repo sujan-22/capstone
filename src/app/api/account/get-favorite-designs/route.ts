@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
                 JOIN case_finish cf ON cd.case_finish_id = cf.id
                 LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
                 WHERE cd.favorited_by_user_ids @> ARRAY[$1]::text[]
-                ORDER BY cd.createdat DESC
+                ORDER BY cd.created_at DESC
             `;
 
             const { rows } = await client.query<FavoriteDesignRow>(q, [userId]);

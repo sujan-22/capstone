@@ -5,10 +5,12 @@ export async function sendEmail({
     to,
     subject,
     text,
+    html,
 }: {
     to: string;
     subject: string;
     text: string;
+    html?: string;
 }) {
     try {
         const data = await transporter.sendMail({
@@ -16,6 +18,7 @@ export async function sendEmail({
             to: to.toLowerCase().trim(),
             subject: subject.trim(),
             text: text,
+            html,
         });
 
         return { success: true, messageId: data.messageId };

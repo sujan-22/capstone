@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import React from "react";
 import { dismissReminder } from "../actions/actions";
+import { formatDate } from "@/lib/utils";
 
 interface Props {
     reminder: IReminder;
@@ -60,10 +61,8 @@ const Reminder = ({ reminder, userId }: Props) => {
 
                     <p className="text-sm">
                         <span className="font-medium">Reminder sent on:</span>{" "}
-                        {reminder.lastReminderSentAt
-                            ? new Date(
-                                  reminder.lastReminderSentAt
-                              ).toLocaleString()
+                        {reminder.lastSentAt
+                            ? formatDate(reminder.lastSentAt)
                             : "N/A"}
                     </p>
                 </div>

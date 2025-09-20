@@ -32,7 +32,7 @@ export type OrderRow = {
     order_id: string;
     user_id: string;
     order_number: string;
-    subtotal: number;
+    sub_total: number;
     tax: number;
     total_amount: number;
     order_status: string;
