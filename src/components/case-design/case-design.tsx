@@ -48,7 +48,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
             <div className="flex justify-center">
                 <Phone imgSrc={imgSrc} altText={altText ?? caseName} />
             </div>
-            <h2 className="mt-4 text-left text-xl font-semibold leading-tight tracking-tight line-clamp-2 h-14">
+            <h2 className="mt-4 text-left text-md font-semibold line-clamp-2 h-14">
                 {caseName}
             </h2>
             <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">

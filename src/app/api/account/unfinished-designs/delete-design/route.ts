@@ -37,14 +37,12 @@ export async function POST(req: NextRequest) {
         try {
             await client.query("BEGIN");
 
-            const { rows } = await client.query<{
-                gallery_image_id: string | null;
-            }>(
-                `SELECT gallery_image_id FROM case_design WHERE id = $1 AND user_id = $2`,
+            const { rowCount } = await client.query(
+                `DELETE FROM case_design WHERE id = $1 AND user_id = $2`,
                 [designId, userId]
             );
 
-            if (rows.length === 0) {
+            if (rowCount === 0) {
                 await client.query("ROLLBACK");
                 return NextResponse.json<DeleteDesignResponse>(
                     {
@@ -53,19 +51,6 @@ export async function POST(req: NextRequest) {
                     },
                     { status: 404 }
                 );
-            }
-
-            const galleryImageId = rows[0].gallery_image_id;
-
-            await client.query(
-                `DELETE FROM case_design WHERE id = $1 AND user_id = $2`,
-                [designId, userId]
-            );
-
-            if (galleryImageId) {
-                await client.query(`DELETE FROM gallery_image WHERE id = $1`, [
-                    galleryImageId,
-                ]);
             }
 
             await client.query("COMMIT");

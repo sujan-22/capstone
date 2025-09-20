@@ -1,7 +1,6 @@
 import Phone from "@/components/utilities/phone";
 import { Check } from "lucide-react";
 import RenderFeaturedDesigns from "@/components/case-design/render-featured-designs";
-
 export default function Home() {
     return (
         <div>
@@ -85,7 +84,7 @@ export default function Home() {
                 </div>
             </section>
             {/* featured designs*/}
-            <RenderFeaturedDesigns />=
+            <RenderFeaturedDesigns />
         </div>
     );
 }

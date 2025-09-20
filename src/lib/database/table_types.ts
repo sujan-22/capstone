@@ -116,19 +116,19 @@ export interface CaseColor {
     id: string;
     name: string;
     hex: string;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 export interface CaseColorInput {
     id?: string;
     name: string;
     hex: string;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 const case_color = {
     tableName: "case_color",
-    columns: ["id", "name", "hex", "createdat", "updatedat"],
+    columns: ["id", "name", "hex", "created_at", "updated_at"],
     requiredForInsert: ["name", "hex"],
     primaryKey: "id",
     foreignKeys: {},
@@ -155,14 +155,10 @@ export interface CaseDesign {
     name: string;
     image: string | null;
     gallery_image_id: string | null;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
     last_reminder_sent_at: Date | null;
-    reminder_count: number;
-    has_dismissed: boolean;
-    remind_after_days: number | null;
     unfinished: boolean;
-    dismissed_at: Date | null;
 }
 export interface CaseDesignInput {
     id?: string;
@@ -182,14 +178,10 @@ export interface CaseDesignInput {
     name: string;
     image?: string | null;
     gallery_image_id?: string | null;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
     last_reminder_sent_at?: Date | null;
-    reminder_count?: number;
-    has_dismissed?: boolean;
-    remind_after_days?: number | null;
     unfinished?: boolean;
-    dismissed_at?: Date | null;
 }
 const case_design = {
     tableName: "case_design",
@@ -211,14 +203,10 @@ const case_design = {
         "name",
         "image",
         "gallery_image_id",
-        "createdat",
-        "updatedat",
+        "created_at",
+        "updated_at",
         "last_reminder_sent_at",
-        "reminder_count",
-        "has_dismissed",
-        "remind_after_days",
         "unfinished",
-        "dismissed_at",
     ],
     requiredForInsert: [
         "user_id",
@@ -273,20 +261,20 @@ export interface CaseFinish {
     name: string;
     price: number;
     description: string | null;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 export interface CaseFinishInput {
     id?: string;
     name: string;
     price: number;
     description?: string | null;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 const case_finish = {
     tableName: "case_finish",
-    columns: ["id", "name", "price", "description", "createdat", "updatedat"],
+    columns: ["id", "name", "price", "description", "created_at", "updated_at"],
     requiredForInsert: ["name", "price"],
     primaryKey: "id",
     foreignKeys: {},
@@ -300,20 +288,20 @@ export interface CaseMaterial {
     name: string;
     price: number;
     description: string | null;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 export interface CaseMaterialInput {
     id?: string;
     name: string;
     price: number;
     description?: string | null;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 const case_material = {
     tableName: "case_material",
-    columns: ["id", "name", "price", "description", "createdat", "updatedat"],
+    columns: ["id", "name", "price", "description", "created_at", "updated_at"],
     requiredForInsert: ["name", "price"],
     primaryKey: "id",
     foreignKeys: {},
@@ -325,18 +313,18 @@ const case_material = {
 export interface GalleryImage {
     id: string;
     url: string;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 export interface GalleryImageInput {
     id?: string;
     url: string;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 const gallery_image = {
     tableName: "gallery_image",
-    columns: ["id", "url", "createdat", "updatedat"],
+    columns: ["id", "url", "created_at", "updated_at"],
     requiredForInsert: ["url"],
     primaryKey: "id",
     foreignKeys: {},
@@ -350,30 +338,30 @@ export interface Order {
     user_id: string;
     order_number: string;
     case_design_id: string;
-    subtotal: number;
+    sub_total: number;
     tax: number;
     total_amount: number;
     order_status: string;
     tracking_number: string | null;
     billing_address_id: string;
     shipping_address_id: string;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 export interface OrderInput {
     id?: string;
     user_id: string;
     order_number?: string;
     case_design_id: string;
-    subtotal: number;
+    sub_total: number;
     tax: number;
     total_amount: number;
     order_status: string;
     tracking_number?: string | null;
     billing_address_id: string;
     shipping_address_id: string;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 const order = {
     tableName: "order",
@@ -382,20 +370,20 @@ const order = {
         "user_id",
         "order_number",
         "case_design_id",
-        "subtotal",
+        "sub_total",
         "tax",
         "total_amount",
         "order_status",
         "tracking_number",
         "billing_address_id",
         "shipping_address_id",
-        "createdat",
-        "updatedat",
+        "created_at",
+        "updated_at",
     ],
     requiredForInsert: [
         "user_id",
         "case_design_id",
-        "subtotal",
+        "sub_total",
         "tax",
         "total_amount",
         "order_status",
@@ -434,24 +422,78 @@ export interface PhoneModel {
     id: string;
     model_name: string;
     model_brand: string | null;
-    createdat: Date;
-    updatedat: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 export interface PhoneModelInput {
     id?: string;
     model_name: string;
     model_brand?: string | null;
-    createdat?: Date;
-    updatedat?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }
 const phone_model = {
     tableName: "phone_model",
-    columns: ["id", "model_name", "model_brand", "createdat", "updatedat"],
+    columns: ["id", "model_name", "model_brand", "created_at", "updated_at"],
     requiredForInsert: ["model_name"],
     primaryKey: "id",
     foreignKeys: {},
     $type: null as unknown as PhoneModel,
     $input: null as unknown as PhoneModelInput,
+} as const;
+
+// Table reminders
+export interface Reminders {
+    id: string;
+    user_id: string;
+    case_design_id: string;
+    status: string;
+    reminder_sent_count: number;
+    last_sent_at: Date | null;
+    dismissed_at: Date | null;
+    created_at: Date;
+    updated_at: Date;
+}
+export interface RemindersInput {
+    id?: string;
+    user_id: string;
+    case_design_id: string;
+    status?: string;
+    reminder_sent_count?: number;
+    last_sent_at?: Date | null;
+    dismissed_at?: Date | null;
+    created_at?: Date;
+    updated_at?: Date;
+}
+const reminders = {
+    tableName: "reminders",
+    columns: [
+        "id",
+        "user_id",
+        "case_design_id",
+        "status",
+        "reminder_sent_count",
+        "last_sent_at",
+        "dismissed_at",
+        "created_at",
+        "updated_at",
+    ],
+    requiredForInsert: ["user_id", "case_design_id"],
+    primaryKey: "id",
+    foreignKeys: {
+        user_id: {
+            table: "user",
+            column: "id",
+            $type: null as unknown as User,
+        },
+        case_design_id: {
+            table: "case_design",
+            column: "id",
+            $type: null as unknown as CaseDesign,
+        },
+    },
+    $type: null as unknown as Reminders,
+    $input: null as unknown as RemindersInput,
 } as const;
 
 // Table session
@@ -671,6 +713,10 @@ export interface TableTypes {
         select: PhoneModel;
         input: PhoneModelInput;
     };
+    reminders: {
+        select: Reminders;
+        input: RemindersInput;
+    };
     session: {
         select: Session;
         input: SessionInput;
@@ -699,6 +745,7 @@ export const tables = {
     gallery_image,
     order,
     phone_model,
+    reminders,
     session,
     shipping_address,
     user,

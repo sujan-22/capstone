@@ -21,9 +21,11 @@ export type UnfinishedDesignRow = {
     color: string;
     material: string;
     finish: string;
-    createdat: string;
-    updatedat: string;
-    reminder_count: number;
-    last_reminder_sent_at: string | null;
-    has_dismissed: boolean;
+    created_at: string;
+    updated_at: string;
+    reminder_id: string | null;
+    reminder_status: string | null;
+    reminder_sent_count: number | null;
+    last_sent_at: string | null;
+    dismissed_at: string | null;
 };

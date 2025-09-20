@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { formatPrice } from "@/lib/utils";
+import { formatDate, formatPrice } from "@/lib/utils";
 import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
 import Phone from "@/components/utilities/phone";
 
@@ -23,7 +23,7 @@ const OrderCard = ({ order }: { order: IUserOrderWithDesign }) => {
                 <div className="flex flex-wrap items-center gap-x-4">
                     <span>
                         <span className="font-medium">Date:</span>{" "}
-                        {new Date(order.createdAt).toDateString()}
+                        {formatDate(order.createdAt)}
                     </span>
                     <span>
                         <span className="font-medium">Total:</span>{" "}

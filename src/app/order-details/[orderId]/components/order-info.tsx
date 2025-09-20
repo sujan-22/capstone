@@ -1,4 +1,5 @@
 import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
+import { formatDate } from "@/lib/utils";
 import React from "react";
 
 const OrderInfo = ({ order }: { order: IUserOrderWithDesign }) => {
@@ -7,7 +8,7 @@ const OrderInfo = ({ order }: { order: IUserOrderWithDesign }) => {
             <p>
                 Order Date:{" "}
                 <span className=" text-muted-foreground">
-                    {new Date(order.createdAt).toDateString()}
+                    {formatDate(order.createdAt)}
                 </span>
             </p>
             <p className="mt-2">
