@@ -16,9 +16,19 @@ import { useRouter } from "next/navigation";
 
 export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     const router = useRouter();
-    const MY_ACCOUNT_URL = [
+    const MY_ACCOUNT_LINKS = [
         { label: "Account", href: "/account" },
+        { label: "Profile", href: "/account/profile" },
         { label: "Orders", href: "/account/orders" },
+    ];
+
+    const USER_MENU_LINKS = [
+        { label: "Image Gallery", href: "/image-gallery" },
+        { label: "Featured Designs", href: "/featured-designs" },
+    ];
+
+    const ADMIN_DASHBOARD_LINKS = [
+        { label: "Admin Dashboard", href: "/admin-dashboard" },
     ];
 
     const { signOut } = useSignOut();
@@ -32,7 +42,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
             <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                    {MY_ACCOUNT_URL.map((item) => {
+                    {MY_ACCOUNT_LINKS.map((item) => {
                         return (
                             <DropdownMenuItem key={item.href}>
                                 <Link href={item.href}>{item.label}</Link>
@@ -41,7 +51,46 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                     })}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+
+                <DropdownMenuLabel className="sm:hidden">
+                    Actions
+                </DropdownMenuLabel>
+                <DropdownMenuItem className="sm:hidden">
+                    <Link href="/configure/upload">Create Case</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="sm:hidden" />
+
+                <DropdownMenuLabel>Explore</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                    {USER_MENU_LINKS.map((item) => {
+                        return (
+                            <DropdownMenuItem key={item.href}>
+                                <Link href={item.href}>{item.label}</Link>
+                            </DropdownMenuItem>
+                        );
+                    })}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+
+                {user?.role === "admin" && (
+                    <>
+                        <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                        <DropdownMenuGroup>
+                            {ADMIN_DASHBOARD_LINKS.map((item) => {
+                                return (
+                                    <DropdownMenuItem key={item.href}>
+                                        <Link href={item.href}>
+                                            {item.label}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                );
+                            })}
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                    </>
+                )}
                 <DropdownMenuItem
+                    className="hover:cursor-pointer"
                     onClick={async () => {
                         if (user) {
                             await signOut();

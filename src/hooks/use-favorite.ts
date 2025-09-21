@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useToast } from "./use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UseFavoriteProps {
     caseDesignId: string;
@@ -13,6 +14,7 @@ export function useFavorite({
     const [isFavorited, setIsFavorited] = useState(initialFavorited);
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
 
     const toggleFavorite = useCallback(
         async (userId: string) => {
@@ -52,6 +54,10 @@ export function useFavorite({
                         : "This design has been removed from your favorites.",
                     variant: "default",
                 });
+
+                queryClient.invalidateQueries({
+                    queryKey: ["get-favorite-designs"],
+                });
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (err) {
                 setIsFavorited(prevState);
@@ -65,7 +71,7 @@ export function useFavorite({
                 setLoading(false);
             }
         },
-        [caseDesignId, isFavorited, loading, toast]
+        [caseDesignId, isFavorited, loading, toast, queryClient]
     );
 
     return { isFavorited, toggleFavorite, loading };

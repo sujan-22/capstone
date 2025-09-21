@@ -8,7 +8,7 @@ import { Icons } from "../utilities/icons";
 
 export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
     const { data } = useQuery({
-        queryKey: ["get-favorite-designs", user?.id],
+        queryKey: ["get-featured-designs", user?.id],
         queryFn: async () => await getFeaturedDesigns(user?.id),
         retry: true,
         retryDelay: 500,
