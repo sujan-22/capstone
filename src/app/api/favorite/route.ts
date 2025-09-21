@@ -20,21 +20,21 @@ export async function POST(req: Request) {
 
     try {
         const q = `
-      UPDATE case_design
-      SET favorited_by_user_ids = 
-        CASE 
-          WHEN $2 = ANY(favorited_by_user_ids) THEN array_remove(favorited_by_user_ids, $2)
-          ELSE array_append(favorited_by_user_ids, $2)
-        END,
-        total_favorites = array_length(
-          CASE 
-            WHEN $2 = ANY(favorited_by_user_ids) THEN array_remove(favorited_by_user_ids, $2)
-            ELSE array_append(favorited_by_user_ids, $2)
-          END, 1
-        )
-      WHERE id = $1
-      RETURNING favorited_by_user_ids, total_favorites;
-    `;
+  UPDATE case_design
+  SET favorited_by_user_ids = 
+    CASE 
+      WHEN $2 = ANY(favorited_by_user_ids) THEN array_remove(favorited_by_user_ids, $2)
+      ELSE array_append(favorited_by_user_ids, $2)
+    END,
+    total_favorites = COALESCE(array_length(
+      CASE 
+        WHEN $2 = ANY(favorited_by_user_ids) THEN array_remove(favorited_by_user_ids, $2)
+        ELSE array_append(favorited_by_user_ids, $2)
+      END, 1
+    ), 0)
+  WHERE id = $1
+  RETURNING favorited_by_user_ids, total_favorites;
+`;
 
         const { rows } = await client.query<{
             favorited_by_user_ids: string[];

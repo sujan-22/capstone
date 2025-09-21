@@ -1,22 +1,13 @@
 "use client";
 
-import { ISession, IUser } from "../../../auth-client";
+import { IUser } from "../../../auth-client";
 import MaxWidthWrapper from "../utilities/max-width-wrapper";
-import Link from "next/link";
 import Logo from "../utilities/logo";
 import { Button } from "../ui/button";
 import { FaArrowRightLong } from "react-icons/fa6";
-import SideMenu from "./side-nav";
 import { UserDropdown } from "./user-dropdown";
 
-const Navbar = ({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    session,
-    user,
-}: {
-    session: ISession | null;
-    user: IUser | null | undefined;
-}) => {
+const Navbar = ({ user }: { user: IUser | null | undefined }) => {
     return (
         <div className="sticky top-0 inset-x-0 z-1000">
             <div
@@ -32,27 +23,6 @@ const Navbar = ({
                                 <Logo />
                             </div>
 
-                            <div className="max-[950px]:hidden flex items-center gap-6">
-                                <Link
-                                    className="hover:underline underline-offset-4"
-                                    href="/admin-dashboard"
-                                >
-                                    Admin Dashboard
-                                </Link>
-                                <Link
-                                    className="hover:underline underline-offset-4"
-                                    href="/image-gallery"
-                                >
-                                    Image Gallery
-                                </Link>
-                                <Link
-                                    className="hover:underline underline-offset-4"
-                                    href="/featured-designs"
-                                >
-                                    Featured Designs
-                                </Link>
-                            </div>
-
                             <div className="flex items-center gap-4 flex-1 basis-0 justify-end">
                                 <Button
                                     className="hidden sm:inline-flex"
@@ -62,7 +32,6 @@ const Navbar = ({
                                     <FaArrowRightLong className="ml-1" />
                                 </Button>
                                 <UserDropdown user={user} />
-                                <SideMenu user={user} />
                             </div>
                         </nav>
                     </MaxWidthWrapper>

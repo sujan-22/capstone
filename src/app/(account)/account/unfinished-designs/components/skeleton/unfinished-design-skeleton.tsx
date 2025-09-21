@@ -3,7 +3,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
 import Phone from "@/components/utilities/phone";
 
-const UnfinishedDesignSkeleton = () => {
+const UnfinishedDesignSkeleton = ({
+    shouldHideThirdButton,
+}: {
+    shouldHideThirdButton?: boolean;
+}) => {
     return (
         <div className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm">
             <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
@@ -23,7 +27,9 @@ const UnfinishedDesignSkeleton = () => {
                 <div className="mt-auto flex flex-wrap gap-2">
                     <Skeleton className="h-8 w-full sm:w-24 rounded-md" />
                     <Skeleton className="h-8 w-full sm:w-40 rounded-md" />
-                    <Skeleton className="h-8 w-full sm:w-40 rounded-md" />
+                    {!shouldHideThirdButton && (
+                        <Skeleton className="h-8 w-full sm:w-40 rounded-md" />
+                    )}
                 </div>
             </div>
         </div>

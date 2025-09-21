@@ -84,9 +84,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                                 return;
                             }
                             toggleFavorite(userId);
-                            queryClient.invalidateQueries({
-                                queryKey: ["get-favorite-designs"],
-                            });
+                            queryClient.invalidateQueries();
                         }}
                         aria-label={`Favorite ${caseName}`}
                         disabled={loading}

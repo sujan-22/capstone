@@ -25,52 +25,62 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
 
     const orders = data?.orders ?? [];
 
+    const renderContent = () => {
+        if (isLoading) {
+            return Array.from({ length: 4 }).map((_, i) => (
+                <OrderCardSkeleton key={i} />
+            ));
+        }
+
+        if (isError) {
+            return (
+                <ErrorMessage
+                    message="Unable to load your orders."
+                    onRetry={() => refetch()}
+                />
+            );
+        }
+
+        if (!data?.success) {
+            return (
+                <ErrorMessage
+                    message={data?.error ?? "Unable to load your orders."}
+                    onRetry={() => refetch()}
+                />
+            );
+        }
+
+        if (!orders.length) {
+            return (
+                <div className="w-full flex flex-col items-center gap-4 col-span-full text-center">
+                    <h2 className="text-2xl font-semibold">No orders yet</h2>
+                    <p className="text-base text-muted-foreground max-w-md">
+                        You don&apos;t have any orders yet. Start shopping to
+                        place your first order.
+                    </p>
+                    <Link href="/" passHref>
+                        <Button className="mt-2">Continue shopping</Button>
+                    </Link>
+                </div>
+            );
+        }
+
+        return <OrderOverview orders={orders} />;
+    };
+
     return (
         <div className="space-y-6">
-            <div>
-                <h3 className="text-lg">Orders</h3>
-                <p className="text-sm text-muted-foreground">
-                    View your previous orders and their status.
+            <div className="text-center sm:text-left">
+                <h3 className="text-2xl font-semibold">Your Orders</h3>
+                <p className="text-sm text-muted-foreground mt-1 max-w-lg">
+                    View and manage your past orders, track status, and find
+                    order details.
                 </p>
             </div>
 
             <Separator />
-            {isLoading && (
-                <section className="flex flex-col gap-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="flex flex-col gap-y-6 sm:gap-y-8 w-full"
-                        >
-                            <OrderCardSkeleton />
-                            <Separator />
-                        </div>
-                    ))}
-                </section>
-            )}
-            {isError && (
-                <ErrorMessage
-                    message="Failed to load orders."
-                    onRetry={() => refetch()}
-                />
-            )}
-            {!isLoading && !isError && orders.length === 0 && (
-                <div className="w-full flex flex-col items-center gap-y-4">
-                    <h2 className="text-large-semi">Nothing to see here</h2>
-                    <p className="text-base-regular">
-                        You don&apos;t have any orders yet, let us change that{" "}
-                        {":)"}
-                    </p>
-                    <div className="mt-4">
-                        <Link href="/" passHref>
-                            <Button>Continue shopping</Button>
-                        </Link>
-                    </div>
-                </div>
-            )}
-            {!isLoading && !isError && orders.length > 0 && (
-                <OrderOverview orders={orders} />
-            )}
+
+            <section className="flex flex-col gap-4">{renderContent()}</section>
         </div>
     );
 };
