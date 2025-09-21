@@ -13,7 +13,7 @@ function sleep(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
 }
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
     const authHeader = req.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return new Response("Unauthorized", {
