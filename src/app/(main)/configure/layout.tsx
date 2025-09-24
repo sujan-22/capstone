@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 const Layout = ({ children }: { children: ReactNode }) => {
     return (
         <div className="flex-1 flex flex-col">
-            <div className=" border rounded-md my-2">
+            <div className=" border rounded-md my-2 mt-8">
                 <Steps />
             </div>
             {children}

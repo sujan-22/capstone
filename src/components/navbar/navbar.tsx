@@ -6,8 +6,10 @@ import Logo from "../utilities/logo";
 import { Button } from "../ui/button";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { UserDropdown } from "./user-dropdown";
+import { useRouter } from "next/navigation";
 
 const Navbar = ({ user }: { user: IUser | null | undefined }) => {
+    const router = useRouter();
     return (
         <div className="sticky top-0 inset-x-0 z-1000">
             <div
@@ -27,6 +29,9 @@ const Navbar = ({ user }: { user: IUser | null | undefined }) => {
                                 <Button
                                     className="hidden sm:inline-flex"
                                     size="sm"
+                                    onClick={() =>
+                                        router.push("/configure/upload")
+                                    }
                                 >
                                     Create Case{" "}
                                     <FaArrowRightLong className="ml-1" />
