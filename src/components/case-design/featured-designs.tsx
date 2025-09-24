@@ -23,9 +23,9 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
                 <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
                     <h2 className="order-1 tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl">
                         Explore our{" "}
-                        <span className="relative px-2">
+                        <span className="relative inline-block px-2">
                             featured{" "}
-                            <Icons.underlineDashed className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-6 text-blue-600" />
+                            <Icons.underlineDashed className="hidden sm:block pointer-events-none absolute w-full inset-x-0 -bottom-6 text-blue-600" />
                         </span>{" "}
                         designs
                     </h2>
