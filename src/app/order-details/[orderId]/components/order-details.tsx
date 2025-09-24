@@ -3,9 +3,9 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getOrderById } from "../actions/actions";
 import ErrorMessage from "@/components/utilities/error";
-import LoadingMessage from "@/components/utilities/loading";
 import Order from "./order";
 import { IUser } from "../../../../../auth-client";
+import OrderSkeleton from "./skeleton/order-details-skeleton";
 
 const OrderDetailsPage = ({
     user,
@@ -23,7 +23,7 @@ const OrderDetailsPage = ({
     });
 
     if (isLoading) {
-        return <LoadingMessage message="Loading order details..." size={24} />;
+        return <OrderSkeleton />;
     }
 
     if (isError)
