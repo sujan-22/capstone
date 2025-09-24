@@ -43,7 +43,7 @@ export const getReminders = async (
 
 export const dismissReminder = async (
     userId: string,
-    caseDesignId: string
+    reminderId: string
 ): Promise<{ success: boolean; error?: string }> => {
     try {
         const res = await fetch(
@@ -54,7 +54,7 @@ export const dismissReminder = async (
                     "Content-Type": "application/json",
                     "x-user-id": userId,
                 },
-                body: JSON.stringify({ caseDesignId }),
+                body: JSON.stringify({ reminderId }),
             }
         );
 

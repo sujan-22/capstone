@@ -16,7 +16,7 @@ const LoadingMessage: React.FC<LoadingMessageProps> = ({
 }) => {
     return (
         <div
-            className={`flex flex-col items-center justify-center gap-3 text-center text-muted-foreground min-h-[calc(100vh-96px)] ${className}`}
+            className={`flex flex-col items-center justify-center gap-3 text-center text-muted-foreground min-h-[calc(100vh-114px)] ${className}`}
         >
             <ClipLoader size={size} />
             <p className="text-sm sm:text-base">{message}</p>

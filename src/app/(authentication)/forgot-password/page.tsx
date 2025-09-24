@@ -74,7 +74,7 @@ const ForgotPasswordPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-96px)] flex items-center justify-center bg-transparent">
+        <div className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-transparent">
             <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
                 <div className="mb-6 w-full flex flex-col items-center space-y-4">
                     <Logo />

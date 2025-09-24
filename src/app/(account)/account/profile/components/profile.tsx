@@ -52,7 +52,7 @@ export default function AccountProfilePage({
                         description:
                             "Your account has been deleted successfully.",
                     });
-                    setTimeout(() => router.push("/"), 800);
+                    setTimeout(() => router.refresh(), 800);
                 },
                 onError: (err) => {
                     console.error("Failed to delete account:", err);

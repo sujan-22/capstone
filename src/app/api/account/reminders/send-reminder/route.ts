@@ -1,4 +1,3 @@
-// app/api/reminders/send-reminder/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 import { sendEmail } from "../../../../../../actions/email";

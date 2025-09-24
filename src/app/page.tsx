@@ -1,6 +1,7 @@
 import Phone from "@/components/utilities/phone";
 import { Check } from "lucide-react";
 import RenderFeaturedDesigns from "@/components/case-design/render-featured-designs";
+import SmallLogo from "@/components/utilities/small-logo";
 export default function Home() {
     return (
         <div>
@@ -22,8 +23,8 @@ export default function Home() {
                                 <span className=" font-semibold">
                                     one-of-one
                                 </span>{" "}
-                                phone case. CaseRobo allows you to protect your
-                                memories, not just your phone case.
+                                phone case. <SmallLogo /> allows you to protect
+                                your memories, not just your phone case.
                             </p>
                             <ul className="mt-8 space-y-2 text-left font-medium flex flex-col items-center sm:items-start">
                                 <div className="space-y-2">
@@ -67,13 +68,13 @@ export default function Home() {
                             <img
                                 src="/assets/homepage/your-image.png"
                                 alt="Your image on a phone case"
-                                className="absolute w-40 lg:w-52 right-20 -top-30 -rotate-12 select-none block"
+                                className="absolute w-40 pointer-events-none lg:w-52 right-20 -top-30 -rotate-12 select-none block"
                             />
                             {/*  eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src="/assets/homepage/line.png"
                                 alt="Line pointing to phone case"
-                                className="absolute w-20 -left-6 -bottom-6 select-none"
+                                className="absolute w-20 pointer-events-none -left-6 -bottom-6 select-none"
                             />
                             <Phone
                                 className="w-64"

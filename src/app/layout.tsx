@@ -24,10 +24,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${inter.className} antialiased`}>
+            <body
+                className={`${inter.className} antialiased min-h-screen flex flex-col`}
+            >
                 <ReactQueryProvider>
                     <UseNavbarWrapper />
-                    <MaxWidthWrapper>{children}</MaxWidthWrapper>
+                    <main className="flex-1">
+                        <MaxWidthWrapper>{children}</MaxWidthWrapper>
+                    </main>
                     <Toaster />
                     <Footer />
                 </ReactQueryProvider>
