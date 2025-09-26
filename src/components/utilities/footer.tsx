@@ -6,7 +6,7 @@ const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="border-t py-3">
+        <footer className="border-t z-50 py-3">
             <MaxWidthWrapper>
                 <div className="flex flex-col items-center justify-center gap-2 text-center">
                     <p className="text-sm text-muted-foreground">

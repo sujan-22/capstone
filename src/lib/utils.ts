@@ -15,5 +15,11 @@ export function formatDate(date?: string | Date) {
     }).format(d);
 }
 
-export const formatPrice = (p: number) =>
-    p.toLocaleString(undefined, { style: "currency", currency: "USD" });
+export const formatPrice = (price: number) => {
+    const formatter = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "CAD",
+    });
+
+    return formatter.format(price);
+};
