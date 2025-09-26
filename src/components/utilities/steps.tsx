@@ -19,7 +19,7 @@ export default function Steps() {
     const currentIndex = steps.findIndex((s) => pathname.startsWith(s.href));
 
     return (
-        <div className="w-full py-3">
+        <div className="w-full">
             <nav aria-label="Configure steps" className="group my-4">
                 <ol
                     role="tablist"

@@ -10,7 +10,7 @@ import Dropzone, { FileRejection } from "react-dropzone";
 import { useMutation } from "@tanstack/react-query";
 import { uploadUserImage } from "../actions/actions";
 
-const UploadComponent = () => {
+const UploadComponent = ({ userId }: { userId: string }) => {
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isPending, startTransition] = useTransition();
@@ -18,7 +18,7 @@ const UploadComponent = () => {
     const { toast } = useToast();
 
     const mutation = useMutation({
-        mutationFn: (file: File) => uploadUserImage(file),
+        mutationFn: (file: File) => uploadUserImage(file, userId),
         onMutate: () => {
             setUploadProgress(0);
         },
@@ -30,7 +30,7 @@ const UploadComponent = () => {
             });
             setUploadProgress(0);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             toast({
                 title: "Upload successful",
                 description: "Your image has been uploaded!",
@@ -39,7 +39,7 @@ const UploadComponent = () => {
 
             startTransition(() => {
                 setTimeout(() => {
-                    router.push("/configure/customize");
+                    router.push(`/configure/customize?Id=${data.designId}`);
                 }, 500);
             });
         },
@@ -68,7 +68,7 @@ const UploadComponent = () => {
     return (
         <div
             className={cn(
-                "relative h-[60vh] flex-1 mt-10 w-full rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:rounded-xl flex justify-center flex-col items-center",
+                "relative h-[70vh] flex-1 mt-3 w-full rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:rounded-xl flex justify-center flex-col items-center",
                 { "ring-blue-900/25 bg-blue-900/10": isDragOver }
             )}
         >
