@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -39,36 +38,32 @@ export default function Steps() {
                                         "gap-1 sm:gap-2"
                                     )}
                                 >
-                                    <Link href={step.href}>
-                                        <Button
-                                            type="button"
-                                            role="tab"
-                                            aria-selected={active}
-                                            aria-current={
-                                                active ? "step" : undefined
-                                            }
-                                            aria-posinset={index + 1}
-                                            aria-setsize={steps.length}
-                                            variant={
-                                                completed || active
-                                                    ? "default"
-                                                    : "secondary"
-                                            }
-                                            className={cn(
-                                                "flex items-center justify-center rounded-full w-8 h-8 p-0",
-                                                active ? "shadow-sm" : ""
-                                            )}
-                                        >
-                                            {completed ? (
-                                                <Check
-                                                    className="w-4 h-4 text-white"
-                                                    color="white"
-                                                />
-                                            ) : (
-                                                index + 1
-                                            )}
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        aria-selected={active}
+                                        aria-current={
+                                            active ? "step" : undefined
+                                        }
+                                        aria-posinset={index + 1}
+                                        aria-setsize={steps.length}
+                                        variant={
+                                            completed || active
+                                                ? "default"
+                                                : "secondary"
+                                        }
+                                        className={cn(
+                                            "flex items-center justify-center rounded-full w-8 h-8 p-0 hover:cursor-default hover:bg-black",
+                                            active ? "shadow-sm" : ""
+                                        )}
+                                    >
+                                        {completed ? (
+                                            <Check
+                                                className="w-4 h-4 text-white"
+                                                color="white"
+                                            />
+                                        ) : (
+                                            index + 1
+                                        )}
+                                    </Button>
 
                                     <span
                                         className={cn(

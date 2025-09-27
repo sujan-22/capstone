@@ -204,7 +204,7 @@ export async function POST(request: Request) {
                 0, // total_favorites
                 false, // has_requested_to_share_publicly
                 false, // is_shared_publicly
-                false, // unfinished
+                true, // unfinished
                 [], // saved_by_user_ids
                 [], // favorited_by_user_ids
             ];

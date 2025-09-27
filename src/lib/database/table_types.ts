@@ -159,6 +159,7 @@ export interface CaseDesign {
     updated_at: Date;
     last_reminder_sent_at: Date | null;
     unfinished: boolean;
+    cropped_image_url: string | null;
 }
 export interface CaseDesignInput {
     id?: string;
@@ -182,6 +183,7 @@ export interface CaseDesignInput {
     updated_at?: Date;
     last_reminder_sent_at?: Date | null;
     unfinished?: boolean;
+    cropped_image_url?: string | null;
 }
 const case_design = {
     tableName: "case_design",
@@ -207,6 +209,7 @@ const case_design = {
         "updated_at",
         "last_reminder_sent_at",
         "unfinished",
+        "cropped_image_url",
     ],
     requiredForInsert: [
         "user_id",

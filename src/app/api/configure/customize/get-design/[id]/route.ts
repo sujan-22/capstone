@@ -9,6 +9,7 @@ interface CaseDesignRow {
     case_material_id: string;
     case_finish_id: string;
     case_color_id: string;
+    cropped_image_url: string | null;
 }
 
 export async function GET(
@@ -36,7 +37,8 @@ export async function GET(
           phone_model_id,
           case_material_id,
           case_finish_id,
-          case_color_id
+          case_color_id,
+          cropped_image_url
         FROM case_design
         WHERE id = $1
         LIMIT 1;
@@ -61,6 +63,7 @@ export async function GET(
                 caseMaterialId: string;
                 caseFinishId: string;
                 caseColorId: string;
+                croppedImageUrl: string | null;
             } = {
                 width: design.width,
                 height: design.height,
@@ -69,6 +72,7 @@ export async function GET(
                 caseMaterialId: design.case_material_id,
                 caseFinishId: design.case_finish_id,
                 caseColorId: design.case_color_id,
+                croppedImageUrl: design.cropped_image_url,
             };
 
             return NextResponse.json(response);

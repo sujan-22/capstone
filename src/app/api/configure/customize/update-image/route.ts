@@ -1,5 +1,7 @@
+// app/api/upload/route.ts
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { pool } from "@/lib/database/db";
 
 const {
     AWS_S3_REGION,
@@ -25,6 +27,7 @@ const s3Client = new S3Client({
     },
 });
 
+/** Allowed mime types for upload */
 const ALLOWED_MIME = new Set([
     "image/png",
     "image/jpeg",
@@ -32,19 +35,49 @@ const ALLOWED_MIME = new Set([
     "image/webp",
 ]);
 
-function extractS3KeyFromUrl(url: string): string {
-    const match = url.match(/amazonaws\.com\/(.+)$/);
-    if (!match || !match[1]) {
-        throw new Error("Could not extract S3 key from URL");
+function getFileExtension(filename: string): string {
+    const match = filename.match(/\.[^/.]+$/);
+    return match ? match[0] : "";
+}
+
+function extractS3KeyFromUrl(url: string): string | undefined {
+    try {
+        const decoded = decodeURIComponent(url);
+        const host = `${AWS_S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/`;
+        const idx = decoded.indexOf(host);
+        if (idx === -1) return undefined;
+        return decoded.slice(idx + host.length);
+    } catch {
+        return undefined;
     }
-    return decodeURIComponent(match[1]);
+}
+
+async function uploadFileToS3(
+    fileBuffer: Buffer,
+    key: string,
+    contentType: string
+): Promise<string> {
+    const params = {
+        Bucket: AWS_S3_BUCKET_NAME,
+        Key: key,
+        Body: fileBuffer,
+        ContentType: contentType,
+    };
+
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command);
+
+    return `https://${AWS_S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/${encodeURI(
+        key
+    )}`;
 }
 
 export async function POST(request: Request) {
     try {
         const formData = await request.formData();
         const maybeFile = formData.get("file");
-        const imageUrl = formData.get("imageUrl");
+        const designIdRaw = formData.get("designId");
+        const croppedImageUrlRaw = formData.get("croppedImageUrl");
 
         if (!maybeFile || !(maybeFile instanceof File)) {
             return NextResponse.json(
@@ -52,45 +85,77 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
-        if (!imageUrl || typeof imageUrl !== "string") {
+        const file: File = maybeFile;
+
+        if (!designIdRaw || typeof designIdRaw !== "string") {
             return NextResponse.json(
-                { error: "An existing imageUrl is required." },
+                { error: "Missing designId in form data." },
                 { status: 400 }
             );
         }
-
-        const file: File = maybeFile;
+        const designId = designIdRaw;
 
         const contentType = file.type || "application/octet-stream";
         if (!ALLOWED_MIME.has(contentType)) {
             return NextResponse.json(
-                { error: "Invalid file type. Allowed: PNG, JPG, JPEG, WEBP." },
+                {
+                    error: "Invalid file type. Allowed types: PNG, JPG, JPEG, WEBP.",
+                },
                 { status: 415 }
             );
         }
 
-        const key = extractS3KeyFromUrl(imageUrl);
+        const userId = request.headers.get("x-user-id");
+        if (!userId) {
+            return NextResponse.json(
+                { error: "Missing x-user-id header." },
+                { status: 401 }
+            );
+        }
+
+        let keyToUse: string | null = null;
+        if (croppedImageUrlRaw && typeof croppedImageUrlRaw === "string") {
+            const extracted = extractS3KeyFromUrl(croppedImageUrlRaw);
+            if (extracted) {
+                keyToUse = extracted;
+            }
+        }
+
+        if (!keyToUse) {
+            const ext = getFileExtension(file.name) || ".png";
+            const sanitized = file.name
+                .replace(/\s+/g, "_")
+                .replace(/[^a-zA-Z0-9._-]/g, "");
+            keyToUse = `cropped_images/${sanitized}-${Date.now()}${ext}`;
+        }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const command = new PutObjectCommand({
-            Bucket: AWS_S3_BUCKET_NAME,
-            Key: key,
-            Body: buffer,
-            ContentType: contentType,
-        });
-        await s3Client.send(command);
 
-        return NextResponse.json({
-            success: true,
-            fileUrl: imageUrl,
-            message: "Image replaced successfully",
-        });
+        const fileUrl = await uploadFileToS3(buffer, keyToUse, contentType);
+
+        const client = await pool.connect();
+
+        try {
+            await client.query(
+                `UPDATE case_design
+                 SET cropped_image_url = $1
+                 WHERE id = $2 AND user_id = $3`,
+                [fileUrl, designId, userId]
+            );
+
+            return NextResponse.json({
+                success: true,
+                croppedImageUrl: fileUrl,
+            });
+        } finally {
+            client.release();
+        }
     } catch (error: unknown) {
-        console.error("Error updating file:", error);
+        console.error("Error uploading file:", error);
         const message =
             error instanceof Error ? error.message : "Unknown error";
         return NextResponse.json(
-            { error: "Failed to update image", details: message },
+            { error: "Failed to upload file.", details: message },
             { status: 500 }
         );
     }
