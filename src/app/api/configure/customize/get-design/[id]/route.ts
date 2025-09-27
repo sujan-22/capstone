@@ -14,9 +14,9 @@ interface CaseDesignRow {
 
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const designId = params.id;
+    const { id: designId } = await params;
 
     if (!designId) {
         return NextResponse.json(

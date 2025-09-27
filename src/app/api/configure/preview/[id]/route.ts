@@ -12,9 +12,9 @@ export interface IPreviewCaseDesign extends ICaseDesign {
 
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const designId = params.id;
+    const { id: designId } = await params;
     const userId = (req.headers.get("x-user-id") || "").trim();
 
     if (!designId || !userId) {
