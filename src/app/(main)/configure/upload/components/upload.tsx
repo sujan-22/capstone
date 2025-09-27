@@ -39,7 +39,7 @@ const UploadComponent = ({ userId }: { userId: string }) => {
 
             startTransition(() => {
                 setTimeout(() => {
-                    router.push(`/configure/customize?Id=${data.designId}`);
+                    router.push(`/configure/customize/${data.designId}`);
                 }, 500);
             });
         },
