@@ -83,7 +83,6 @@ export default function DesignConfigurator(props: Props) {
     const caseRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // mutations (same as before)
     const saveImageMut = useMutation({
         mutationKey: ["update-image"],
         mutationFn: async (args: { file: File }) =>
@@ -125,23 +124,21 @@ export default function DesignConfigurator(props: Props) {
         if (!caseRef.current || !containerRef.current)
             throw new Error("Missing DOM refs");
 
-        const {
-            left: caseLeft,
-            top: caseTop,
-            width,
-            height,
-        } = caseRef.current.getBoundingClientRect();
-        const { left: containerLeft, top: containerTop } =
-            containerRef.current.getBoundingClientRect();
+        const caseRect = caseRef.current.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
 
-        const leftOffset = caseLeft - containerLeft;
-        const topOffset = caseTop - containerTop;
+        const leftOffset = caseRect.left - containerRect.left;
+        const topOffset = caseRect.top - containerRect.top;
         const actualX = renderedPosition.x - leftOffset;
         const actualY = renderedPosition.y - topOffset;
 
+        const devicePR =
+            typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+        const exportScale = Math.max(3, Math.round(devicePR));
+
         const canvas = document.createElement("canvas");
-        canvas.width = Math.round(width);
-        canvas.height = Math.round(height);
+        canvas.width = Math.round(caseRect.width * exportScale);
+        canvas.height = Math.round(caseRect.height * exportScale);
 
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Failed to get canvas context");
@@ -154,28 +151,32 @@ export default function DesignConfigurator(props: Props) {
             userImage.onerror = (e) => reject(e);
         });
 
+        const destX = Math.round(actualX * exportScale);
+        const destY = Math.round(actualY * exportScale);
+        const destW = Math.round(renderedDimensions.width * exportScale);
+        const destH = Math.round(renderedDimensions.height * exportScale);
+
         ctx.drawImage(
             userImage,
-            actualX,
-            actualY,
-            Math.round(renderedDimensions.width),
-            Math.round(renderedDimensions.height)
+            0,
+            0,
+            userImage.naturalWidth,
+            userImage.naturalHeight,
+            destX,
+            destY,
+            destW,
+            destH
         );
 
-        const base64 = canvas.toDataURL("image/png");
-        const base64Data = base64.split(",")[1];
-        const blob = base64ToBlob(base64Data, "image/png");
+        const blob: Blob = await new Promise((resolve, reject) =>
+            canvas.toBlob((b) => {
+                if (b) resolve(b);
+                else reject(new Error("Failed to convert canvas to blob"));
+            }, "image/png")
+        );
+
         const file = new File([blob], "design.png", { type: "image/png" });
         return file;
-    }
-
-    function base64ToBlob(base64: string, mimeType: string) {
-        const byteChars = atob(base64);
-        const byteNums = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++)
-            byteNums[i] = byteChars.charCodeAt(i);
-        const byteArrays = new Uint8Array(byteNums);
-        return new Blob([byteArrays], { type: mimeType });
     }
 
     async function handleContinue() {
@@ -234,7 +235,7 @@ export default function DesignConfigurator(props: Props) {
                         aria-hidden="true"
                         className="absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none"
                     />
-                    <div className=" px-8 pb-12 pt-8">
+                    <div className=" px-8 pb-12">
                         <h2 className=" tracking-tight font-bold text-3xl">
                             Customize your case
                         </h2>

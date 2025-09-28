@@ -41,9 +41,11 @@ export async function GET(req: NextRequest) {
                   -- Case design info
                   cd.id AS design_id,
                   COALESCE(cd.image, gi.url) AS "imgSrc",
+                  cd.cropped_image_url AS cropped_image_url,
                   cd.name AS "caseName",
                   pm.model_name AS "modelName",
                   cc.name AS "color",
+                  cc.hex AS "colorHex",
                   cm.name AS "material",
                   cf.name AS "finish",
                   (cm.price + cf.price) AS "price",
@@ -139,6 +141,8 @@ export async function GET(req: NextRequest) {
                     material: r.material,
                     finish: r.finish,
                     price: Number(r.price),
+                    croppedImgUrl: r.cropped_image_url,
+                    colorHex: r.colorHex,
                 },
             };
 

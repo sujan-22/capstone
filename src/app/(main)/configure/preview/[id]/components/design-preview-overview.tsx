@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Phone from "@/components/utilities/phone";
-import { getDesignPreview } from "../actions/actions";
+import { createCheckoutSession, getDesignPreview } from "../actions/actions";
 import { IUser } from "../../../../../../../auth-client";
 import DesignSummary from "./design-summary";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Confetti from "react-dom-confetti";
+import { useToast } from "@/hooks/use-toast";
+import PreviewSkeleton from "./preview-skeleton";
+import ErrorMessage from "@/components/utilities/error";
 
 interface Props {
     id: string;
@@ -19,14 +22,34 @@ const CONFETTI_DURATION_MS = 2300;
 
 const DesignPreviewOverview = ({ id: designId, user }: Props) => {
     const router = useRouter();
+    const { toast } = useToast();
     const [showConfetti, setShowConfetti] = useState(false);
-    const { data, isLoading, isError, error } = useQuery({
+    const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ["design-preview", designId],
         queryFn: async () => await getDesignPreview(designId, user.id),
         enabled: !!designId,
         retry: 2,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,
+    });
+
+    const { mutate: createPaymentSession } = useMutation({
+        mutationKey: ["get-checkout-session"],
+        mutationFn: createCheckoutSession,
+        onSuccess: ({ url }) => {
+            if (url) {
+                router.push(url);
+            } else {
+                throw new Error("Unable to retrieve payment URL");
+            }
+        },
+        onError: () => {
+            toast({
+                title: "Something went wrong",
+                description: "There was an error on our end. Please try again.",
+                variant: "destructive",
+            });
+        },
     });
 
     useEffect(() => {
@@ -43,19 +66,27 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
         };
     }, []);
 
-    if (!designId) return <div>Invalid ID</div>;
-    if (isLoading) return <div>Loading preview...</div>;
-    if (isError)
+    if (!designId) return notFound();
+    if (isLoading) return <PreviewSkeleton />;
+    if (isError || error)
         return (
-            <div>
-                Error:{" "}
-                {error instanceof Error ? error.message : "Unknown error"}
+            <div className="flex justify-center items-center mt-auto min-h-[70vh]">
+                <ErrorMessage
+                    message="There was an error from our end. Please try again later!"
+                    onRetry={() => refetch()}
+                />
             </div>
         );
 
     if (!data || !data.design) {
-        return;
+        return notFound();
     }
+
+    const handleCheckout = () => {
+        if (user) {
+            createPaymentSession({ caseDesignId: designId, userId: user.id });
+        }
+    };
 
     const design = data.design;
 
@@ -104,10 +135,7 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
                         Edit Selections
                     </Button>
 
-                    <Button
-                        size={"sm"}
-                        onClick={() => router.push("/checkout")}
-                    >
+                    <Button size={"sm"} onClick={() => handleCheckout()}>
                         Checkout
                     </Button>
                 </div>
