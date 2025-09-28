@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { pool } from "@/lib/database/db";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
