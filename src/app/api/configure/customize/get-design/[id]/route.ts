@@ -33,14 +33,15 @@ export async function GET(
         SELECT 
           width,
           height,
-          image,
+          COALESCE(cd.image, gi.url) AS "image",
           phone_model_id,
           case_material_id,
           case_finish_id,
           case_color_id,
           cropped_image_url
-        FROM case_design
-        WHERE id = $1
+        FROM case_design cd
+        LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
+        WHERE cd.id = $1
         LIMIT 1;
       `;
 

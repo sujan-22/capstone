@@ -64,7 +64,7 @@ const UnfinishedDesign = ({ design, userId }: Props) => {
                 </div>
 
                 <div className="mt-auto flex flex-wrap gap-2">
-                    <Link href={`/customize/${design.id}`} passHref>
+                    <Link href={`/configure/customize/${design.id}`} passHref>
                         <Button size="sm">Continue Customizing</Button>
                     </Link>
 

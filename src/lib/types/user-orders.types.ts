@@ -26,6 +26,8 @@ export interface ICaseDesign {
     price: number;
     isFavorited?: boolean;
     totalFavorites?: number;
+    croppedImgUrl: string;
+    colorHex: string;
 }
 
 export type OrderRow = {
@@ -50,6 +52,8 @@ export type OrderRow = {
     price: number;
     isFavorited: boolean;
     totalFavorites: number;
+    cropped_image_url: string;
+    colorHex: string;
 
     billing_id: string;
     billing_name: string;

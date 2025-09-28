@@ -129,3 +129,7 @@ body {
         @apply bg-background text-foreground;
     }
 }
+
+.phone-skew {
+    transform: perspective(400px) rotateY(3deg) skewX(11.1deg) skewY(-10.9deg);
+}

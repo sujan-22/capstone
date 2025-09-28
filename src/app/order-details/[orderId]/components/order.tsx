@@ -23,7 +23,7 @@ const Order = ({
                 <div className="flex-shrink-0 mx-auto md:mx-0 flex items-center justify-center">
                     <div className="relative sm:w-48 w-56 h-auto lg:w-64 rounded-md bg-muted overflow-hidden flex items-center justify-center">
                         <Phone
-                            imgSrc={order.design.imgSrc}
+                            imgSrc={order.design.croppedImgUrl}
                             altText={order.design.caseName}
                         />
                     </div>

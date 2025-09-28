@@ -18,10 +18,8 @@ const UploadComponent = ({ userId }: { userId: string }) => {
     const { toast } = useToast();
 
     const mutation = useMutation({
-        mutationFn: (file: File) => uploadUserImage(file, userId),
-        onMutate: () => {
-            setUploadProgress(0);
-        },
+        mutationFn: (file: File) =>
+            uploadUserImage(file, userId, (p) => setUploadProgress(p)),
         onError: (error) => {
             toast({
                 title: "Upload failed",
@@ -58,8 +56,6 @@ const UploadComponent = ({ userId }: { userId: string }) => {
     const onDropAccepted = (files: File[]) => {
         const [file] = files;
         setIsDragOver(false);
-
-        setUploadProgress(10);
         mutation.mutate(file);
     };
 
