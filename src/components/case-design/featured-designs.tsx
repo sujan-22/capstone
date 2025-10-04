@@ -40,7 +40,7 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
                 >
                     {designs.map((design) => (
                         <CaseDesignComponent
-                            key={design.caseName}
+                            key={design.id}
                             {...design}
                             user={user}
                         />

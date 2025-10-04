@@ -39,7 +39,7 @@ const OrderCard = ({ order }: { order: IUserOrderWithDesign }) => {
                     <div className="flex-shrink-0 mx-auto sm:mx-0">
                         <div className="relative w-44 h-auto rounded-md bg-muted overflow-hidden flex items-center justify-center">
                             <Phone
-                                imgSrc={order.design.imgSrc}
+                                imgSrc={order.design.croppedImgUrl}
                                 altText={order.design.caseName}
                             />
                         </div>
@@ -76,6 +76,9 @@ const OrderCard = ({ order }: { order: IUserOrderWithDesign }) => {
                     variant="secondary"
                     size="sm"
                     className="w-full sm:w-auto"
+                    onClick={() =>
+                        router.push(`/configure/customize/${order.design.id}`)
+                    }
                 >
                     Re-order
                 </Button>

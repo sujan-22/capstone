@@ -2,6 +2,7 @@ import React from "react";
 import UploadComponent from "./components/upload";
 import { Metadata } from "next";
 import { getServerSideSession } from "@/hooks/use-session";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "IMAGE UPLOAD | DESIGNMYCASE",
@@ -17,7 +18,7 @@ const Page = async () => {
     const { user } = await getServerSideSession();
 
     if (!user) {
-        return;
+        notFound();
     }
 
     return (
