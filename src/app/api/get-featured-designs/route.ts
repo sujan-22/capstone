@@ -6,13 +6,13 @@ export async function GET(req: Request) {
     const client = await pool.connect();
 
     try {
-        // Get user ID from headers
         const userId = req.headers.get("x-user-id") || "";
 
         const query = `
             SELECT
                 cd.id,
                 COALESCE(cd.image, gi.url) AS "imgSrc",
+                cd.cropped_image_url AS "croppedImgUrl",
                 cd.name AS "caseName",
                 pm.model_name AS "modelName",
                 cc.name AS "color",

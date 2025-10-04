@@ -20,11 +20,12 @@ export interface ICaseDesignProps {
     price: number;
     isFavorited: boolean;
     user: IUser | null | undefined;
+    croppedImgUrl: string;
 }
 
 const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     id,
-    imgSrc,
+    // imgSrc,
     altText,
     caseName,
     modelName,
@@ -34,6 +35,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     price,
     isFavorited: initialFavorited,
     user,
+    croppedImgUrl,
 }) => {
     const userId = user?.id || "";
     const router = useRouter();
@@ -46,7 +48,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     return (
         <article className="max-w-xs mx-auto p-1">
             <div className="flex justify-center">
-                <Phone imgSrc={imgSrc} altText={altText ?? caseName} />
+                <Phone imgSrc={croppedImgUrl} altText={altText ?? caseName} />
             </div>
             <h2 className="mt-4 text-left text-md font-semibold line-clamp-2 h-14">
                 {caseName}

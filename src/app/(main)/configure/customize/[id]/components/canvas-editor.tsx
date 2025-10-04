@@ -91,6 +91,8 @@ export default function CanvasEditor({
                         src={imageUrl}
                         alt=""
                         fill
+                        unoptimized
+                        crossOrigin="anonymous"
                         className=" pointer-events-none"
                     />
                 </div>

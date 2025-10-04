@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 import { IUserOrderWithDesign, OrderRow } from "@/lib/types/user-orders.types";
+import { getServerSideSession } from "@/hooks/use-session";
 
 export async function GET(req: NextRequest) {
     try {
+        const { user } = await getServerSideSession();
+        console.log(user);
+
         const userId = req.headers.get("x-user-id") || "";
         if (!userId) {
             return NextResponse.json(

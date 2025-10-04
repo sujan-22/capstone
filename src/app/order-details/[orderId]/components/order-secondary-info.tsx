@@ -21,9 +21,6 @@ const OrderSecondaryInfo = ({
                     Design Details
                 </h4>
                 <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 text-sm">
-                    <dt className="text-muted-foreground">Case Name:</dt>
-                    <dd className="text-right">{order.design.caseName}</dd>
-
                     <dt className="text-muted-foreground">Model:</dt>
                     <dd className="text-right">{order.design.modelName}</dd>
 
@@ -48,7 +45,7 @@ const OrderSecondaryInfo = ({
                             <h5 className="font-medium mb-1">
                                 Billing Address
                             </h5>
-                            <p className="text-sm sm:text-base">
+                            <p className="text-sm">
                                 {order.billingAddress.name} <br />
                                 {order.billingAddress.street} <br />
                                 {order.billingAddress.city},{" "}
@@ -64,7 +61,7 @@ const OrderSecondaryInfo = ({
                             <h5 className="font-medium mb-1">
                                 Shipping Address
                             </h5>
-                            <p className="text-sm sm:text-base">
+                            <p className="text-sm">
                                 {order.shippingAddress.name} <br />
                                 {order.shippingAddress.street} <br />
                                 {order.shippingAddress.city},{" "}
@@ -77,7 +74,7 @@ const OrderSecondaryInfo = ({
 
                     <div className="flex-1 text-left md:text-right">
                         <h5 className="font-medium mb-1">Contact</h5>
-                        <p className="text-sm sm:text-base">
+                        <p className="text-sm">
                             {user.name} <br />
                             {user.email} <br />
                             Phone:{" "}
@@ -94,7 +91,7 @@ const OrderSecondaryInfo = ({
                 <h4 className="sm:text-lg font-semibold mb-1">
                     Pricing Summary
                 </h4>
-                <dl className="grid grid-cols-2 gap-x-4 text-sm sm:text-base">
+                <dl className="grid grid-cols-2 gap-x-4 text-sm">
                     <dt className="text-muted-foreground">Subtotal:</dt>
                     <dd className="text-right">
                         {formatPrice(order.subtotal)}
@@ -107,7 +104,7 @@ const OrderSecondaryInfo = ({
                     <dd className="text-right">{formatPrice(order.tax)}</dd>
                 </dl>
                 <hr className="border-muted-foreground/50 my-3" />
-                <dl className="grid grid-cols-2 gap-x-4 text-sm sm:text-base">
+                <dl className="grid grid-cols-2 gap-x-4 text-sm">
                     <dt className="font-semibold">Total:</dt>
                     <dd className="text-right">
                         {formatPrice(order.totalAmount)}
