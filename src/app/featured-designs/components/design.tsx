@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
-import Phone from "../utilities/phone";
-import { Button } from "../ui/button";
 import { useFavorite } from "@/hooks/use-favorite";
-import { IUser } from "../../../auth-client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBuyNow } from "@/hooks/use-buy-now";
+import { IUser } from "../../../../auth-client";
+import Phone from "@/components/utilities/phone";
+import { Button } from "@/components/ui/button";
 
 export interface ICaseDesignProps {
     id: string;
@@ -24,7 +24,7 @@ export interface ICaseDesignProps {
     croppedImgUrl: string;
 }
 
-const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
+const Design: React.FC<ICaseDesignProps> = ({
     id,
     // imgSrc,
     altText,
@@ -49,10 +49,15 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     const queryClient = useQueryClient();
 
     return (
-        <article className="max-w-xs mx-auto p-1">
-            <div className="flex justify-center">
+        <article
+            className="max-w-60 mx-auto p-1
+        [@media(max-width:1100px)]:max-w-60
+"
+        >
+            <div className="flex justify-center h-auto">
                 <Phone imgSrc={croppedImgUrl} altText={altText ?? caseName} />
             </div>
+
             <h2 className="mt-4 text-left text-md font-semibold line-clamp-2 h-14">
                 {caseName}
             </h2>
@@ -94,10 +99,10 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                             toggleFavorite(userId);
                             queryClient.invalidateQueries();
                         }}
+                        size={"sm"}
                         aria-label={`Favorite ${caseName}`}
                         disabled={loading}
                         isLoading={loading}
-                        size={"sm"}
                     >
                         {isFavorited ? "Favorited" : "Favorite"}
                     </Button>
@@ -107,4 +112,4 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     );
 };
 
-export default CaseDesignComponent;
+export default Design;

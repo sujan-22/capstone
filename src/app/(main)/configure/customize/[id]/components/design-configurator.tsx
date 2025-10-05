@@ -296,7 +296,6 @@ export default function DesignConfigurator(props: Props) {
                             <Button
                                 isLoading={isSaving}
                                 disabled={isSaving}
-                                loadingText="Saving"
                                 onClick={handleContinue}
                                 size="sm"
                                 variant={"outline"}

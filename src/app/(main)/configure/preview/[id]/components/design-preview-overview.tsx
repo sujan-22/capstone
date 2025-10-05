@@ -33,7 +33,7 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
         staleTime: 5 * 60 * 1000,
     });
 
-    const { mutate: createPaymentSession } = useMutation({
+    const { mutate: createPaymentSession, isPending } = useMutation({
         mutationKey: ["get-checkout-session"],
         mutationFn: createCheckoutSession,
         onSuccess: ({ url }) => {
@@ -139,7 +139,12 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
                         Edit Selections
                     </Button>
 
-                    <Button size={"sm"} onClick={() => handleCheckout()}>
+                    <Button
+                        size={"sm"}
+                        onClick={() => handleCheckout()}
+                        isLoading={isPending}
+                        disabled={isPending}
+                    >
                         Checkout
                     </Button>
                 </div>

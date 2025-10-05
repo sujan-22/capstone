@@ -52,7 +52,7 @@ export default function SettingsLayoutClient({
         <>
             <div className="space-y-6 p-10 px-0 pb-16 md:block">
                 <div className="space-y-0.5">
-                    <h2 className="text-2xl font-semibold tracking-tight">
+                    <h2 className="text-2xl font-semibold">
                         Your Account Settings
                     </h2>
                     <p className="text-muted-foreground text-sm">

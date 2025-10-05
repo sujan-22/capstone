@@ -127,13 +127,12 @@ const OrderCard = ({
                         order.design.hasRequestedToSharePublicly ||
                         order.design.isSharedPublicly
                     }
+                    isLoading={isPending}
                 >
                     {order.design.isSharedPublicly
                         ? "Already Shared"
                         : order.design.hasRequestedToSharePublicly
                         ? "Already Requested"
-                        : isPending
-                        ? "Requesting..."
                         : "Request to Share Publicly"}
                 </Button>
 
