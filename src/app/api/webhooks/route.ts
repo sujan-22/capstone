@@ -82,6 +82,14 @@ export async function POST(req: Request) {
                     [billingRes.rows[0].id, shippingRes.rows[0].id, orderId]
                 );
 
+                await client.query(
+                    `UPDATE case_design
+     SET unfinished = FALSE,
+         updated_at = NOW()
+     WHERE id = $1`,
+                    [caseDesignId]
+                );
+
                 await client.query("COMMIT");
             } catch (err) {
                 await client.query("ROLLBACK");

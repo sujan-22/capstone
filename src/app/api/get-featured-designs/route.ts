@@ -27,6 +27,7 @@ export async function GET(req: Request) {
             JOIN case_material cm ON cd.case_material_id = cm.id
             JOIN case_finish cf ON cd.case_finish_id = cf.id
             LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
+            WHERE cd.is_shared_publicly = TRUE
             ORDER BY cd.total_favorites DESC
         `;
 

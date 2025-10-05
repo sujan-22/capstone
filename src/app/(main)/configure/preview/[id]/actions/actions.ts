@@ -53,9 +53,11 @@ export const getDesignPreview = async (
 export const createCheckoutSession = async ({
     caseDesignId,
     userId,
+    userEmail,
 }: {
     caseDesignId: string;
     userId: string;
+    userEmail: string;
 }) => {
     const client = await pool.connect();
     try {
@@ -218,6 +220,7 @@ export const createCheckoutSession = async ({
             line_items: [
                 { price: product.default_price as string, quantity: 1 },
             ],
+            customer_email: userEmail,
         });
 
         return {

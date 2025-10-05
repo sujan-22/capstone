@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 import { IUserOrderWithDesign, OrderRow } from "@/lib/types/user-orders.types";
 
-export async function GET(req: NextRequest) {
+export async function GET(
+    req: NextRequest,
+    { params }: { params: Promise<{ orderId: string }> }
+) {
     try {
-        const orderId = req.headers.get("x-order-id") || "";
         const userId = req.headers.get("x-user-id") || "";
+        const { orderId } = await params;
         if (!userId) {
             return NextResponse.json(
                 { error: "Not authenticated" },
@@ -37,12 +40,15 @@ export async function GET(req: NextRequest) {
                   o.shipping_address_id,
                   o.created_at AS order_createdat,
                   o.updated_at AS order_updatedat,
+                  o.is_paid,
 
                   -- Case design info
                   cd.id AS design_id,
                   COALESCE(cd.image, gi.url) AS "imgSrc",
                   cd.cropped_image_url AS cropped_image_url,
                   cd.name AS "caseName",
+                  cd.has_requested_to_share_publicly AS "hasRequestedToSharePublicly",
+                  cd.is_shared_publicly AS "isSharedPublicly",
                   pm.model_name AS "modelName",
                   cc.name AS "color",
                   cc.hex AS "colorHex",
@@ -92,7 +98,19 @@ export async function GET(req: NextRequest) {
                 );
             }
 
-            const r = rows[0]; // first row
+            const r = rows[0];
+
+            if (!r.is_paid) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Order not paid",
+                        reason: "The payment for this order has not been completed.",
+                    },
+                    { status: 403 }
+                );
+            }
+
             const order: IUserOrderWithDesign = {
                 id: String(r.order_id),
                 userId: String(r.user_id),
@@ -143,6 +161,8 @@ export async function GET(req: NextRequest) {
                     price: Number(r.price),
                     croppedImgUrl: r.cropped_image_url,
                     colorHex: r.colorHex,
+                    hasRequestedToSharePublicly: r.hasRequestedToSharePublicly,
+                    isSharedPublicly: r.isSharedPublicly,
                 },
             };
 

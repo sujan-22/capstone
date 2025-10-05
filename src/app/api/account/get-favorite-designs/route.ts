@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
                 SELECT
                     cd.id,
                     COALESCE(cd.image, gi.url) AS "imgSrc",
+                    cd.cropped_image_url AS "croppedImgUrl",
                     cd.name AS "caseName",
                     pm.model_name AS "modelName",
                     cc.name AS "color",
@@ -43,6 +44,7 @@ export async function GET(req: NextRequest) {
             const favoriteDesigns: IFavoriteDesign[] = rows.map((r) => ({
                 id: r.id,
                 imgSrc: r.imgSrc,
+                croppedImgUrl: r.croppedImgUrl,
                 caseName: r.caseName,
                 modelName: r.modelName,
                 color: r.color,

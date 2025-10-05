@@ -9,14 +9,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown";
 import { useSignOut } from "@/hooks/use-sign-out";
-import Link from "next/link";
 import { FaUserAlt } from "react-icons/fa";
 import { IUser } from "../../../auth-client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import { useState } from "react";
 
 export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     const router = useRouter();
+    const [isOpen, setIsOpen] = useState(false);
     const MY_ACCOUNT_LINKS = [
         { label: "Account", href: "/account" },
         { label: "Profile", href: "/account/profile" },
@@ -34,39 +36,49 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
 
     const { signOut } = useSignOut();
     return (
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full overflow-hidden"
-                >
-                    {user && user.image ? (
-                        <span className="block w-8 h-8 relative rounded-full border border-blue-600">
-                            <Image
-                                src={user.image}
-                                alt={`${
-                                    user.name || user.username || "User"
-                                } profile picture`}
-                                fill
-                                sizes="32px"
-                                priority
-                                referrerPolicy="no-referrer"
-                                className="rounded-full object-cover"
-                            />
-                        </span>
+                <div className="flex items-center hover:cursor-pointer">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full overflow-hidden"
+                    >
+                        {user && user.image ? (
+                            <span className="block w-8 h-8 relative rounded-full border border-blue-600">
+                                <Image
+                                    src={user.image}
+                                    alt={`${
+                                        user.name || user.username || "User"
+                                    } profile picture`}
+                                    fill
+                                    sizes="32px"
+                                    priority
+                                    referrerPolicy="no-referrer"
+                                    className="rounded-full object-cover"
+                                />
+                            </span>
+                        ) : (
+                            <FaUserAlt className="w-5 h-5" />
+                        )}
+                    </Button>
+                    {isOpen ? (
+                        <MdKeyboardArrowDown className="w-5 h-5 rotate-180 transition-transform" />
                     ) : (
-                        <FaUserAlt className="w-5 h-5" />
+                        <MdKeyboardArrowDown className="w-5 h-5 transition-transform" />
                     )}
-                </Button>
+                </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
                     {MY_ACCOUNT_LINKS.map((item) => {
                         return (
-                            <DropdownMenuItem key={item.href}>
-                                <Link href={item.href}>{item.label}</Link>
+                            <DropdownMenuItem
+                                key={item.href}
+                                onClick={() => router.push(item.href)}
+                            >
+                                {item.label}
                             </DropdownMenuItem>
                         );
                     })}
@@ -76,8 +88,11 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                 <DropdownMenuLabel className="sm:hidden">
                     Actions
                 </DropdownMenuLabel>
-                <DropdownMenuItem className="sm:hidden">
-                    <Link href="/configure/upload">Create Case</Link>
+                <DropdownMenuItem
+                    className="sm:hidden"
+                    onClick={() => router.push("/configure/upload")}
+                >
+                    Create Case
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="sm:hidden" />
 
@@ -85,8 +100,11 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                 <DropdownMenuGroup>
                     {USER_MENU_LINKS.map((item) => {
                         return (
-                            <DropdownMenuItem key={item.href}>
-                                <Link href={item.href}>{item.label}</Link>
+                            <DropdownMenuItem
+                                key={item.href}
+                                onClick={() => router.push(item.href)}
+                            >
+                                {item.label}
                             </DropdownMenuItem>
                         );
                     })}
@@ -99,10 +117,11 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                         <DropdownMenuGroup>
                             {ADMIN_DASHBOARD_LINKS.map((item) => {
                                 return (
-                                    <DropdownMenuItem key={item.href}>
-                                        <Link href={item.href}>
-                                            {item.label}
-                                        </Link>
+                                    <DropdownMenuItem
+                                        key={item.href}
+                                        onClick={() => router.push(item.href)}
+                                    >
+                                        {item.label}
                                     </DropdownMenuItem>
                                 );
                             })}

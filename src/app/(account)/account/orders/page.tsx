@@ -2,6 +2,7 @@ import React from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import OrdersPage from "./components/orders-page";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "ORDERS | DESIGNMYCASE",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 const Page = async () => {
     const { user } = await getServerSideSession();
     if (!user || !user.id) {
-        return;
+        notFound();
     }
     return <OrdersPage userId={user.id} />;
 };

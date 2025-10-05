@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
 
                   cd.name AS case_name,
                   COALESCE(cd.image, gi.url) AS imgsrc,
+                  cd.cropped_image_url,
                   pm.model_name AS modelname,
                   cc.name AS color,
                   cm.name AS material,
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest) {
                 JOIN case_material cm ON cd.case_material_id = cm.id
                 JOIN case_finish cf ON cd.case_finish_id = cf.id
                 LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
-                WHERE r.user_id = $1 AND r.status != 'dismissed' AND r.dismissed_at IS NULL
+                WHERE r.user_id = $1 AND r.status != 'dismissed' AND r.dismissed_at IS NULL AND cd.unfinished = true
                 ORDER BY r.updated_at DESC
             `;
 
@@ -50,6 +51,7 @@ export async function GET(req: NextRequest) {
                 userId: String(r.user_id),
                 caseDesignId: String(r.case_design_id),
                 status: r.status,
+                croppedImgUrl: r.cropped_image_url ?? null,
                 reminderSentCount: Number(r.reminder_sent_count ?? 0),
                 lastSentAt: r.last_sent_at
                     ? new Date(r.last_sent_at).toISOString()

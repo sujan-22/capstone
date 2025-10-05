@@ -65,7 +65,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
             );
         }
 
-        return <OrderOverview orders={orders} />;
+        return <OrderOverview orders={orders} userId={userId} />;
     };
 
     return (

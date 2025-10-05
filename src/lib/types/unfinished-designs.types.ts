@@ -1,6 +1,7 @@
 export interface IUnfinishedDesign {
     id: string;
     imgSrc: string;
+    croppedImgUrl: string;
     caseName: string;
     modelName: string;
     color: string;
@@ -16,6 +17,7 @@ export interface IUnfinishedDesign {
 export type UnfinishedDesignRow = {
     id: string;
     imgsrc: string;
+    cropped_image_url: string;
     case_name: string;
     modelname: string;
     color: string;
