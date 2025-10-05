@@ -7,6 +7,7 @@ import { IUser } from "../../../auth-client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { useBuyNow } from "@/hooks/use-buy-now";
 
 export interface ICaseDesignProps {
     id: string;
@@ -43,6 +44,8 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
         caseDesignId: id,
         initialFavorited,
     });
+
+    const { buyNow, loading: isBuyNowLoading } = useBuyNow({ designId: id });
     const queryClient = useQueryClient();
 
     return (
@@ -72,8 +75,10 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
 
             <div className="mt-4 flex justify-between space-y-3">
                 <Button
-                    onClick={() => toggleFavorite(userId)}
+                    onClick={() => buyNow(userId)}
                     aria-label={`Buy ${caseName}`}
+                    disabled={isBuyNowLoading}
+                    isLoading={isBuyNowLoading}
                 >
                     Buy Now
                 </Button>

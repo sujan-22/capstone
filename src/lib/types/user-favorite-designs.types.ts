@@ -1,6 +1,7 @@
 export interface IFavoriteDesign {
     id: string;
     imgSrc: string;
+    croppedImgUrl: string;  
     caseName: string;
     modelName: string;
     color: string;
@@ -14,6 +15,7 @@ export interface IFavoriteDesign {
 export type FavoriteDesignRow = {
     id: string;
     imgSrc: string;
+    croppedImgUrl: string;
     caseName: string;
     modelName: string;
     color: string;

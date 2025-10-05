@@ -31,7 +31,10 @@ const Reminder = ({ reminder, userId }: Props) => {
             className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
         >
             <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                <Phone imgSrc={reminder.imgSrc} altText={reminder.caseName} />
+                <Phone
+                    imgSrc={reminder.croppedImgUrl ?? reminder.imgSrc}
+                    altText={reminder.caseName}
+                />
             </div>
 
             <div className="flex-1 flex flex-col gap-2">

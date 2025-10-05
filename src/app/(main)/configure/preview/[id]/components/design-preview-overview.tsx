@@ -84,7 +84,11 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
 
     const handleCheckout = () => {
         if (user) {
-            createPaymentSession({ caseDesignId: designId, userId: user.id });
+            createPaymentSession({
+                caseDesignId: designId,
+                userId: user.id,
+                userEmail: user.email,
+            });
         }
     };
 

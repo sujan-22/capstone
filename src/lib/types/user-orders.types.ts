@@ -28,6 +28,8 @@ export interface ICaseDesign {
     totalFavorites?: number;
     croppedImgUrl: string;
     colorHex: string;
+    hasRequestedToSharePublicly: boolean;
+    isSharedPublicly: boolean;
 }
 
 export type OrderRow = {
@@ -41,6 +43,7 @@ export type OrderRow = {
     tracking_number: string | null;
     order_createdat: Date;
     order_updatedat: Date;
+    is_paid: boolean;
 
     design_id: string;
     imgSrc: string;
@@ -54,6 +57,8 @@ export type OrderRow = {
     totalFavorites: number;
     cropped_image_url: string;
     colorHex: string;
+    hasRequestedToSharePublicly: boolean;
+    isSharedPublicly: boolean;
 
     billing_id: string;
     billing_name: string;

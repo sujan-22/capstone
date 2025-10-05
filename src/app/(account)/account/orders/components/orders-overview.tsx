@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
 import OrderCard from "./order";
 
-const OrderOverview = ({ orders }: { orders: IUserOrderWithDesign[] }) => {
+const OrderOverview = ({ orders, userId }: { orders: IUserOrderWithDesign[], userId: string }) => {
     if (orders?.length) {
         return (
             <div className="flex flex-col gap-y-6 sm:gap-y-8 w-full">
@@ -15,7 +15,7 @@ const OrderOverview = ({ orders }: { orders: IUserOrderWithDesign[] }) => {
                         key={o.id}
                         className="pb-2 last:pb-0 last:border-none h-full"
                     >
-                        <OrderCard order={o} />
+                        <OrderCard order={o} userId={userId} />
                         <Separator />
                     </div>
                 ))}

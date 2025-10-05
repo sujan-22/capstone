@@ -2,10 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import Phone from "@/components/utilities/phone";
-import Link from "next/link";
 import React from "react";
 import { IFavoriteDesign } from "@/lib/types/user-favorite-designs.types";
 import { useFavorite } from "@/hooks/use-favorite";
+import { useBuyNow } from "@/hooks/use-buy-now";
 
 interface Props {
     design: IFavoriteDesign;
@@ -18,13 +18,20 @@ const FavoriteDesign = ({ design, userId }: Props) => {
         initialFavorited: design.isFavorited,
     });
 
+    const { buyNow, loading: isBuyNowLoading } = useBuyNow({
+        designId: design.id,
+    });
+
     return (
         <div
             key={design.id}
             className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
         >
             <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                <Phone imgSrc={design.imgSrc} altText={design.caseName} />
+                <Phone
+                    imgSrc={design.croppedImgUrl}
+                    altText={design.caseName}
+                />
             </div>
 
             <div className="flex-1 flex flex-col gap-2">
@@ -54,9 +61,15 @@ const FavoriteDesign = ({ design, userId }: Props) => {
                 </div>
 
                 <div className="mt-auto flex flex-wrap gap-2">
-                    <Link href={`/configure/customize/${design.id}`} passHref>
-                        <Button size="sm">Buy now</Button>
-                    </Link>
+                    <Button
+                        onClick={() => buyNow(userId)}
+                        aria-label={`Buy ${design.caseName}`}
+                        disabled={isBuyNowLoading}
+                        isLoading={isBuyNowLoading}
+                        size={"sm"}
+                    >
+                        Buy Now
+                    </Button>
 
                     <Button
                         onClick={() => toggleFavorite(userId)}
@@ -64,6 +77,7 @@ const FavoriteDesign = ({ design, userId }: Props) => {
                         aria-label={`Favorite ${design.caseName}`}
                         disabled={loading}
                         isLoading={loading}
+                        variant={"outline"}
                     >
                         Remove from favorite
                     </Button>

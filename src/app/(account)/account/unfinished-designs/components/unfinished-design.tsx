@@ -27,7 +27,10 @@ const UnfinishedDesign = ({ design, userId }: Props) => {
             className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
         >
             <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                <Phone imgSrc={design.imgSrc} altText={design.caseName} />
+                <Phone
+                    imgSrc={design.croppedImgUrl ?? design.imgSrc}
+                    altText={design.caseName}
+                />
             </div>
 
             <div className="flex-1 flex flex-col gap-2">

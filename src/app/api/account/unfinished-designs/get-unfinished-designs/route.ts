@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
         SELECT
           cd.id,
           COALESCE(cd.image, gi.url) AS imgsrc,
+          cd.cropped_image_url,
           cd.name AS case_name,
           pm.model_name AS modelname,
           cc.name AS color,
@@ -68,7 +69,8 @@ export async function GET(req: NextRequest) {
 
                 return {
                     id: r.id,
-                    imgSrc: r.imgsrc ?? null,
+                    imgSrc: r.imgsrc,
+                    croppedImgUrl: r.cropped_image_url ?? null,
                     caseName: r.case_name,
                     modelName: r.modelname,
                     color: r.color,

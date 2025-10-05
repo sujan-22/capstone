@@ -4,9 +4,48 @@ import { useRouter } from "next/navigation";
 import { formatDate, formatPrice } from "@/lib/utils";
 import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
 import Phone from "@/components/utilities/phone";
+import { handleRequestToShareDesign } from "../actions/actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
-const OrderCard = ({ order }: { order: IUserOrderWithDesign }) => {
+const OrderCard = ({
+    order,
+    userId,
+}: {
+    order: IUserOrderWithDesign;
+    userId: string;
+}) => {
     const router = useRouter();
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+
+    const { mutate: requestToShare, isPending } = useMutation({
+        mutationFn: async () =>
+            handleRequestToShareDesign(order.design.id, userId),
+        onSuccess: () => {
+            toast({
+                title: "Request sent",
+                description:
+                    "Your request to share the design has been sent successfully and is under review.",
+            });
+        },
+        onSettled: (data) => {
+            if (data?.success) {
+                queryClient.invalidateQueries({
+                    queryKey: ["get-orders"],
+                });
+            }
+        },
+        onError: (err) => {
+            toast({
+                title: "Error",
+                description:
+                    err?.message ||
+                    "There was an error sending your request. Please try again.",
+                variant: "destructive",
+            });
+        },
+    });
 
     return (
         <div
@@ -73,15 +112,31 @@ const OrderCard = ({ order }: { order: IUserOrderWithDesign }) => {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row justify-end gap-2 my-4">
                 <Button
-                    variant="secondary"
+                    variant={
+                        order.design.isSharedPublicly
+                            ? "outline"
+                            : order.design.hasRequestedToSharePublicly
+                            ? "secondary"
+                            : "default"
+                    }
                     size="sm"
                     className="w-full sm:w-auto"
-                    onClick={() =>
-                        router.push(`/configure/customize/${order.design.id}`)
+                    onClick={() => requestToShare()}
+                    disabled={
+                        isPending ||
+                        order.design.hasRequestedToSharePublicly ||
+                        order.design.isSharedPublicly
                     }
                 >
-                    Re-order
+                    {order.design.isSharedPublicly
+                        ? "Already Shared"
+                        : order.design.hasRequestedToSharePublicly
+                        ? "Already Requested"
+                        : isPending
+                        ? "Requesting..."
+                        : "Request to Share Publicly"}
                 </Button>
+
                 <Button
                     variant="outline"
                     size="sm"

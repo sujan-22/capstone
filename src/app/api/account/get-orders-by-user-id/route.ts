@@ -39,9 +39,11 @@ export async function GET(req: NextRequest) {
                   COALESCE(cd.image, gi.url) AS "imgSrc",
                   cd.cropped_image_url AS cropped_image_url,
                   cd.name AS "caseName",
+                  cd.has_requested_to_share_publicly AS "hasRequestedToSharePublicly",
+                  cd.is_shared_publicly AS "isSharedPublicly",
                   pm.model_name AS "modelName",
                   cc.name AS "color",
-                  cc.hex AS "colorHex",
+                  cc.hex AS "colorHex", 
                   cm.name AS "material",
                   cf.name AS "finish",
                   (cm.price + cf.price) AS "price",
@@ -77,7 +79,7 @@ export async function GET(req: NextRequest) {
                 LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
                 LEFT JOIN billing_address ba ON o.billing_address_id = ba.id
                 LEFT JOIN shipping_address sa ON o.shipping_address_id = sa.id
-                WHERE o.user_id = $1
+                WHERE o.user_id = $1 AND o.is_paid = TRUE
                 ORDER BY o.created_at DESC
             `;
 
@@ -136,6 +138,8 @@ export async function GET(req: NextRequest) {
                     totalFavorites: r.totalFavorites ?? 0,
                     croppedImgUrl: r.cropped_image_url,
                     colorHex: r.colorHex,
+                    hasRequestedToSharePublicly: r.hasRequestedToSharePublicly,
+                    isSharedPublicly: r.isSharedPublicly,
                 },
             }));
 

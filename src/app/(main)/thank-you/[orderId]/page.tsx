@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import { Metadata } from "next";
 import ThankyouComponent from "./components/thank-you";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Order Confirmation | DESIGNMYCASE",
@@ -42,7 +43,7 @@ export default async function Page({
     const { orderId } = await params;
     const { user } = await getServerSideSession();
     if (!user) {
-        return;
+        notFound();
     }
 
     return (

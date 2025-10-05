@@ -13,6 +13,7 @@ export interface IReminder {
     imgSrc: string;
     modelName: string;
     color: string;
+    croppedImgUrl: string | null;
     material: string;
     finish: string;
 }
@@ -31,6 +32,7 @@ export type IReminderRow = {
     case_name: string;
     imgsrc: string;
     modelname: string;
+    cropped_image_url: string;
     color: string;
     material: string;
     finish: string;
