@@ -34,7 +34,7 @@ const Phone = ({
             />
 
             {imgSrc && (
-                <div className="absolute -z-10 inset-0">
+                <div className="absolute -z-10 inset-0 right-[1px]">
                     {/*  eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         className="object-cover min-w-full min-h-full"

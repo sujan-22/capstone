@@ -9,17 +9,26 @@ export interface FeaturedDesignsResponse {
     error?: string;
 }
 
-export const getFeaturedDesigns = async (
-    userId: string | undefined
-): Promise<FeaturedDesignsResponse> => {
+export const getFeaturedDesigns = async ({
+    userId,
+    sort = "none",
+    limit,
+}: {
+    userId: string | undefined;
+    sort: string;
+    limit?: number;
+}): Promise<FeaturedDesignsResponse> => {
     try {
-        const res = await fetch(`${NEXT_PUBLIC_URL}/api/get-featured-designs`, {
-            method: "GET",
-            headers: {
-                "x-user-id": userId ?? "",
-            },
-            cache: "default",
-        });
+        const res = await fetch(
+            `${NEXT_PUBLIC_URL}/api/get-featured-designs?sort=${sort}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: {
+                    "x-user-id": userId ?? "",
+                },
+                cache: "default",
+            }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch featured designs");
 

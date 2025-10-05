@@ -164,7 +164,6 @@ const SignInPage: React.FC = () => {
                             <div className="pt-2">
                                 <Button
                                     isLoading={pending}
-                                    loadingText="Signing in..."
                                     type="submit"
                                     className="w-full"
                                 >

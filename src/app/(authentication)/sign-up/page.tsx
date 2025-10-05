@@ -247,7 +247,6 @@ const SignUpPage: React.FC = () => {
                                     isLoading={pending}
                                     type="submit"
                                     className="w-full"
-                                    loadingText="Signing up..."
                                     disabled={
                                         usernameAvailable === false ||
                                         checking ||

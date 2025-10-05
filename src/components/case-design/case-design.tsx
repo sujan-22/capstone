@@ -79,6 +79,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                     aria-label={`Buy ${caseName}`}
                     disabled={isBuyNowLoading}
                     isLoading={isBuyNowLoading}
+                    size={"sm"}
                 >
                     Buy Now
                 </Button>
@@ -95,6 +96,8 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                         }}
                         aria-label={`Favorite ${caseName}`}
                         disabled={loading}
+                        isLoading={loading}
+                        size={"sm"}
                     >
                         {isFavorited ? "Favorited" : "Favorite"}
                     </Button>

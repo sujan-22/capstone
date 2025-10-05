@@ -7,8 +7,18 @@ export async function GET(req: Request) {
 
     try {
         const userId = req.headers.get("x-user-id") || "";
+        const url = new URL(req.url);
+        const sort = url.searchParams.get("sort") || "none";
+        const limitParam = url.searchParams.get("limit");
+        const limit = limitParam ? parseInt(limitParam, 10) : undefined;
 
-        const query = `
+        let orderBy = "cd.total_favorites DESC";
+
+        if (sort === "price_low_to_high") orderBy = "cm.price + cf.price ASC";
+        else if (sort === "price_high_to_low")
+            orderBy = "cm.price + cf.price DESC";
+
+        let query = `
             SELECT
                 cd.id,
                 COALESCE(cd.image, gi.url) AS "imgSrc",
@@ -28,8 +38,12 @@ export async function GET(req: Request) {
             JOIN case_finish cf ON cd.case_finish_id = cf.id
             LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
             WHERE cd.is_shared_publicly = TRUE
-            ORDER BY cd.total_favorites DESC
+            ORDER BY ${orderBy}
         `;
+
+        if (limit) {
+            query += ` LIMIT ${limit}`;
+        }
 
         const res = await client.query<ICaseDesignProps>(query, [userId]);
         return NextResponse.json(res.rows);

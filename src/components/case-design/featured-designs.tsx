@@ -5,11 +5,20 @@ import { getFeaturedDesigns } from "./actions/actions";
 import { IUser } from "../../../auth-client";
 import { useQuery } from "@tanstack/react-query";
 import { Icons } from "../utilities/icons";
+import { Button } from "../ui/button";
+import CaseDesignSkeleton from "./skeletons/case-design-skeleton";
+import { useRouter } from "next/navigation";
 
 export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
-    const { data } = useQuery({
+    const router = useRouter();
+    const { data, isLoading } = useQuery({
         queryKey: ["get-featured-designs", user?.id],
-        queryFn: async () => await getFeaturedDesigns(user?.id),
+        queryFn: async () =>
+            await getFeaturedDesigns({
+                userId: user?.id,
+                sort: "none",
+                limit: 3,
+            }),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,
@@ -20,8 +29,8 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
     return (
         <section className="py-16">
             <div className="flex flex-col items-center gap-16 sm:gap-32">
-                <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
-                    <h2 className="order-1 tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl">
+                <div className="flex flex-col items-center gap-4 sm:gap-6">
+                    <h2 className="tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl">
                         Explore our{" "}
                         <span className="relative inline-block px-2">
                             featured{" "}
@@ -29,6 +38,11 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
                         </span>{" "}
                         designs
                     </h2>
+                    <p className="text-center text-muted-foreground max-w-xl mx-auto mt-4">
+                        Discover hand-picked designs from our creative
+                        community. Each piece showcases unique style and
+                        craftsmanship to inspire your next custom case.
+                    </p>
                 </div>
                 <section
                     className="
@@ -38,14 +52,24 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
     gap-6
   "
                 >
-                    {designs.map((design) => (
-                        <CaseDesignComponent
-                            key={design.id}
-                            {...design}
-                            user={user}
-                        />
-                    ))}
+                    {isLoading || !designs.length
+                        ? Array.from({ length: 3 }).map((_, i) => (
+                              <CaseDesignSkeleton key={i} />
+                          ))
+                        : designs.map((design) => (
+                              <CaseDesignComponent
+                                  key={design.id}
+                                  {...design}
+                                  user={user}
+                              />
+                          ))}
                 </section>
+                <Button
+                    variant={"outline"}
+                    onClick={() => router.push("/featured-designs")}
+                >
+                    Explore more
+                </Button>
             </div>
         </section>
     );
