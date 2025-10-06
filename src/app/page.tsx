@@ -2,11 +2,12 @@ import Phone from "@/components/utilities/phone";
 import { Check } from "lucide-react";
 import RenderFeaturedDesigns from "@/components/case-design/render-featured-designs";
 import SmallLogo from "@/components/utilities/small-logo";
+import Reviews from "@/components/utilities/reviews";
 export default function Home() {
     return (
         <div>
             <section>
-                <div className="lg:grid lg:grid-cols-3 sm:pb-32 lg:gap-x-0 xl:gap-x-8 lg:pt-24 xl:pt-20 lg:pb-52">
+                <div className="lg:grid lg:grid-cols-3 sm:pb-32 lg:gap-x-0 xl:gap-x-8 py-28">
                     <div className=" col-span-2 lg:px-0 lg:pt-4">
                         <div className="relative mx-auto text-center lg:text-left flex flex-col items-center lg:items-start">
                             <h1
@@ -42,24 +43,6 @@ export default function Home() {
                                     </li>
                                 </div>
                             </ul>
-                            <div className=" mt-12 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                                <div className="flex -space-x-4"></div>
-                                <div className="flex flex-col justify-between items-center sm:items-start ">
-                                    {/* <div className="flex gap-0.5">
-                                        <Star className=" h-4 w-4 text-blue-600 fill-blue-600" />
-                                        <Star className=" h-4 w-4 text-blue-600 fill-blue-600" />
-                                        <Star className=" h-4 w-4 text-blue-600 fill-blue-600" />
-                                        <Star className=" h-4 w-4 text-blue-600 fill-blue-600" />
-                                        <Star className=" h-4 w-4 text-blue-600 fill-blue-600" />
-                                    </div> */}
-                                    {/* <p>
-                                        <span className="font-semibold">
-                                            2.234
-                                        </span>{" "}
-                                        happy customers
-                                    </p> */}
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div className="col-span-full lg:col-span-1 w-full flex justify-center px-8 sm:px-16 md:px-0 mt-32 lg:mx-0 lg:mt-20 h-fit">
@@ -85,7 +68,14 @@ export default function Home() {
                 </div>
             </section>
             {/* featured designs*/}
-            <RenderFeaturedDesigns />
+            <section>
+                <RenderFeaturedDesigns />
+            </section>
+
+            {/* animated landing page */}
+            <div className=" py-16">
+                <Reviews />
+            </div>
         </div>
     );
 }

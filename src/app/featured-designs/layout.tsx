@@ -1,5 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import SortSidebar from "./components/sort-sidebar";
+import { Suspense } from "react";
 
 interface FeaturedDesignsLayoutProps {
     children: React.ReactNode;
@@ -23,7 +24,9 @@ export default function FeaturedDesignsLayout({
 
             <div className="flex flex-col [@media(min-width:620px)]:flex-row-reverse [@media(min-width:620px)]:space-x-12 [@media(min-width:620px)]:space-y-0 gap-2">
                 <aside className="mb-4 [@media(min-width:620px)]:mb-0 space-y-8 m-0">
-                    <SortSidebar />
+                    <Suspense>
+                        <SortSidebar />
+                    </Suspense>
                 </aside>
                 <div className="flex-1">{children}</div>
             </div>

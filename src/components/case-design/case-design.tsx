@@ -51,25 +51,29 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     return (
         <article className="max-w-xs mx-auto p-1">
             <div className="flex justify-center">
-                <Phone imgSrc={croppedImgUrl} altText={altText ?? caseName} />
+                <Phone
+                    imgSrc={croppedImgUrl}
+                    altText={altText ?? caseName}
+                    dark
+                />
             </div>
             <h2 className="mt-4 text-left text-md font-semibold line-clamp-2 h-14">
                 {caseName}
             </h2>
             <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
-                <dt className="text-muted-foreground">Model:</dt>
+                <dt className="text-muted">Model:</dt>
                 <dd className="text-right">{modelName}</dd>
 
-                <dt className="text-muted-foreground">Color:</dt>
+                <dt className="text-muted">Color:</dt>
                 <dd className="text-right">{color}</dd>
 
-                <dt className="text-muted-foreground">Material:</dt>
+                <dt className="text-muted">Material:</dt>
                 <dd className="text-right">{material}</dd>
 
-                <dt className="text-muted-foreground">Finish:</dt>
+                <dt className="text-muted">Finish:</dt>
                 <dd className="text-right">{finish}</dd>
 
-                <dt className="text-muted-foreground">Price:</dt>
+                <dt className="text-muted">Price:</dt>
                 <dd className="text-right font-medium">{formatPrice(price)}</dd>
             </dl>
 
@@ -80,6 +84,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                     disabled={isBuyNowLoading}
                     isLoading={isBuyNowLoading}
                     size={"sm"}
+                    variant={"secondary"}
                 >
                     Buy Now
                 </Button>
@@ -97,6 +102,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                         aria-label={`Favorite ${caseName}`}
                         disabled={loading}
                         isLoading={loading}
+                        variant={"secondary"}
                         size={"sm"}
                     >
                         {isFavorited ? "Favorited" : "Favorite"}
