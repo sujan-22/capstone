@@ -29,7 +29,7 @@ export default function RootLayout({
             >
                 <ReactQueryProvider>
                     <UseNavbarWrapper />
-                    <main className="flex-1">
+                    <main className="flex-1 overflow-x-hidden">
                         <MaxWidthWrapper>{children}</MaxWidthWrapper>
                     </main>
                     <Toaster />
