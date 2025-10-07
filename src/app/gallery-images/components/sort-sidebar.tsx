@@ -20,12 +20,14 @@ const SortSidebar = () => {
 
     const sortItems = [
         { key: "none", label: "None" },
-        { key: "price_low_to_high", label: "Price: Low → High" },
-        { key: "price_high_to_low", label: "Price: High → Low" },
+        { key: "popularity_asc", label: "Popularity: Low → High" },
+        { key: "popularity_desc", label: "Popularity: High → Low" },
     ];
 
     const handleSortChange = (value: string) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(
+            searchParams as unknown as URLSearchParams
+        );
 
         if (value === "none") {
             params.delete("sort");
@@ -50,9 +52,7 @@ const SortSidebar = () => {
                             <SelectLabel>Sort by</SelectLabel>
                             {sortItems.map((item) => (
                                 <SelectItem key={item.key} value={item.key}>
-                                    {item.key === "none"
-                                        ? "Sort by"
-                                        : item.label}
+                                    {item.label}
                                 </SelectItem>
                             ))}
                         </SelectGroup>

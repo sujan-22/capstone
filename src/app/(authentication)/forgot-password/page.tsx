@@ -9,7 +9,7 @@ import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
 import Logo from "@/components/utilities/logo";
 import { authClient } from "../../../../auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorContext } from "better-auth/react";
 import useAuthStore from "@/context/use-auth-store";
@@ -33,6 +33,8 @@ const ForgotPasswordPage: React.FC = () => {
     const [pending, setPending] = useState(false);
     const { setEmail } = useAuthStore();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo") || "/";
     const { toast } = useToast();
 
     const form = useForm<VerificationValues>({
@@ -58,7 +60,11 @@ const ForgotPasswordPage: React.FC = () => {
                         description:
                             "Please check your email for the verification code.",
                     });
-                    router.push("/password-reset");
+                    router.push(
+                        `/password-reset?redirectTo=${encodeURIComponent(
+                            redirectTo
+                        )}`
+                    );
                 },
                 onError: (ctx: ErrorContext) => {
                     toast({

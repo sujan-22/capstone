@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,6 +57,8 @@ const PasswordResetPage: React.FC = () => {
     const router = useRouter();
     const [pending, setPending] = useState(false);
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo") || "/";
     const { email } = useAuthStore();
 
     const form = useForm<SignUpValues>({
@@ -91,7 +93,9 @@ const PasswordResetPage: React.FC = () => {
                         description:
                             "Your password has been updated successfully.",
                     });
-                    router.push("/sign-in");
+                    router.push(
+                        `/sign-in?redirectTo=${encodeURIComponent(redirectTo)}`
+                    );
                 },
                 onError: (ctx: ErrorContext) => {
                     toast({

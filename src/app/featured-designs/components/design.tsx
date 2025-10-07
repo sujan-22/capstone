@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useFavorite } from "@/hooks/use-favorite";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBuyNow } from "@/hooks/use-buy-now";
@@ -40,6 +40,11 @@ const Design: React.FC<ICaseDesignProps> = ({
 }) => {
     const userId = user?.id || "";
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const currentUrl = `${pathname}${
+        searchParams.toString() ? "?" + searchParams.toString() : ""
+    }`;
     const { isFavorited, toggleFavorite, loading } = useFavorite({
         caseDesignId: id,
         initialFavorited,
@@ -93,7 +98,11 @@ const Design: React.FC<ICaseDesignProps> = ({
                     <Button
                         onClick={() => {
                             if (!user) {
-                                router.push("/sign-in");
+                                router.push(
+                                    `/sign-in?redirectTo=${encodeURIComponent(
+                                        currentUrl
+                                    )}`
+                                );
                                 return;
                             }
                             toggleFavorite(userId);

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,6 +36,8 @@ const RESEND_COOLDOWN = 60;
 const EmailVerificationPage: React.FC = () => {
     const router = useRouter();
     const { email } = useAuthStore();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo") || "/";
     const { toast } = useToast();
 
     const [pending, setPending] = useState(false);
@@ -94,7 +96,9 @@ const EmailVerificationPage: React.FC = () => {
                 description: "Your email has been verified.",
             });
 
-            router.push("/sign-in");
+            router.push(
+                `/sign-in?redirectTo=${encodeURIComponent(redirectTo)}`
+            );
         } catch (err) {
             console.error("verify error:", err);
             form.setError("verificationCode", {
@@ -119,7 +123,9 @@ const EmailVerificationPage: React.FC = () => {
                     "Unable to determine your email. Please retry signup.",
                 variant: "destructive",
             });
-            router.push("/sign-up");
+            router.push(
+                `/sign-up?redirectTo=${encodeURIComponent(redirectTo)}`
+            );
             return;
         }
 
