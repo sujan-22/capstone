@@ -56,7 +56,7 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
                     >
                         {isLoading || !designs.length
                             ? Array.from({ length: 3 }).map((_, i) => (
-                                  <CaseDesignSkeleton key={i} />
+                                  <CaseDesignSkeleton key={i} isDark />
                               ))
                             : designs.map((design) => (
                                   <CaseDesignComponent

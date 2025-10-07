@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,6 +63,8 @@ const SignUpPage: React.FC = () => {
     const router = useRouter();
     const { toast } = useToast();
     const [pending, setPending] = useState(false);
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo") || "/";
     const { setEmail } = useAuthStore();
 
     const form = useForm<SignUpValues>({
@@ -155,7 +157,11 @@ const SignUpPage: React.FC = () => {
                             "Your account has been created. Please check your email for a verification code.",
                     });
 
-                    router.push("/email-verification");
+                    router.push(
+                        `/email-verification?redirectTo=${encodeURIComponent(
+                            redirectTo
+                        )}`
+                    );
                 },
                 onError: (error) => {
                     toast({
@@ -173,7 +179,7 @@ const SignUpPage: React.FC = () => {
         await authClient.signIn.social(
             {
                 provider: "google",
-                callbackURL: "/",
+                callbackURL: redirectTo,
             },
             {
                 onError: (error) => {
@@ -266,7 +272,13 @@ const SignUpPage: React.FC = () => {
                         <Button
                             variant="link"
                             className="text-blue-500 px-0"
-                            onClick={() => router.push("/sign-in")}
+                            onClick={() =>
+                                router.push(
+                                    `/sign-in?redirectTo=${encodeURIComponent(
+                                        redirectTo
+                                    )}`
+                                )
+                            }
                         >
                             Sign In
                         </Button>

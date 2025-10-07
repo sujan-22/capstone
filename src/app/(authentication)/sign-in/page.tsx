@@ -11,7 +11,7 @@ import Logo from "@/components/utilities/logo";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "../../../../auth-client";
 import { ErrorContext } from "better-auth/react";
@@ -42,6 +42,9 @@ const SignInPage: React.FC = () => {
     const [pending, setPending] = useState(false);
     const [remember, setRemember] = useState(true);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo") || "/";
+
     const { toast } = useToast();
 
     const form = useForm<SignUpValues>({
@@ -68,7 +71,7 @@ const SignInPage: React.FC = () => {
                         title: "Signed in successfully",
                         description: "You have been signed in successfully.",
                     });
-                    router.push("/");
+                    router.push(redirectTo);
                     router.refresh();
                 },
                 onError: (ctx: ErrorContext) => {
@@ -88,7 +91,7 @@ const SignInPage: React.FC = () => {
         await authClient.signIn.social(
             {
                 provider: "google",
-                callbackURL: "/",
+                callbackURL: redirectTo,
             },
             {
                 onError: (error) => {
@@ -182,7 +185,13 @@ const SignInPage: React.FC = () => {
                         <Button
                             variant="link"
                             className="text-blue-500 px-0"
-                            onClick={() => router.push("/sign-up")}
+                            onClick={() =>
+                                router.push(
+                                    `/sign-up?redirectTo=${encodeURIComponent(
+                                        redirectTo
+                                    )}`
+                                )
+                            }
                         >
                             Sign Up
                         </Button>

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import UseNavbarWrapper from "@/components/navbar/use-nav-wrapper";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import Footer from "@/components/utilities/footer";
+import PageTransitionEffect from "@/components/utilities/page-transition";
 const inter = Inter({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
@@ -30,7 +31,11 @@ export default function RootLayout({
                 <ReactQueryProvider>
                     <UseNavbarWrapper />
                     <main className="flex-1 overflow-x-hidden">
-                        <MaxWidthWrapper>{children}</MaxWidthWrapper>
+                        <MaxWidthWrapper>
+                            <PageTransitionEffect>
+                                {children}
+                            </PageTransitionEffect>
+                        </MaxWidthWrapper>
                     </main>
                     <Toaster />
                     <Footer />

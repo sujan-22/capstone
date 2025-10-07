@@ -26,7 +26,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     ];
 
     const USER_MENU_LINKS = [
-        { label: "Image Gallery", href: "/image-gallery" },
+        { label: "Image Gallery", href: "/gallery-images" },
         { label: "Featured Designs", href: "/featured-designs" },
     ];
 

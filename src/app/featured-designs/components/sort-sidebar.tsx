@@ -20,8 +20,8 @@ const SortSidebar = () => {
 
     const sortItems = [
         { key: "none", label: "None" },
-        { key: "price_low_to_high", label: "Price: Low to High" },
-        { key: "price_high_to_low", label: "Price: High to Low" },
+        { key: "price_low_to_high", label: "Price: Low → High" },
+        { key: "price_high_to_low", label: "Price: High → Low" },
     ];
 
     const handleSortChange = (value: string) => {

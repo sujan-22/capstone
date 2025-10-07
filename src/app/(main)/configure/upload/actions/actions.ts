@@ -43,10 +43,8 @@ export const uploadUserImage = async (
             }
         );
 
-        // ✅ Axios already parses JSON into res.data
         const payload = res.data;
 
-        // If server returned an error structure
         if ("error" in payload) {
             return {
                 success: false,
@@ -54,7 +52,6 @@ export const uploadUserImage = async (
             };
         }
 
-        // Expecting { id: string }
         if (!payload || typeof (payload as ApiSuccess).id !== "string") {
             return {
                 success: false,
