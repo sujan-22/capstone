@@ -2,3 +2,12 @@ node_modules
 .DS_Store
 .next 
 .env
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+tree.sh
+project_file_tree.txt

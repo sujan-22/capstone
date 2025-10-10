@@ -31,7 +31,7 @@ const PhonePreview = ({
         window.addEventListener("resize", handleResize);
 
         return () => window.removeEventListener("resize", handleResize);
-    }, [ref.current]);
+    }, []);
 
     return (
         <AspectRatio ref={ref} ratio={3000 / 2001} className="relative">
