@@ -1,5 +1,5 @@
 import { Italiana } from "next/font/google";
-import { cn } from "@/lib/utils"; // adjust import path if needed
+import { cn } from "@/lib/utils";
 
 const italiana = Italiana({
     subsets: ["latin"],
