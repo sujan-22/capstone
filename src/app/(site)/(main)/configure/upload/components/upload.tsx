@@ -43,12 +43,33 @@ const UploadComponent = ({ userId }: { userId: string }) => {
     });
 
     const onDropRejected = (files: FileRejection[]) => {
-        const [file] = files;
         setIsDragOver(false);
-        toast({
-            title: `${file.file.type} type is not supported`,
-            description: "Please choose a PNG, JPG, or JPEG image instead",
-            variant: "destructive",
+
+        files.forEach((rejection) => {
+            rejection.errors.forEach((err) => {
+                if (err.code === "file-too-large") {
+                    toast({
+                        title: "File too large",
+                        description: `Maximum file size is 10 MB. Your file is ${(
+                            rejection.file.size /
+                            (1024 * 1024)
+                        ).toFixed(2)} MB.`,
+                        variant: "destructive",
+                    });
+                } else if (err.code === "file-invalid-type") {
+                    toast({
+                        title: "Invalid file type",
+                        description: "Please choose a PNG, JPG, or JPEG image.",
+                        variant: "destructive",
+                    });
+                } else {
+                    toast({
+                        title: "Upload failed",
+                        description: err.message,
+                        variant: "destructive",
+                    });
+                }
+            });
         });
     };
 
@@ -80,32 +101,7 @@ const UploadComponent = ({ userId }: { userId: string }) => {
                     onDragEnter={() => setIsDragOver(true)}
                     onDragLeave={() => setIsDragOver(false)}
                 >
-                    {({ getRootProps, getInputProps, fileRejections }) => {
-                        if (fileRejections.length > 0) {
-                            fileRejections.forEach((rejection) => {
-                                rejection.errors.forEach((err) => {
-                                    if (err.code === "file-too-large") {
-                                        toast({
-                                            title: "File too large",
-                                            description: `Maximum file size is 10 MB. Your file is ${(
-                                                rejection.file.size /
-                                                (1024 * 1024)
-                                            ).toFixed(2)} MB.`,
-                                            variant: "destructive",
-                                        });
-                                    } else if (
-                                        err.code === "file-invalid-type"
-                                    ) {
-                                        toast({
-                                            title: "Invalid file type",
-                                            description:
-                                                "Please choose a PNG, JPG, or JPEG image.",
-                                            variant: "destructive",
-                                        });
-                                    }
-                                });
-                            });
-                        }
+                    {({ getRootProps, getInputProps }) => {
                         return (
                             <div
                                 className="h-full w-full flex flex-1 flex-col items-center justify-center"
