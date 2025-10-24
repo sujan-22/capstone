@@ -26,8 +26,8 @@ export interface ImageGalleryResponse {
  * @param sort - Sorting option: "none" | "popularity_asc" | "popularity_desc"
  */
 export const getImageGallery = async (
-    limit: number = 20,
-    offset: number = 0,
+    limit = 20,
+    offset = 0,
     sort: "none" | "popularity_asc" | "popularity_desc" = "none"
 ): Promise<ImageGalleryResponse> => {
     try {
@@ -35,26 +35,20 @@ export const getImageGallery = async (
             `${NEXT_PUBLIC_URL}/api/gallery`,
             {
                 params: { limit, offset, sort },
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
             }
         );
 
-        return response.data;
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            console.error("Failed to fetch gallery images:", error.message);
-        } else {
-            console.error("Failed to fetch gallery images:", error);
-        }
+        const data = response.data ?? {};
+        return {
+            images: data.images ?? [],
+            pagination: data.pagination ?? { limit, offset, count: 0 },
+        };
+    } catch (error) {
+        console.error("Failed to fetch gallery images:", error);
         return {
             images: [],
-            pagination: {
-                limit,
-                offset,
-                count: 0,
-            },
+            pagination: { limit, offset, count: 0 },
         };
     }
 };
