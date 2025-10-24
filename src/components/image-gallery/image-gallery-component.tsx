@@ -38,7 +38,7 @@ export default function ImageGalleryComponent({
     });
 
     const images = useMemo(
-        () => data?.images.flatMap((page) => page) ?? [],
+        () => data?.images?.flatMap((page) => page) ?? [],
         [data]
     );
 

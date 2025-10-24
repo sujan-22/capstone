@@ -39,15 +39,22 @@ export default function GalleryImagesPreview({
             queryFn: async ({ pageParam = 0 }) =>
                 await getImageGallery(IMAGE_GALLERY_PAGE_SIZE, pageParam, sort),
             getNextPageParam: (lastPage) => {
-                const { offset, count, limit } = lastPage.pagination;
-                return count < limit ? undefined : offset + limit;
+                if (!lastPage?.pagination) return undefined;
+                const {
+                    offset = 0,
+                    count = 0,
+                    limit = 0,
+                } = lastPage.pagination;
+                if (count < limit || !limit) return undefined;
+                return offset + limit;
             },
+
             staleTime: 1000 * 60 * 5,
             initialPageParam: 0,
         });
 
     const images = useMemo(
-        () => data?.pages.flatMap((page) => page.images) ?? [],
+        () => data?.pages?.flatMap((page) => page.images) ?? [],
         [data]
     );
 
