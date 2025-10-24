@@ -35,7 +35,7 @@ export default function GalleryImagesPreview({
 
     const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
         useInfiniteQuery({
-            queryKey: ["gallery-images", sort],
+            queryKey: ["paginated-gallery-images", sort],
             queryFn: async ({ pageParam = 0 }) =>
                 await getImageGallery(IMAGE_GALLERY_PAGE_SIZE, pageParam, sort),
             getNextPageParam: (lastPage) => {
@@ -51,6 +51,7 @@ export default function GalleryImagesPreview({
 
             staleTime: 1000 * 60 * 5,
             initialPageParam: 0,
+            enabled: !!sort,
         });
 
     const images = useMemo(
