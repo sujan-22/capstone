@@ -2,6 +2,7 @@ import React from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import { Metadata } from "next";
 import FavoriteDesignOverview from "./components/favorite-designs-overview";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "FAVORITE DESIGNS | DESIGNMYCASE",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 const Page = async () => {
     const { user } = await getServerSideSession();
     if (!user) {
-        return;
+        return notFound();
     }
     return <FavoriteDesignOverview userId={user.id} />;
 };

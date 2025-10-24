@@ -67,7 +67,7 @@ export const createCheckoutSession = async ({
         cd.user_id,
         cd.name AS design_name,
         COALESCE(gi.url, cd.image) AS image_url,
-        cd.cropped_image_url AS croppedImgUrl,
+        cd.cropped_image_url,
         cm.id AS material_id,
         cm.name AS material_name,
         pm.model_name AS model_name,
@@ -96,6 +96,7 @@ export const createCheckoutSession = async ({
             design_name: string | null;
             image_url: string | null;
             material_id: string;
+            cropped_image_url: string;
             material_name: string;
             material_price: number | string | null;
             finish_id: string;
@@ -190,7 +191,7 @@ export const createCheckoutSession = async ({
         const product = await stripe.products.create({
             name: `Your ${row.model_name} - ${row.material_name} (${row.finish_name})`,
             description: `Material: ${row.material_name}, Finish: ${row.finish_name}, Subtotal: $${sub_total}, Tax: $${tax}, Total: $${total_amount}`,
-            images: row.image_url ? [row.image_url] : undefined,
+            images: row.cropped_image_url ? [row.cropped_image_url] : undefined,
             default_price_data: {
                 currency: "cad",
                 unit_amount: totalCents,

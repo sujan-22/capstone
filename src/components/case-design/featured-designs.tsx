@@ -70,6 +70,7 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
                         variant={"outline"}
                         onClick={() => router.push("/featured-designs")}
                         className="text-primary"
+                        size={"sm"}
                     >
                         Explore more
                     </Button>
