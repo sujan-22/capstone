@@ -1,0 +1,12 @@
+// src/app/(authentication)/layout.tsx
+export default function AuthLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-muted/20">
+            {children}
+        </div>
+    );
+}
