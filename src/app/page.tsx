@@ -3,6 +3,8 @@ import { Check } from "lucide-react";
 import RenderFeaturedDesigns from "@/components/case-design/render-featured-designs";
 import SmallLogo from "@/components/utilities/small-logo";
 import Reviews from "@/components/utilities/reviews";
+import RenderImageGallery from "@/components/image-gallery/render-image-gallery";
+import CalltoActionReviewDesign from "@/components/utilities/cta-review";
 export default function Home() {
     return (
         <div>
@@ -76,6 +78,15 @@ export default function Home() {
             <div className=" py-16">
                 <Reviews />
             </div>
+
+            {/* image gallery preview */}
+            <section>
+                <RenderImageGallery />
+            </section>
+
+            <section>
+                <CalltoActionReviewDesign />
+            </section>
         </div>
     );
 }
