@@ -10,8 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import {
     createDesignFromGalleryImage,
     getImageGallery,
-} from "@/app/gallery-images/actions/actions";
-import ImageComponent from "@/app/gallery-images/components/image";
+} from "@/app/(site)/gallery-images/actions/actions";
+import ImageComponent from "@/app/(site)/gallery-images/components/image";
 import MaxWidthWrapper from "../utilities/max-width-wrapper";
 import { Icons } from "../utilities/icons";
 
