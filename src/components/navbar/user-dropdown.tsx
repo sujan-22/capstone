@@ -31,7 +31,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     ];
 
     const ADMIN_DASHBOARD_LINKS = [
-        { label: "Admin Dashboard", href: "/admin-dashboard" },
+        { label: "Admin Dashboard", href: "/admin-dashboard/overview" },
     ];
 
     const { signOut } = useSignOut();

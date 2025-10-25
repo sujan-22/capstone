@@ -23,3 +23,41 @@ export const formatPrice = (price: number) => {
 
     return formatter.format(price);
 };
+
+export function ymdInTz(iso: string, tz: string) {
+    const d = new Date(iso);
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: tz,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    })
+        .formatToParts(d)
+        .reduce<Record<string, string>>((acc, p) => {
+            if (p.type === "year" || p.type === "month" || p.type === "day")
+                acc[p.type] = p.value;
+            return acc;
+        }, {});
+    return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+export function labelFromYmd(ymd: string, tz: string) {
+    const [y, m, d] = ymd.split("-").map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d));
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: tz,
+        month: "short",
+        day: "numeric",
+    }).format(date);
+}
+
+export function fullLabelFromYmd(ymd: string, tz: string) {
+    const [y, m, d] = ymd.split("-").map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d));
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: tz,
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    }).format(date);
+}
