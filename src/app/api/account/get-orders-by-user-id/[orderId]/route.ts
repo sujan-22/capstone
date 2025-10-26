@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 import { IUserOrderWithDesign, OrderRow } from "@/lib/types/user-orders.types";
+import { getServerSideSession } from "@/hooks/use-session";
 
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ orderId: string }> }
 ) {
     try {
-        const userId = req.headers.get("x-user-id") || "";
+        const { user } = await getServerSideSession();
+        const userId = user?.id || "";
+        const isAdmin = user?.role === "admin";
         const { orderId } = await params;
         if (!userId) {
             return NextResponse.json(
@@ -85,11 +88,15 @@ export async function GET(
                 LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
                 LEFT JOIN billing_address ba ON o.billing_address_id = ba.id
                 LEFT JOIN shipping_address sa ON o.shipping_address_id = sa.id
-                WHERE o.id = $1 AND o.user_id = $2
+                WHERE o.id = $1 AND (o.user_id = $2 OR $3::boolean IS TRUE)
                 LIMIT 1
             `;
 
-            const { rows } = await client.query<OrderRow>(q, [orderId, userId]);
+            const { rows } = await client.query<OrderRow>(q, [
+                orderId,
+                userId,
+                isAdmin,
+            ]);
 
             if (!rows.length) {
                 return NextResponse.json(
