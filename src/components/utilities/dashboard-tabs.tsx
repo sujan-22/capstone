@@ -28,7 +28,11 @@ export default function DashboardTabs() {
         <Tabs value={active} onValueChange={go} className="w-full">
             <TabsList className="flex flex-wrap">
                 {TABS.map((t) => (
-                    <TabsTrigger key={t} value={t}>
+                    <TabsTrigger
+                        key={t}
+                        value={t}
+                        className="hover:cursor-pointer"
+                    >
                         {t[0].toUpperCase() + t.slice(1)}
                     </TabsTrigger>
                 ))}

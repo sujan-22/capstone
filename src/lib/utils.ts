@@ -43,7 +43,7 @@ export function ymdInTz(iso: string, tz: string) {
 
 export function labelFromYmd(ymd: string, tz: string) {
     const [y, m, d] = ymd.split("-").map(Number);
-    const date = new Date(Date.UTC(y, m - 1, d));
+    const date = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
     return new Intl.DateTimeFormat("en-US", {
         timeZone: tz,
         month: "short",
@@ -53,7 +53,7 @@ export function labelFromYmd(ymd: string, tz: string) {
 
 export function fullLabelFromYmd(ymd: string, tz: string) {
     const [y, m, d] = ymd.split("-").map(Number);
-    const date = new Date(Date.UTC(y, m - 1, d));
+    const date = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
     return new Intl.DateTimeFormat("en-US", {
         timeZone: tz,
         month: "short",
