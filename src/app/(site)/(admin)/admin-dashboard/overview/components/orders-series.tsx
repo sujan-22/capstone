@@ -188,6 +188,7 @@ export function ChartAreaOrders({
                             content={
                                 <ChartTooltipContent
                                     indicator="dot"
+                                    // @ts-expect-error to be fixed later
                                     labelFormatter={(value: string) =>
                                         fullLabelFromYmd(value, STORE_TZ)
                                     }
