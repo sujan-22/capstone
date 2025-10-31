@@ -27,25 +27,28 @@ export type OrdersPage = {
 
 export const adminOrdersKeys = {
     all: ["admin-orders"] as const,
-    list: (q: string) => ["admin-orders", q] as const,
+    list: (q?: string, userId?: string) =>
+        ["admin-orders", q ?? "", userId ?? ""] as const,
 };
 
 export async function fetchAdminOrdersPage({
     cursor,
     limit = 20,
     q,
+    userId,
     signal,
 }: {
     cursor?: string | null;
     limit?: number;
     q?: string;
+    userId?: string;
     signal?: AbortSignal;
 }): Promise<OrdersPage> {
     try {
         const res = await axios.get<OrdersPage>(
             `${NEXT_PUBLIC_URL}/api/admin/orders/get-all`,
             {
-                params: { cursor, limit, q },
+                params: { cursor, limit, q, userId },
                 withCredentials: true,
                 signal,
                 timeout: 15_000,
@@ -105,6 +108,50 @@ export async function updateAdminOrderStatus({
             statusCode
                 ? `[${statusCode}] Failed to update order status: ${serverMsg}`
                 : `Failed to update order status: ${serverMsg}`
+        );
+    }
+}
+
+export type ShareDesignResponse = {
+    orderId: string;
+    caseDesignId: string;
+    wasUpdated: boolean;
+    isSharedPublicly: boolean;
+};
+
+export async function shareOrderDesignPublicly({
+    id,
+    signal,
+}: {
+    id: string;
+    signal?: AbortSignal;
+}): Promise<ShareDesignResponse> {
+    try {
+        const res = await axios.patch<ShareDesignResponse>(
+            `${NEXT_PUBLIC_URL}/api/admin/orders/request/${encodeURIComponent(
+                id
+            )}`,
+            null,
+            {
+                withCredentials: true,
+                signal,
+                timeout: 15_000,
+                validateStatus: (s) => s >= 200 && s < 300,
+            }
+        );
+        return res.data;
+    } catch (err) {
+        const ax = err as AxiosError<{ error?: string; message?: string }>;
+        const status = ax.response?.status;
+        const serverMsg =
+            ax.response?.data?.error ||
+            ax.response?.data?.message ||
+            ax.message;
+
+        throw new Error(
+            status
+                ? `[${status}] Failed to publish design: ${serverMsg}`
+                : `Failed to publish design: ${serverMsg}`
         );
     }
 }

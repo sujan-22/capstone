@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ORDER_STATUSES } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -60,4 +61,21 @@ export function fullLabelFromYmd(ymd: string, tz: string) {
         day: "numeric",
         year: "numeric",
     }).format(date);
+}
+
+export function getOrderStatus(status: string) {
+    const backendKey = String(status).toUpperCase();
+    const label =
+        ORDER_STATUSES[backendKey as keyof typeof ORDER_STATUSES] ?? "Unknown";
+
+    const tone =
+        label === "Fulfilled"
+            ? "bg-emerald-500 text-white dark:bg-emerald-600"
+            : label === "Shipped"
+            ? "bg-blue-500 text-white dark:bg-blue-600" 
+            : label === "Pending"
+            ? "bg-amber-500 text-white dark:bg-amber-600"
+            : "bg-muted text-foreground";
+
+    return { label, tone };
 }

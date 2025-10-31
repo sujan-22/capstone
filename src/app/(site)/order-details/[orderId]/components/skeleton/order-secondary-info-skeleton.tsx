@@ -32,7 +32,7 @@ const OrderSecondaryInfoSkeleton: React.FC = () => {
                     <div className="flex-1 text-left">
                         <Skeleton className="h-5 w-36 rounded mb-2" />
                         <div className="space-y-1">
-                            <Skeleton className="h-4 w-full rounded" />
+                            {/* <Skeleton className="h-4 w-full rounded" /> */}
                             <Skeleton className="h-4 w-5/6 rounded" />
                             <Skeleton className="h-4 w-4/6 rounded" />
                             <Skeleton className="h-4 w-4/6 rounded" />
@@ -43,7 +43,7 @@ const OrderSecondaryInfoSkeleton: React.FC = () => {
                     <div className="flex-1 text-left md:text-center">
                         <Skeleton className="h-5 w-32 rounded mb-2" />
                         <div className="space-y-1">
-                            <Skeleton className="h-4 w-full rounded" />
+                            {/* <Skeleton className="h-4 w-full rounded" /> */}
                             <Skeleton className="h-4 w-5/6 rounded" />
                             <Skeleton className="h-4 w-4/6 rounded" />
                             <Skeleton className="h-4 w-4/6 rounded" />

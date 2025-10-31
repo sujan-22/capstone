@@ -46,7 +46,7 @@ const OrderSecondaryInfo = ({
                                 Billing Address
                             </h5>
                             <p className="text-sm">
-                                {order.billingAddress.name} <br />
+                                {/* {order.billingAddress.name} <br /> */}
                                 {order.billingAddress.street} <br />
                                 {order.billingAddress.city},{" "}
                                 {order.billingAddress.state}{" "}
@@ -62,7 +62,7 @@ const OrderSecondaryInfo = ({
                                 Shipping Address
                             </h5>
                             <p className="text-sm">
-                                {order.shippingAddress.name} <br />
+                                {/* {order.shippingAddress.name} <br /> */}
                                 {order.shippingAddress.street} <br />
                                 {order.shippingAddress.city},{" "}
                                 {order.shippingAddress.state}{" "}
@@ -75,7 +75,7 @@ const OrderSecondaryInfo = ({
                     <div className="flex-1 text-left md:text-right">
                         <h5 className="font-medium mb-1">Contact</h5>
                         <p className="text-sm">
-                            {user.name} <br />
+                            {order.shippingAddress?.name || user.name} <br />
                             {user.email} <br />
                             Phone:{" "}
                             {order.shippingAddress?.phone_number

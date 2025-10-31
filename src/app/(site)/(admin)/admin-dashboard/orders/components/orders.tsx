@@ -38,8 +38,9 @@ import { RequestBadge } from "./share-state";
 import { ORDER_STATUSES } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 
-import { adminOrdersKeys } from "../actions/actions";
+import { adminOrdersKeys, shareOrderDesignPublicly } from "../actions/actions";
 import { updateAdminOrderStatus } from "../actions/actions";
+import { getOrderStatus } from "@/lib/utils";
 
 function getShareState(o: OrderListItem) {
     const req = o.caseDesign?.hasRequestedToSharePublicly;
@@ -79,10 +80,36 @@ export function OrdersTable({
         mutationFn: ({ id, status }: { id: string; status: string }) =>
             updateAdminOrderStatus({ id, status }),
         onSuccess: async () => {
-            await qc.invalidateQueries({
-                queryKey: adminOrdersKeys.all,
-                exact: false,
-            });
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: adminOrdersKeys.all,
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: ["get-order-by-id"],
+                }),
+            ]);
+        },
+    });
+
+    const publishMutation = useMutation({
+        mutationFn: ({ id }: { id: string }) =>
+            shareOrderDesignPublicly({ id }),
+        onSuccess: async () => {
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: adminOrdersKeys.all,
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: ["get-featured-designs-page"],
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: ["get-featured-designs"],
+                    exact: false,
+                }),
+            ]);
         },
     });
 
@@ -166,20 +193,7 @@ export function OrdersTable({
                     </Button>
                 ),
                 cell: ({ row }) => {
-                    const backendKey = String(
-                        row.original.status
-                    ).toUpperCase();
-                    const label =
-                        ORDER_STATUSES[
-                            backendKey as keyof typeof ORDER_STATUSES
-                        ] ?? "Unknown";
-
-                    const tone =
-                        label === "Fulfilled"
-                            ? "bg-emerald-500 text-white dark:bg-emerald-600"
-                            : label === "Pending"
-                            ? "bg-amber-500 text-white dark:bg-amber-600"
-                            : "bg-muted text-foreground";
+                    const { tone, label } = getOrderStatus(row.original.status);
 
                     return (
                         <DropdownMenu>
@@ -256,43 +270,30 @@ export function OrdersTable({
                                 >
                                     View order
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        navigator.clipboard.writeText(ord.id)
-                                    }
-                                >
-                                    Copy order ID
-                                </DropdownMenuItem>
-                                {ord.orderNumber && (
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            navigator.clipboard.writeText(
-                                                ord.orderNumber!
-                                            )
-                                        }
-                                    >
-                                        Copy order #
-                                    </DropdownMenuItem>
-                                )}
-                                {ord.customer.email && (
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            navigator.clipboard.writeText(
-                                                ord.customer.email!
-                                            )
-                                        }
-                                    >
-                                        Copy customer email
-                                    </DropdownMenuItem>
-                                )}
+                                {row.original.caseDesign
+                                    .hasRequestedToSharePublicly &&
+                                    !row.original.caseDesign
+                                        .isSharedPublicly && (
+                                        <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    publishMutation.mutate({
+                                                        id: row.original.id,
+                                                    })
+                                                }
+                                            >
+                                                Publish design
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     );
                 },
             },
         ],
-        [router, updateStatus]
+        [router, updateStatus, publishMutation]
     );
 
     const table = useReactTable({
@@ -337,49 +338,55 @@ export function OrdersTable({
                     </TableHeader>
 
                     <TableBody>
-                        {rows.length
-                            ? table.getRowModel().rows.map((row) => {
-                                  const state = getShareState(row.original);
-                                  const pendingClass =
-                                      state === "requested"
-                                          ? "bg-blue-50/40 dark:bg-blue-950/20"
-                                          : "";
-                                  return (
-                                      <TableRow
-                                          key={row.id}
-                                          data-state={
-                                              row.getIsSelected() && "selected"
-                                          }
-                                          className={pendingClass}
-                                      >
-                                          {row.getVisibleCells().map((cell) => (
-                                              <TableCell key={cell.id}>
-                                                  {flexRender(
-                                                      cell.column.columnDef
-                                                          .cell,
-                                                      cell.getContext()
-                                                  )}
-                                              </TableCell>
-                                          ))}
-                                      </TableRow>
-                                  );
-                              })
-                            : loading && (
-                                  <>
-                                      {Array.from({ length: 5 }).map(
-                                          (_, idx) => (
-                                              <TableRow key={`skel-${idx}`}>
-                                                  <TableCell
-                                                      colSpan={visibleCols}
-                                                      className="py-2"
-                                                  >
-                                                      <Skeleton className="h-6 w-full" />
-                                                  </TableCell>
-                                              </TableRow>
-                                          )
-                                      )}
-                                  </>
-                              )}
+                        {rows.length > 0 ? (
+                            table.getRowModel().rows.map((row) => {
+                                const state = getShareState(row.original);
+                                const pendingClass =
+                                    state === "requested"
+                                        ? "bg-blue-50/40 dark:bg-blue-950/20"
+                                        : "";
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={
+                                            row.getIsSelected() && "selected"
+                                        }
+                                        className={pendingClass}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                );
+                            })
+                        ) : loading ? (
+                            <>
+                                {Array.from({ length: 5 }).map((_, idx) => (
+                                    <TableRow key={`skel-${idx}`}>
+                                        <TableCell
+                                            colSpan={visibleCols}
+                                            className="py-2"
+                                        >
+                                            <Skeleton className="h-6 w-full" />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </>
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={visibleCols}
+                                    className="h-24 text-center text-sm text-muted-foreground"
+                                >
+                                    No orders found.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>

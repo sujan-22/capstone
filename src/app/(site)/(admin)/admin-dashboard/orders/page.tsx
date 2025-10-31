@@ -5,6 +5,7 @@ import OrdersOverview from "./components/orders-overview";
 
 export default async function Page() {
     const { user } = await getServerSideSession();
+
     if (!user) {
         return notFound();
     }

@@ -19,7 +19,7 @@ const OrderDetailsPage = ({
         queryFn: async () => await getOrderById(user.id, orderId),
         retry: true,
         retryDelay: 500,
-        staleTime: 5 * 60 * 1000,
+        // staleTime: 5 * 60 * 1000,
     });
 
     if (isLoading) {
