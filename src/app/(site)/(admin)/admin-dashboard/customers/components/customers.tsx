@@ -281,7 +281,11 @@ export function CustomersTable({
                                 <DropdownMenuItem
                                     onClick={() =>
                                         router.push(
-                                            `/admin/orders?userId=${customer.id}`
+                                            `/admin-dashboard/orders?userId=${encodeURIComponent(
+                                                customer.id
+                                            )}&userName=${encodeURIComponent(
+                                                customer.name
+                                            )}`
                                         )
                                     }
                                 >
@@ -369,6 +373,8 @@ export function CustomersTable({
         state: { sorting, columnVisibility, rowSelection },
     });
 
+    const visibleCols = table.getVisibleLeafColumns().length;
+
     return (
         <div className="w-full">
             <div className="overflow-hidden rounded-md border">
@@ -395,51 +401,55 @@ export function CustomersTable({
                     </TableHeader>
 
                     <TableBody>
-                        {rows.length
-                            ? table.getRowModel().rows.map((row) => (
-                                  <TableRow
-                                      key={row.id}
-                                      data-state={
-                                          row.getIsSelected() && "selected"
-                                      }
-                                  >
-                                      {row.getVisibleCells().map((cell) => (
-                                          <TableCell
-                                              key={cell.id}
-                                              className={
-                                                  cell.column.id ===
-                                                      "revenue" ||
-                                                  cell.column.id ===
-                                                      "ordersCount"
-                                                      ? "text-right"
-                                                      : undefined
-                                              }
-                                          >
-                                              {flexRender(
-                                                  cell.column.columnDef.cell,
-                                                  cell.getContext()
-                                              )}
-                                          </TableCell>
-                                      ))}
-                                  </TableRow>
-                              ))
-                            : loading && (
-                                  <>
-                                      {Array.from({ length: 5 }).map((_, r) => (
-                                          <TableRow key={`skel-${r}`}>
-                                              <TableCell
-                                                  colSpan={
-                                                      table.getAllColumns()
-                                                          .length
-                                                  }
-                                                  className="py-2"
-                                              >
-                                                  <Skeleton className="h-6 w-full" />
-                                              </TableCell>
-                                          </TableRow>
-                                      ))}
-                                  </>
-                              )}
+                        {rows.length > 0 ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={
+                                        row.getIsSelected() && "selected"
+                                    }
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell
+                                            key={cell.id}
+                                            className={
+                                                cell.column.id === "revenue" ||
+                                                cell.column.id === "ordersCount"
+                                                    ? "text-right"
+                                                    : undefined
+                                            }
+                                        >
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : loading ? (
+                            <>
+                                {Array.from({ length: 5 }).map((_, r) => (
+                                    <TableRow key={`skel-${r}`}>
+                                        <TableCell
+                                            colSpan={visibleCols}
+                                            className="py-2"
+                                        >
+                                            <Skeleton className="h-6 w-full" />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </>
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={visibleCols}
+                                    className="h-24 text-center text-sm text-muted-foreground"
+                                >
+                                    No customers found.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>

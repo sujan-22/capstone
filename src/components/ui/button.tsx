@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 import { Spinner } from "./spinner";
+import { IconType } from "react-icons/lib";
 
 const buttonVariants = cva(
     "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:cursor-pointer",
@@ -41,6 +42,9 @@ export interface ButtonProps
     asChild?: boolean;
     isLoading?: boolean;
     loadingText?: string;
+    icon?: IconType;
+    iconClassname?: string;
+    iconPosition?: "right" | "left";
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -53,6 +57,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             size,
             children,
             asChild = false,
+            icon: Icon,
+            iconClassname,
+            iconPosition = "left",
             ...props
         },
         ref
@@ -69,7 +76,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 {...props}
             >
                 {isLoading && <Spinner className="mr-1" aria-hidden="true" />}
+                {Icon && !isLoading && iconPosition === "left" && (
+                    <Icon
+                        className={cn("w-4 h-4 mr-1", iconClassname)}
+                        aria-hidden="true"
+                    />
+                )}
                 {children}
+                {Icon && !isLoading && iconPosition === "right" && (
+                    <Icon
+                        className={cn("w-4 h-4 ml-1", iconClassname)}
+                        aria-hidden="true"
+                    />
+                )}
             </Comp>
         );
     }

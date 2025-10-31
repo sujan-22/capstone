@@ -12,9 +12,15 @@ import {
     OrdersPage,
 } from "../actions/actions";
 import { OrdersTable } from "./orders";
+import { useRouter, useSearchParams } from "next/navigation";
+import { MdClear, MdSearch } from "react-icons/md";
 
 export default function OrdersOverview({}: { user: IUser }) {
     const [q, setQ] = React.useState<string>("");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("userId") ?? undefined;
+    const filteredCustomerName = searchParams.get("userName") ?? undefined;
 
     const {
         data,
@@ -26,12 +32,13 @@ export default function OrdersOverview({}: { user: IUser }) {
         isFetchingNextPage,
         refetch,
     } = useInfiniteQuery<OrdersPage>({
-        queryKey: adminOrdersKeys.list(q),
+        queryKey: adminOrdersKeys.list(q, userId),
         queryFn: ({ pageParam, signal }) =>
             fetchAdminOrdersPage({
                 cursor: (pageParam as string | null) ?? null,
                 limit: 15,
                 q,
+                userId,
                 signal,
             }),
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
@@ -55,25 +62,61 @@ export default function OrdersOverview({}: { user: IUser }) {
         [data]
     );
 
+    const clearUserFilter = () => {
+        const sp = new URLSearchParams(searchParams.toString());
+        sp.delete("userId");
+        sp.delete("userName");
+        router.push(`/admin-dashboard/orders?${sp.toString()}`);
+    };
+
     return (
         <div className="space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="Search order #, customer name, or email…"
+                    placeholder={
+                        userId
+                            ? "Searching within this customer’s orders…"
+                            : "Search order #, customer name, or email…"
+                    }
                     className="w-full max-w-sm"
                 />
-                <Button onClick={() => refetch()} variant="outline">
-                    Search
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => refetch()}
+                        variant="outline"
+                        icon={MdSearch}
+                    >
+                        Search
+                    </Button>
+                    {userId && (
+                        <Button
+                            variant="secondary"
+                            onClick={clearUserFilter}
+                            icon={MdClear}
+                        >
+                            Clear customer filter
+                        </Button>
+                    )}
+                </div>
             </div>
+
+            {userId && filteredCustomerName && (
+                <div className="text-sm text-muted-foreground">
+                    Filtering by{" "}
+                    <span className="font-medium">
+                        customer: {filteredCustomerName}
+                    </span>
+                </div>
+            )}
 
             {isError && (
                 <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm">
-                    {(error as Error)?.message ?? "Failed to load customers."}
+                    {(error as Error)?.message ?? "Failed to load orders."}
                 </div>
             )}
+
             <OrdersTable
                 rows={orders}
                 loading={isLoading || isFetchingNextPage}

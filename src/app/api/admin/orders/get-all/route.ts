@@ -60,6 +60,7 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const q = (url.searchParams.get("q") || "").trim();
+    const userId = url.searchParams.get("userId") || null;
     const limit = parseLimit(url.searchParams.get("limit"));
     const { createdAt: cursorCreatedAt, id: cursorId } = decodeCursor(
         url.searchParams.get("cursor")
@@ -80,6 +81,11 @@ export async function GET(req: Request) {
       )`
         );
         params.push(q);
+    }
+
+    if (userId) {
+        whereParts.push(`o.user_id = $${++p}`);
+        params.push(userId);
     }
 
     if (cursorCreatedAt && cursorId) {

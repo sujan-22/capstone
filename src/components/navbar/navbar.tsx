@@ -32,9 +32,10 @@ const Navbar = ({ user }: { user: IUser | null | undefined }) => {
                                     onClick={() =>
                                         router.push("/configure/upload")
                                     }
+                                    icon={FaArrowRightLong}
+                                    iconPosition="right"
                                 >
                                     Create Case{" "}
-                                    <FaArrowRightLong className="ml-1" />
                                 </Button>
                                 <UserDropdown user={user} />
                             </div>
