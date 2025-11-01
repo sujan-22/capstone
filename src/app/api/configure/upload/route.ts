@@ -125,17 +125,17 @@ export async function POST(request: Request) {
             await client.query("BEGIN");
 
             const phoneRes: QueryResult<PhoneModelRow> = await client.query(
-                `SELECT id, model_name FROM phone_model ORDER BY created_at LIMIT 1`
+                `SELECT id, model_name FROM phone_model WHERE active = TRUE ORDER BY created_at LIMIT 1`
             );
             const materialRes: QueryResult<GenericNamedRow> =
                 await client.query(
-                    `SELECT id, name FROM case_material ORDER BY created_at LIMIT 1`
+                    `SELECT id, name FROM case_material WHERE active = TRUE ORDER BY created_at LIMIT 1`
                 );
             const colorRes: QueryResult<GenericNamedRow> = await client.query(
-                `SELECT id, name FROM case_color ORDER BY created_at LIMIT 1`
+                `SELECT id, name FROM case_color WHERE active = TRUE ORDER BY created_at LIMIT 1`
             );
             const finishRes: QueryResult<GenericNamedRow> = await client.query(
-                `SELECT id, name FROM case_finish ORDER BY created_at LIMIT 1`
+                `SELECT id, name FROM case_finish WHERE active = TRUE ORDER BY created_at LIMIT 1`
             );
 
             if (

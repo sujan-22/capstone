@@ -21,11 +21,16 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CaseFinishDTO } from "../../actions/actions";
+import {
+    CaseFinishDTO,
+    catalogKeys,
+    updateFinish,
+} from "../../actions/actions";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MdDelete } from "react-icons/md";
-import { FiEdit } from "react-icons/fi";
 import { cn } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { EditFinishDialog } from "./edit-finish";
+import { updateFinishSchema } from "@/schema/catalog";
 
 type ColMeta = { th?: string; td?: string };
 
@@ -48,6 +53,37 @@ export const Finishes: React.FC<Props> = ({
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const qc = useQueryClient();
+
+    const updateFinishMutation = useMutation({
+        mutationFn: (vars: {
+            id: string;
+            name?: string;
+            description?: string | null;
+            price?: number;
+        }) =>
+            updateFinish({
+                id: vars.id,
+                data: {
+                    name: vars.name,
+                    description: vars.description,
+                    price: vars.price,
+                },
+            }),
+        onSuccess: async () => {
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: ["catalog", "finishes"],
+                    exact: false,
+                }),
+
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.all,
+                    exact: false,
+                }),
+            ]);
+        },
+    });
 
     const columns = React.useMemo<ColumnDef<CaseFinishDTO, unknown>[]>(
         () => [
@@ -135,31 +171,26 @@ export const Finishes: React.FC<Props> = ({
                 meta: { th: "w-[15rem]", td: "" } as ColMeta,
             },
             {
-                id: "remove",
-                header: () => <span className="sr-only">Remove</span>,
-                cell: () => (
-                    <div className="flex justify-center">
-                        <Button
-                            icon={MdDelete}
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full"
-                        />
-                    </div>
-                ),
-                enableSorting: false,
-                meta: { th: "w-12 text-center", td: "text-center" } as ColMeta,
-            },
-            {
                 id: "edit",
                 header: () => <span className="sr-only">Edit</span>,
-                cell: () => (
+                cell: ({ row }) => (
                     <div className="flex justify-center">
-                        <Button
-                            icon={FiEdit}
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full"
+                        <EditFinishDialog
+                            initialData={{
+                                name: row.original.name,
+                                description: row.original.description ?? "",
+                                price: row.original.price,
+                            }}
+                            schema={updateFinishSchema}
+                            onSubmit={(vals) =>
+                                updateFinishMutation.mutate({
+                                    id: row.original.id,
+                                    name: vals.name,
+                                    description: vals.description ?? "",
+                                    price: Number(vals.price) || 0,
+                                })
+                            }
+                            isPending={updateFinishMutation.isPending}
                         />
                     </div>
                 ),
@@ -167,7 +198,7 @@ export const Finishes: React.FC<Props> = ({
                 meta: { th: "w-12 text-center", td: "text-center" } as ColMeta,
             },
         ],
-        [onToggleActive]
+        [onToggleActive, updateFinishMutation]
     );
 
     const table = useReactTable({

@@ -9,50 +9,53 @@ const passwordRoutes = [
     "/email-verification",
 ];
 const protectedRoutes = ["/account", "/order-details", "/configure"];
+const adminRoutes = ["/admin-dashboard"];
+
+function pathStartsWithAny(pathname: string, bases: string[]) {
+    return bases.some((base) => pathname.startsWith(base));
+}
 
 export default async function authMiddleware(request: NextRequest) {
-    const pathName = request.nextUrl.pathname;
+    const pathname = request.nextUrl.pathname;
 
-    const isAuthRoute = authRoutes.includes(pathName);
-    const isPasswordRoute = passwordRoutes.includes(pathName);
-    const isProtectedRoute = protectedRoutes.some((route) =>
-        pathName.startsWith(route)
-    );
+    const isAuthRoute = authRoutes.includes(pathname);
+    const isPasswordRoute = passwordRoutes.includes(pathname);
+    const isProtectedRoute = pathStartsWithAny(pathname, protectedRoutes);
+    const isAdminRoute = pathStartsWithAny(pathname, adminRoutes);
 
-    // Fetch session information
     const { data: session, error } = await betterFetch<Session>(
         "/api/auth/get-session",
         {
             baseURL: process.env.BETTER_AUTH_URL,
-            headers: {
-                cookie: request.headers.get("cookie") || "",
-            },
+            headers: { cookie: request.headers.get("cookie") || "" },
         }
     );
 
-    // If there's an error or no session (user not authenticated)
-    if (error || !session) {
-        // Allow access to auth and password routes
-        if (isAuthRoute || isPasswordRoute) {
-            return NextResponse.next();
+    const isLoggedIn = !!session && !error;
+    const isAdmin = !!session && session.user?.role === "admin";
+
+    if (!isLoggedIn) {
+        if (isAuthRoute || isPasswordRoute) return NextResponse.next();
+
+        if (isAdminRoute) {
+            return NextResponse.redirect(new URL("/sign-in", request.url));
         }
 
-        // Redirect to sign-in for protected routes
         if (isProtectedRoute) {
             return NextResponse.redirect(new URL("/sign-in", request.url));
         }
 
-        // Allow access to public routes
         return NextResponse.next();
     }
 
-    // User is authenticated
-    // Redirect away from auth routes to home
     if (isAuthRoute || isPasswordRoute) {
         return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Allow access to all other routes
+    if (isAdminRoute && !isAdmin) {
+        return NextResponse.redirect(new URL("/", request.url));
+    }
+
     return NextResponse.next();
 }
 

@@ -1,7 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+    useInfiniteQuery,
+    useMutation,
+    useQueryClient,
+} from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MdSearch } from "react-icons/md";
@@ -9,12 +13,17 @@ import { Materials } from "./materials";
 import {
     CaseMaterialDTO,
     catalogKeys,
+    createMaterial,
     fetchMaterialsPage,
     MaterialsPage,
+    toggleCatalogItemActive,
 } from "../../actions/actions";
+import { CreateMaterialDialog } from "./create-material";
+import { updateMaterialSchema } from "@/schema/catalog";
 
 const MaterialsOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
+    const qc = useQueryClient();
 
     const {
         data,
@@ -45,6 +54,81 @@ const MaterialsOverview: React.FC = () => {
         [data]
     );
 
+    const toggleActiveMutation = useMutation({
+        mutationFn: ({ id, next }: { id: string; next: boolean }) =>
+            toggleCatalogItemActive({ entity: "material", id, active: next }),
+        onMutate: async ({ id, next }) => {
+            await qc.cancelQueries({
+                queryKey: catalogKeys.materials(),
+                exact: false,
+            });
+            const previous = qc.getQueriesData<MaterialsPage>({
+                queryKey: catalogKeys.materials(),
+            });
+            const patch = (page: MaterialsPage) => ({
+                ...page,
+                materials: page.materials.map((c) =>
+                    c.id === id ? { ...c, active: next } : c
+                ),
+            });
+
+            previous.forEach(([key, value]) => {
+                if (!value) return;
+                qc.setQueryData<{
+                    pages: MaterialsPage[];
+                    pageParams: unknown[];
+                }>(key, (old) =>
+                    old
+                        ? {
+                              ...old,
+                              pages: old.pages.map(patch),
+                          }
+                        : old
+                );
+            });
+
+            return { previous };
+        },
+
+        onError: (_err, _vars, ctx) => {
+            if (!ctx) return;
+            ctx.previous.forEach(([key, value]) => {
+                qc.setQueryData(key, value);
+            });
+        },
+
+        onSettled: async () => {
+            await qc.invalidateQueries({
+                queryKey: catalogKeys.materials(),
+                exact: false,
+            });
+        },
+    });
+
+    const handleToggleActive = (id: string, next: boolean) => {
+        toggleActiveMutation.mutate({ id, next });
+    };
+
+    const createMaterialMutation = useMutation({
+        mutationFn: (vals: {
+            name: string;
+            description: string;
+            price: number;
+        }) => createMaterial({ data: vals }),
+        onSuccess: async () => {
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.materials(),
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.all,
+                    exact: false,
+                }),
+            ]);
+        },
+    });
+
     return (
         <div className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -62,6 +146,21 @@ const MaterialsOverview: React.FC = () => {
                     >
                         Search
                     </Button>
+                    <CreateMaterialDialog
+                        schema={updateMaterialSchema}
+                        isPending={createMaterialMutation.isPending}
+                        onSubmit={async (vals) => {
+                            const price =
+                                typeof vals.price === "number"
+                                    ? vals.price
+                                    : Number(vals.price || 0);
+                            await createMaterialMutation.mutateAsync({
+                                name: vals.name,
+                                description: vals.description,
+                                price,
+                            });
+                        }}
+                    />
                 </div>
             </div>
 
@@ -76,6 +175,7 @@ const MaterialsOverview: React.FC = () => {
                 loading={isLoading || isFetchingNextPage}
                 hasNextPage={!!hasNextPage}
                 onLoadMore={() => fetchNextPage()}
+                onToggleActive={handleToggleActive}
             />
         </div>
     );

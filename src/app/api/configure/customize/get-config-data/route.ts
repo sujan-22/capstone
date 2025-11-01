@@ -20,16 +20,16 @@ export async function GET() {
     try {
         const [phoneRes, materialRes, finishRes, colorRes] = await Promise.all([
             client.query<PhoneModel>(
-                "SELECT * FROM phone_model ORDER BY created_at"
+                "SELECT * FROM phone_model WHERE active = TRUE ORDER BY created_at"
             ),
             client.query<CaseMaterial>(
-                "SELECT * FROM case_material ORDER BY created_at"
+                "SELECT * FROM case_material WHERE active = TRUE ORDER BY created_at"
             ),
             client.query<CaseFinish>(
-                "SELECT * FROM case_finish ORDER BY created_at"
+                "SELECT * FROM case_finish WHERE active = TRUE ORDER BY created_at"
             ),
             client.query<CaseColor>(
-                "SELECT * FROM case_color ORDER BY created_at"
+                "SELECT * FROM case_color WHERE active = TRUE ORDER BY created_at"
             ),
         ]);
 
