@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
-const TABS = ["overview", "customers", "products", "orders"] as const;
+const TABS = ["overview", "customers", "catalog", "orders"] as const;
 const BASE = "/admin-dashboard";
 
 export default function DashboardTabs() {
@@ -31,9 +31,9 @@ export default function DashboardTabs() {
                     <TabsTrigger
                         key={t}
                         value={t}
-                        className="hover:cursor-pointer"
+                        className="hover:cursor-pointer capitalize"
                     >
-                        {t[0].toUpperCase() + t.slice(1)}
+                        {t}
                     </TabsTrigger>
                 ))}
             </TabsList>
