@@ -72,7 +72,7 @@ export interface BillingAddress {
     postal_code: string;
     country: string;
     state: string;
-    phone_number: string;
+    phone_number: string | null;
 }
 export interface BillingAddressInput {
     id?: string;
@@ -82,7 +82,7 @@ export interface BillingAddressInput {
     postal_code: string;
     country: string;
     state: string;
-    phone_number: string;
+    phone_number?: string | null;
 }
 const billing_address = {
     tableName: "billing_address",
@@ -103,7 +103,6 @@ const billing_address = {
         "postal_code",
         "country",
         "state",
-        "phone_number",
     ],
     primaryKey: "id",
     foreignKeys: {},
@@ -118,6 +117,7 @@ export interface CaseColor {
     hex: string;
     created_at: Date;
     updated_at: Date;
+    active: boolean;
 }
 export interface CaseColorInput {
     id?: string;
@@ -125,10 +125,11 @@ export interface CaseColorInput {
     hex: string;
     created_at?: Date;
     updated_at?: Date;
+    active?: boolean;
 }
 const case_color = {
     tableName: "case_color",
-    columns: ["id", "name", "hex", "created_at", "updated_at"],
+    columns: ["id", "name", "hex", "created_at", "updated_at", "active"],
     requiredForInsert: ["name", "hex"],
     primaryKey: "id",
     foreignKeys: {},
@@ -266,6 +267,7 @@ export interface CaseFinish {
     description: string | null;
     created_at: Date;
     updated_at: Date;
+    active: boolean;
 }
 export interface CaseFinishInput {
     id?: string;
@@ -274,10 +276,19 @@ export interface CaseFinishInput {
     description?: string | null;
     created_at?: Date;
     updated_at?: Date;
+    active?: boolean;
 }
 const case_finish = {
     tableName: "case_finish",
-    columns: ["id", "name", "price", "description", "created_at", "updated_at"],
+    columns: [
+        "id",
+        "name",
+        "price",
+        "description",
+        "created_at",
+        "updated_at",
+        "active",
+    ],
     requiredForInsert: ["name", "price"],
     primaryKey: "id",
     foreignKeys: {},
@@ -293,6 +304,7 @@ export interface CaseMaterial {
     description: string | null;
     created_at: Date;
     updated_at: Date;
+    active: boolean;
 }
 export interface CaseMaterialInput {
     id?: string;
@@ -301,10 +313,19 @@ export interface CaseMaterialInput {
     description?: string | null;
     created_at?: Date;
     updated_at?: Date;
+    active?: boolean;
 }
 const case_material = {
     tableName: "case_material",
-    columns: ["id", "name", "price", "description", "created_at", "updated_at"],
+    columns: [
+        "id",
+        "name",
+        "price",
+        "description",
+        "created_at",
+        "updated_at",
+        "active",
+    ],
     requiredForInsert: ["name", "price"],
     primaryKey: "id",
     foreignKeys: {},
@@ -346,10 +367,11 @@ export interface Order {
     total_amount: number;
     order_status: string;
     tracking_number: string | null;
-    billing_address_id: string;
-    shipping_address_id: string;
+    billing_address_id: string | null;
+    shipping_address_id: string | null;
     created_at: Date;
     updated_at: Date;
+    is_paid: boolean | null;
 }
 export interface OrderInput {
     id?: string;
@@ -361,10 +383,11 @@ export interface OrderInput {
     total_amount: number;
     order_status: string;
     tracking_number?: string | null;
-    billing_address_id: string;
-    shipping_address_id: string;
+    billing_address_id?: string | null;
+    shipping_address_id?: string | null;
     created_at?: Date;
     updated_at?: Date;
+    is_paid?: boolean | null;
 }
 const order = {
     tableName: "order",
@@ -382,6 +405,7 @@ const order = {
         "shipping_address_id",
         "created_at",
         "updated_at",
+        "is_paid",
     ],
     requiredForInsert: [
         "user_id",
@@ -390,8 +414,6 @@ const order = {
         "tax",
         "total_amount",
         "order_status",
-        "billing_address_id",
-        "shipping_address_id",
     ],
     primaryKey: "id",
     foreignKeys: {
@@ -427,6 +449,7 @@ export interface PhoneModel {
     model_brand: string | null;
     created_at: Date;
     updated_at: Date;
+    active: boolean;
 }
 export interface PhoneModelInput {
     id?: string;
@@ -434,10 +457,18 @@ export interface PhoneModelInput {
     model_brand?: string | null;
     created_at?: Date;
     updated_at?: Date;
+    active?: boolean;
 }
 const phone_model = {
     tableName: "phone_model",
-    columns: ["id", "model_name", "model_brand", "created_at", "updated_at"],
+    columns: [
+        "id",
+        "model_name",
+        "model_brand",
+        "created_at",
+        "updated_at",
+        "active",
+    ],
     requiredForInsert: ["model_name"],
     primaryKey: "id",
     foreignKeys: {},
@@ -551,7 +582,7 @@ export interface ShippingAddress {
     postal_code: string;
     country: string;
     state: string;
-    phone_number: string;
+    phone_number: string | null;
 }
 export interface ShippingAddressInput {
     id?: string;
@@ -561,7 +592,7 @@ export interface ShippingAddressInput {
     postal_code: string;
     country: string;
     state: string;
-    phone_number: string;
+    phone_number?: string | null;
 }
 const shipping_address = {
     tableName: "shipping_address",
@@ -582,7 +613,6 @@ const shipping_address = {
         "postal_code",
         "country",
         "state",
-        "phone_number",
     ],
     primaryKey: "id",
     foreignKeys: {},
