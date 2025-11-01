@@ -23,7 +23,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { PhoneModelDTO } from "../../actions/actions";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MdDelete } from "react-icons/md";
 import { FiEdit } from "react-icons/fi";
 import { cn } from "@/lib/utils";
 
@@ -116,22 +115,6 @@ export const Models: React.FC<Props> = ({
                         b.original.modelBrand ?? ""
                     ),
                 meta: { th: "w-[15rem]", td: "" } as ColMeta,
-            },
-            {
-                id: "remove",
-                header: () => <span className="sr-only">Remove</span>,
-                cell: () => (
-                    <div className="flex justify-center">
-                        <Button
-                            icon={MdDelete}
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full"
-                        />
-                    </div>
-                ),
-                enableSorting: false,
-                meta: { th: "w-12 text-center", td: "text-center" } as ColMeta,
             },
             {
                 id: "edit",

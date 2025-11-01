@@ -10,7 +10,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const DashboardProducts = () => {
+const DashboardCatalog = () => {
     return (
         <Accordion
             type="single"
@@ -46,4 +46,4 @@ const DashboardProducts = () => {
     );
 };
 
-export default DashboardProducts;
+export default DashboardCatalog;
