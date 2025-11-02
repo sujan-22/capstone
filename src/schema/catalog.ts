@@ -55,5 +55,15 @@ export const updateMaterialSchema = z.object({
     price: priceSchema,
 });
 
+export const modelBrandSchema = catalogTextSchema;
+
+export const modelNameSchema = catalogTextSchema;
+
+export const createPhoneModelSchema = z.object({
+    modelName: modelNameSchema,
+    modelBrand: modelBrandSchema,
+});
+
+export type CreatePhoneModelInput = z.infer<typeof createPhoneModelSchema>;
 export type UpdateFinishInput = z.infer<typeof updateFinishSchema>;
 export type UpdateMaterialInput = z.infer<typeof updateMaterialSchema>;
