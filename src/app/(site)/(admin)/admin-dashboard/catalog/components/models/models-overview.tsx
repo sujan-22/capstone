@@ -12,11 +12,14 @@ import { MdAdd, MdSearch } from "react-icons/md";
 import { Models } from "./models";
 import {
     catalogKeys,
+    createModel,
     fetchModelsPage,
     ModelsPage,
     PhoneModelDTO,
     toggleCatalogItemActive,
 } from "../../actions/actions";
+import { PhoneModelFormDialog } from "./create-model";
+import { createPhoneModelSchema } from "@/schema/catalog";
 
 const ModelsOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
@@ -106,6 +109,23 @@ const ModelsOverview: React.FC = () => {
         toggleActiveMutation.mutate({ id, next });
     };
 
+    const createModelMutation = useMutation({
+        mutationFn: (vals: { modelName: string; modelBrand: string }) =>
+            createModel({ data: vals }),
+        onSuccess: async () => {
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.models(),
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.all,
+                    exact: false,
+                }),
+            ]);
+        },
+    });
+
     return (
         <div className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -123,9 +143,18 @@ const ModelsOverview: React.FC = () => {
                     >
                         Search
                     </Button>
-                    <Button onClick={() => refetch()} icon={MdAdd}>
-                        Add phone model
-                    </Button>
+                    <PhoneModelFormDialog
+                        schema={createPhoneModelSchema}
+                        isPending={createModelMutation.isPending}
+                        onSubmit={async (vals) => {
+                            await createModelMutation.mutateAsync({
+                                modelName: vals.modelName,
+                                modelBrand: vals.modelBrand,
+                            });
+                        }}
+                        submitText="Create model"
+                        trigger={<Button icon={MdAdd}>Add model</Button>}
+                    />
                 </div>
             </div>
 

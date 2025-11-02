@@ -491,3 +491,54 @@ export async function createMaterial({
         );
     }
 }
+
+export type CreateModelPayload = {
+    modelName: string;
+    modelBrand: string;
+};
+
+export type CreateModelResponse = {
+    model: {
+        id: string;
+        modelName: string;
+        modelBrand: string;
+        active: string;
+        createdAt: string;
+        updatedAt: string;
+    };
+};
+
+export async function createModel({
+    data,
+    signal,
+}: {
+    data: CreateModelPayload;
+    signal?: AbortSignal;
+}): Promise<CreateModelResponse> {
+    try {
+        const res = await axios.post<CreateModelResponse>(
+            `${NEXT_PUBLIC_URL}/api/admin/catalog/models`,
+            data,
+            {
+                withCredentials: true,
+                signal,
+                timeout: 15_000,
+                validateStatus: (s) => s >= 200 && s < 300,
+            }
+        );
+        return res.data;
+    } catch (err) {
+        const ax = err as AxiosError<ApiErrorShape>;
+        const status = ax.response?.status;
+        const serverMsg =
+            ax.response?.data?.error ||
+            ax.response?.data?.message ||
+            ax.message;
+
+        throw new Error(
+            status
+                ? `[${status}] Failed to create phone model: ${serverMsg}`
+                : `Failed to create phone model: ${serverMsg}`
+        );
+    }
+}

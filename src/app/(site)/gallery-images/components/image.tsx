@@ -22,7 +22,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
 }) => {
     return (
         <div key={img.id} className="group relative">
-            <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-all">
+            <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-all p-0">
                 <CardContent className="p-0">
                     <div className="relative aspect-[4/5] w-full">
                         <Image
