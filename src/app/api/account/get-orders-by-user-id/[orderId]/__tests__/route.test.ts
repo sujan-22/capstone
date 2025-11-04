@@ -1,14 +1,30 @@
 /** @jest-environment node */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { makeReq } from "@/lib/test/api";
-import { GET } from "../route";
-import { pool } from "@/lib/database/db";
+// 1) Mock first — before importing the route
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
+// 2) Now import modules that depend on the mocks
+import { makeReq } from "@/lib/test/api";
+import type { PoolClient } from "pg";
+
+// Pull the mocked fns so we can set return values per test
+import { getServerSideSession } from "@/hooks/use-session";
+const mockedGetSession = getServerSideSession as jest.Mock;
+
+import { pool } from "@/lib/database/db";
+const mockedPoolConnect = pool.connect as unknown as jest.Mock;
+
+// Import the route AFTER mocks
+import { GET } from "../route";
+
+// Helper for route params
 const withParams = (orderId?: string) =>
     ({ params: Promise.resolve(orderId ? { orderId } : ({} as any)) } as any);
 
@@ -17,7 +33,8 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
         jest.clearAllMocks();
     });
 
-    it("returns 401 when x-user-id header is missing", async () => {
+    it("returns 401 when user session is missing", async () => {
+        mockedGetSession.mockResolvedValue({ user: null }); // <- drives 401
         const res = await GET(makeReq(), withParams("o1"));
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
@@ -27,6 +44,9 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
     });
 
     it("returns 401 when order id param is missing", async () => {
+        mockedGetSession.mockResolvedValue({
+            user: { id: "user-123", role: "user" },
+        });
         const res = await GET(
             makeReq({ "x-user-id": "user-123" }),
             withParams()
@@ -39,13 +59,17 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
     });
 
     it("returns 404 when order not found", async () => {
+        mockedGetSession.mockResolvedValue({
+            user: { id: "user-123", role: "user" },
+        });
+
         const mockRelease = jest.fn();
         const mockQuery = jest.fn().mockResolvedValue({ rows: [] });
 
-        (pool.connect as jest.Mock).mockResolvedValue({
+        mockedPoolConnect.mockResolvedValue({
             query: mockQuery,
             release: mockRelease,
-        });
+        } as unknown as PoolClient);
 
         const res = await GET(
             makeReq({ "x-user-id": "user-123" }),
@@ -60,6 +84,10 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
     });
 
     it("returns 403 when order is not paid", async () => {
+        mockedGetSession.mockResolvedValue({
+            user: { id: "user-123", role: "user" },
+        });
+
         const mockRelease = jest.fn();
         const rows = [
             {
@@ -78,7 +106,6 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
                 order_updatedat: "2024-01-01T13:00:00.000Z",
                 is_paid: false,
 
-                // design block
                 design_id: "d1",
                 imgSrc: "/img1.jpg",
                 cropped_image_url: "/crop1.jpg",
@@ -92,7 +119,6 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
                 finish: "Matte",
                 price: "59.99",
 
-                // billing / shipping nulls
                 billing_id: null,
                 billing_name: null,
                 billing_street: null,
@@ -114,10 +140,10 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
 
         const mockQuery = jest.fn().mockResolvedValue({ rows });
 
-        (pool.connect as jest.Mock).mockResolvedValue({
+        mockedPoolConnect.mockResolvedValue({
             query: mockQuery,
             release: mockRelease,
-        });
+        } as unknown as PoolClient);
 
         const res = await GET(
             makeReq({ "x-user-id": "user-123" }),
@@ -133,6 +159,10 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
     });
 
     it("returns 200 with normalized order when paid", async () => {
+        mockedGetSession.mockResolvedValue({
+            user: { id: "user-123", role: "user" },
+        });
+
         const mockRelease = jest.fn();
         const rows = [
             {
@@ -164,7 +194,6 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
                 finish: "Matte",
                 price: "59.99",
 
-                // billing
                 billing_id: "b1",
                 billing_name: "John Doe",
                 billing_street: "1 Main St",
@@ -174,7 +203,6 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
                 billing_state: "ON",
                 billing_phone_number: "111-222-3333",
 
-                // shipping
                 shipping_id: "s1",
                 shipping_name: "John Doe",
                 shipping_street: "1 Main St",
@@ -188,10 +216,10 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
 
         const mockQuery = jest.fn().mockResolvedValue({ rows });
 
-        (pool.connect as jest.Mock).mockResolvedValue({
+        mockedPoolConnect.mockResolvedValue({
             query: mockQuery,
             release: mockRelease,
-        });
+        } as unknown as PoolClient);
 
         const res = await GET(
             makeReq({ "x-user-id": "user-123" }),
@@ -254,7 +282,11 @@ describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
     });
 
     it("returns 500 on DB error", async () => {
-        (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
+        mockedGetSession.mockResolvedValue({
+            user: { id: "user-123", role: "user" },
+        });
+        mockedPoolConnect.mockRejectedValue(new Error("db down"));
+
         const res = await GET(
             makeReq({ "x-user-id": "user-123" }),
             withParams("o1")

@@ -136,7 +136,7 @@ describe("<UserDropdown />", () => {
         expect(adminItem).toBeInTheDocument();
 
         await u.click(adminItem);
-        expect(push).toHaveBeenCalledWith("/admin-dashboard");
+        expect(push).toHaveBeenCalledWith("/admin-dashboard/overview");
     });
 
     it("does not render Admin section for non-admin", () => {
