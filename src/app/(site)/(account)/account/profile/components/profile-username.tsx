@@ -28,33 +28,46 @@ const ProfileUsername = ({ currentUser }: { currentUser: IUser }) => {
             return;
         }
 
-        async function checkUsername() {
-            setChecking(true);
-            setUsernameAvailable(null);
-            try {
-                const res = await fetch(
-                    `/api/check-username?username=${debouncedUsername}`
-                );
-                const data = await res.json();
+        let cancelled = false;
+        setChecking(true);
+        setUsernameAvailable(null);
 
-                if (data.available === 0) {
-                    setUsernameAvailable(false);
+        (async () => {
+            try {
+                const { data, error } = await authClient.isUsernameAvailable({
+                    username: debouncedUsername,
+                });
+
+                if (cancelled) return;
+
+                if (error) {
+                    console.error("isUsernameAvailable error:", error);
+                    setUsernameAvailable(null);
+                    return;
+                }
+
+                const available = Boolean(data?.available);
+                setUsernameAvailable(available);
+
+                if (!available) {
                     setErrorState("Username is already taken");
-                } else if (data.available === 2) {
-                    setErrorState("Invalid username");
                 } else {
                     setErrorState("");
                 }
-            } catch (err) {
-                console.error(err);
-                setUsernameAvailable(null);
+            } catch (e) {
+                if (!cancelled) {
+                    console.error(e);
+                    setUsernameAvailable(null);
+                }
             } finally {
-                setChecking(false);
+                if (!cancelled) setChecking(false);
             }
-        }
+        })();
 
-        checkUsername();
-    }, [debouncedUsername, username]);
+        return () => {
+            cancelled = true;
+        };
+    }, [debouncedUsername]);
 
     useEffect(() => {
         if (currentUser?.username || currentUser?.displayUsername) {

@@ -3,6 +3,7 @@
 import React from "react";
 import { formatPrice } from "@/lib/utils";
 import { IPreviewCaseDesign } from "@/app/api/configure/preview/[id]/route";
+import { TAX_RATE } from "@/lib/constants";
 
 const DesignSummary = ({ design }: { design: IPreviewCaseDesign }) => {
     return (
@@ -48,7 +49,6 @@ const DesignSummary = ({ design }: { design: IPreviewCaseDesign }) => {
                 </h4>
 
                 {(() => {
-                    const TAX_RATE = 0.13; // 13% HST
                     const subtotal =
                         Number(design.materialPrice) +
                         Number(design.finishPrice);

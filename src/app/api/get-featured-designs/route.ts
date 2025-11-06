@@ -1,4 +1,5 @@
 import { ICaseDesignProps } from "@/components/case-design/case-design";
+import { getServerSideSession } from "@/hooks/use-session";
 import { pool } from "@/lib/database/db";
 import { NextResponse } from "next/server";
 
@@ -6,7 +7,8 @@ export async function GET(req: Request) {
     const client = await pool.connect();
 
     try {
-        const userId = req.headers.get("x-user-id") || "";
+        const { user } = await getServerSideSession();
+        const userId = user?.id;
         const url = new URL(req.url);
         const sort = url.searchParams.get("sort") || "none";
         const limitParam = url.searchParams.get("limit");

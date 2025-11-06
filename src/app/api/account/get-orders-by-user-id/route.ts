@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 import { IUserOrderWithDesign, OrderRow } from "@/lib/types/user-orders.types";
 import { getServerSideSession } from "@/hooks/use-session";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         const { user } = await getServerSideSession();
-        console.log(user);
-
-        const userId = req.headers.get("x-user-id") || "";
+        const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
                 { error: "Not authenticated" },
@@ -87,7 +85,6 @@ export async function GET(req: NextRequest) {
 
             const orders: IUserOrderWithDesign[] = rows.map((r) => ({
                 id: String(r.order_id),
-                userId: String(r.user_id),
                 orderNumber: r.order_number,
                 subtotal: Number(r.sub_total),
                 tax: Number(r.tax),

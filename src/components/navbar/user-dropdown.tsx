@@ -9,12 +9,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown";
 import { useSignOut } from "@/hooks/use-sign-out";
-import { FaUserAlt } from "react-icons/fa";
 import { IUser } from "../../../auth-client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { useState } from "react";
+import { getInitials } from "@/lib/utils";
 
 export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     const router = useRouter();
@@ -38,37 +38,49 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     return (
         <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
             <DropdownMenuTrigger asChild>
-                <div className="flex items-center hover:cursor-pointer">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full overflow-hidden"
-                    >
-                        {user && user.image ? (
-                            <span className="block w-8 h-8 relative rounded-full border border-blue-600">
-                                <Image
-                                    src={user.image}
-                                    alt={`${
-                                        user.name || user.username || "User"
-                                    } profile picture`}
-                                    fill
-                                    sizes="32px"
-                                    priority
-                                    referrerPolicy="no-referrer"
-                                    className="rounded-full object-cover"
-                                />
-                            </span>
+                <Button
+                    variant="ghost"
+                    className="h-10 py-0 pl-1 pr-2 rounded-full gap-2 hover:bg-accent/60 data-[state=open]:bg-accent"
+                    aria-expanded={isOpen}
+                    aria-label="Open user menu"
+                >
+                    <span className="relative inline-flex w-8 h-8 rounded-full ring-1 ring-border overflow-hidden">
+                        {user?.image ? (
+                            <Image
+                                src={user.image}
+                                alt={`${
+                                    user.name || user.username || "User"
+                                } profile picture`}
+                                fill
+                                sizes="32px"
+                                priority
+                                referrerPolicy="no-referrer"
+                                className="object-cover"
+                            />
                         ) : (
-                            <FaUserAlt className="w-5 h-5" />
+                            <span className="flex w-full h-full items-center justify-center text-[11px] font-semibold bg-muted text-muted-foreground">
+                                {getInitials(user)}
+                            </span>
                         )}
-                    </Button>
-                    {isOpen ? (
-                        <MdKeyboardArrowDown className="w-5 h-5 rotate-180 transition-transform" />
-                    ) : (
-                        <MdKeyboardArrowDown className="w-5 h-5 transition-transform" />
-                    )}
-                </div>
+                    </span>
+                    <span className="hidden sm:flex flex-col items-start min-w-0">
+                        <span className="text-sm font-medium leading-none truncate max-w-[9rem]">
+                            {user?.name || user?.username || "Guest"}
+                        </span>
+                        <span className="text-xs text-muted-foreground leading-none truncate max-w-[9rem]">
+                            {user?.email}
+                        </span>
+                    </span>
+                    <MdKeyboardArrowDown
+                        className={`w-5 h-5 transition-transform ${
+                            isOpen ? "rotate-180" : ""
+                        }`}
+                        aria-hidden="true"
+                    />
+                    <span className="sr-only">Toggle user menu</span>
+                </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>

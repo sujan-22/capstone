@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
+import { getServerSideSession } from "@/hooks/use-session";
 
 interface CaseDesignRow {
     width: number;
@@ -17,6 +18,14 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const { id: designId } = await params;
+    const { user } = await getServerSideSession();
+    const userId = user?.id;
+    if (!userId) {
+        return NextResponse.json(
+            { error: "Not authenticated" },
+            { status: 401 }
+        );
+    }
 
     if (!designId) {
         return NextResponse.json(
@@ -76,7 +85,7 @@ export async function GET(
                 croppedImageUrl: design.cropped_image_url,
             };
 
-            return NextResponse.json(response);
+            return NextResponse.json({ design: response });
         } finally {
             client.release();
         }

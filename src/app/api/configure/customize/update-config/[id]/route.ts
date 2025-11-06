@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
+import { getServerSideSession } from "@/hooks/use-session";
 
 interface UpdateBody {
     colorId?: string;
@@ -30,6 +31,14 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const { id: designId } = await params;
+    const { user } = await getServerSideSession();
+    const userId = user?.id;
+    if (!userId) {
+        return NextResponse.json(
+            { error: "Not authenticated" },
+            { status: 401 }
+        );
+    }
 
     if (!designId) {
         return NextResponse.json(

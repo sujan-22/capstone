@@ -18,7 +18,7 @@ const UnfinishedDesignsOverviewPage: React.FC<
 > = ({ userId }) => {
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["get-unfinished-designs", userId],
-        queryFn: async () => await getUnfinishedDesigns(userId),
+        queryFn: async () => await getUnfinishedDesigns(),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,

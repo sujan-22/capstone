@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -22,26 +22,23 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { MdDelete } from "react-icons/md";
 
-export default function AccountProfilePage({
-    user,
-}: {
-    user: IUser | undefined;
-}) {
+export default function AccountProfilePage({ user }: { user: IUser }) {
     const { toast } = useToast();
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [lastLoginMethod, setLastLoginMethod] = useState<string | null>(null);
+
+    useEffect(() => {
+        const method = authClient.getLastUsedLoginMethod() ?? null;
+        setLastLoginMethod(method);
+    }, []);
+
+    const showPassword = lastLoginMethod === "email";
+    console.log("Last login method:", lastLoginMethod, showPassword);
 
     const handleConfirmDelete = async () => {
-        if (!user || !user.id) {
-            toast({
-                title: "Unable to delete account",
-                description: "No user session found.",
-                variant: "destructive",
-            });
-            return;
-        }
-
         await authClient.deleteUser(
             {},
             {
@@ -69,10 +66,6 @@ export default function AccountProfilePage({
         );
     };
 
-    if (!user) {
-        return null;
-    }
-
     return (
         <div className="space-y-6">
             <div className="text-center sm:text-left">
@@ -92,8 +85,12 @@ export default function AccountProfilePage({
                 <Separator />
                 <ProfileEmail currentUser={user} />
                 <Separator />
-                <ProfilePassword />
-                <Separator />
+                {showPassword && (
+                    <>
+                        <ProfilePassword />
+                        <Separator />
+                    </>
+                )}
 
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -101,6 +98,7 @@ export default function AccountProfilePage({
                             size={"sm"}
                             className="text-red-500 w-fit"
                             variant={"outline"}
+                            icon={MdDelete}
                         >
                             Delete Account
                         </Button>

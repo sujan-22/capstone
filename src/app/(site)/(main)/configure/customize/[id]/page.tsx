@@ -2,6 +2,7 @@ import React from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import { Metadata } from "next";
 import CustomizeOverview from "./components/customize-overview";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Customize Your Phone Case | DESIGNMYCASE",
@@ -37,7 +38,7 @@ export default async function Page({
     const { id } = await params;
     const { user } = await getServerSideSession();
     if (!user) {
-        return;
+        return notFound();
     }
     return <CustomizeOverview user={user} id={id} />;
 }

@@ -64,6 +64,56 @@ export const createPhoneModelSchema = z.object({
     modelBrand: modelBrandSchema,
 });
 
+export const ALLOWED_COLOR_HEX = [
+    "#000000",
+    "#111827",
+    "#1F2937",
+    "#374151",
+    "#4B5563",
+    "#6B7280",
+    "#9CA3AF",
+    "#D1D5DB",
+    "#FFFFFF",
+    "#EF4444",
+    "#F59E0B",
+    "#10B981",
+    "#3B82F6",
+    "#8B5CF6",
+    "#F472B6",
+    "#EC4899",
+    "#14B8A6",
+    "#22C55E",
+    "#EAB308",
+] as const;
+
+export function normalizeHex(input: string) {
+    let v = String(input || "").trim();
+    if (!v.startsWith("#")) v = `#${v}`;
+    if (/^#([0-9a-fA-F]{3})$/.test(v)) {
+        const [, tri] = v.match(/^#([0-9a-fA-F]{3})$/)!;
+        v = `#${tri[0]}${tri[0]}${tri[1]}${tri[1]}${tri[2]}${tri[2]}`;
+    }
+    return v.toUpperCase();
+}
+
+const baseHex = z
+    .string()
+    .trim()
+    .transform(normalizeHex)
+    .refine((s) => /^#([0-9A-F]{6})$/.test(s), "Invalid hex color");
+
+const allowedSet: Set<string> = new Set(ALLOWED_COLOR_HEX as readonly string[]);
+export const colorHexSchemaLimited = baseHex.refine(
+    (s) => allowedSet.has(s),
+    "Color must be from the approved swatches"
+);
+
+export const updateColorSchema = z.object({
+    name: z.string().trim().min(2).max(60),
+    hex: colorHexSchemaLimited,
+});
+
+export type UpdateColorInput = z.infer<typeof updateColorSchema>;
 export type CreatePhoneModelInput = z.infer<typeof createPhoneModelSchema>;
 export type UpdateFinishInput = z.infer<typeof updateFinishSchema>;
 export type UpdateMaterialInput = z.infer<typeof updateMaterialSchema>;

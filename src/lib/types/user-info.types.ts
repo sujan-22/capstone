@@ -1,5 +1,4 @@
 export interface IUserInfo {
-    userId: string;
     totalOrders: number;
     favoriteDesignsCount: number;
 }

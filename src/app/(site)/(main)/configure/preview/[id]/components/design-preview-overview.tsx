@@ -26,7 +26,7 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
     const [showConfetti, setShowConfetti] = useState(false);
     const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ["design-preview", designId],
-        queryFn: async () => await getDesignPreview(designId, user.id),
+        queryFn: async () => await getDesignPreview(designId),
         enabled: !!designId,
         retry: 2,
         retryDelay: 500,
@@ -86,8 +86,6 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
         if (user) {
             createPaymentSession({
                 caseDesignId: designId,
-                userId: user.id,
-                userEmail: user.email,
             });
         }
     };

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Disclosure } from "@headlessui/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { MdEdit } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 type AccountInfoProps = {
     label: string;
@@ -55,11 +57,12 @@ const AccountInfo = ({
                 <div className="mb-auto">
                     <Button
                         variant="outline"
-                        className="w-[100px] min-h-[25px] py-1"
+                        className="w-[100px]"
                         onClick={handleToggle}
                         type={isOpen ? "reset" : "button"}
                         data-testid="edit-button"
                         data-active={isOpen}
+                        icon={isOpen ? IoClose : MdEdit}
                     >
                         {isOpen ? "Cancel" : "Edit"}
                     </Button>

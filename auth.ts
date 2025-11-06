@@ -1,5 +1,5 @@
 import { betterAuth, BetterAuthOptions } from "better-auth";
-import { openAPI, username } from "better-auth/plugins";
+import { lastLoginMethod, openAPI, username } from "better-auth/plugins";
 import { admin } from "better-auth/plugins";
 import { emailOTP } from "better-auth/plugins";
 import { Pool } from "pg";
@@ -36,6 +36,7 @@ export const auth = betterAuth({
     plugins: [
         openAPI(),
         username(),
+        lastLoginMethod(),
         admin({
             impersonationSessionDuration: 60 * 60 * 24 * 7,
         }),
@@ -67,4 +68,5 @@ export const auth = betterAuth({
     },
 } satisfies BetterAuthOptions);
 
+export type Auth = typeof auth;
 export type Session = typeof auth.$Infer.Session;

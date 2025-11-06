@@ -2,7 +2,6 @@ import { BillingAddress, ShippingAddress } from "../database/table_types";
 
 export interface IUserOrder {
     id: string;
-    userId: string;
     orderNumber: string;
     subtotal: number;
     tax: number;

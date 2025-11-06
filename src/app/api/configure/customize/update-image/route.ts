@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { pool } from "@/lib/database/db";
+import { getServerSideSession } from "@/hooks/use-session";
 
 const {
     AWS_S3_REGION,
@@ -74,6 +75,7 @@ async function uploadFileToS3(
 
 export async function POST(request: Request) {
     try {
+        const { user } = await getServerSideSession();
         const formData = await request.formData();
         const maybeFile = formData.get("file");
         const designIdRaw = formData.get("designId");
@@ -105,7 +107,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const userId = request.headers.get("x-user-id");
+        const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
                 { error: "Missing x-user-id header." },

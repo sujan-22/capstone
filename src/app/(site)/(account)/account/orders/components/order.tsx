@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 
 const OrderCard = ({
     order,
-    userId,
 }: {
     order: IUserOrderWithDesign;
     userId: string;
@@ -20,8 +19,7 @@ const OrderCard = ({
     const queryClient = useQueryClient();
 
     const { mutate: requestToShare, isPending } = useMutation({
-        mutationFn: async () =>
-            handleRequestToShareDesign(order.design.id, userId),
+        mutationFn: async () => handleRequestToShareDesign(order.design.id),
         onSuccess: () => {
             toast({
                 title: "Request sent",
