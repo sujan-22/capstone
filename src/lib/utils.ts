@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ORDER_STATUSES } from "./constants";
+import { IUser } from "../../auth-client";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -72,10 +73,21 @@ export function getOrderStatus(status: string) {
         label === "Fulfilled"
             ? "bg-emerald-500 text-white dark:bg-emerald-600"
             : label === "Shipped"
-            ? "bg-blue-500 text-white dark:bg-blue-600" 
+            ? "bg-blue-500 text-white dark:bg-blue-600"
             : label === "Pending"
             ? "bg-amber-500 text-white dark:bg-amber-600"
             : "bg-muted text-foreground";
 
     return { label, tone };
+}
+
+export function getInitials(user?: IUser | null) {
+    const base =
+        user?.name || user?.username || user?.email?.split("@")[0] || "U";
+    const parts = base.trim().split(/\s+/);
+    const initials =
+        parts.length > 1
+            ? parts[0][0] + parts[parts.length - 1][0]
+            : parts[0].slice(0, 2);
+    return initials.toUpperCase();
 }

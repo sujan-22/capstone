@@ -1,3 +1,4 @@
+import { getServerSideSession } from "@/hooks/use-session";
 import { pool } from "@/lib/database/db";
 import {
     CaseColor,
@@ -16,6 +17,14 @@ export interface ConfigDataResponse {
 
 export async function GET() {
     const client = await pool.connect();
+    const { user } = await getServerSideSession();
+    const userId = user?.id;
+    if (!userId) {
+        return NextResponse.json(
+            { error: "Not authenticated" },
+            { status: 401 }
+        );
+    }
 
     try {
         const [phoneRes, materialRes, finishRes, colorRes] = await Promise.all([

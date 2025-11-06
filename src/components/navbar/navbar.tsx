@@ -4,7 +4,7 @@ import { IUser } from "../../../auth-client";
 import MaxWidthWrapper from "../utilities/max-width-wrapper";
 import Logo from "../utilities/logo";
 import { Button } from "../ui/button";
-import { FaArrowRightLong } from "react-icons/fa6";
+import { FaArrowRight } from "react-icons/fa6";
 import { UserDropdown } from "./user-dropdown";
 import { useRouter } from "next/navigation";
 
@@ -26,17 +26,29 @@ const Navbar = ({ user }: { user: IUser | null | undefined }) => {
                             </div>
 
                             <div className="flex items-center gap-4 flex-1 basis-0 justify-end">
-                                <Button
-                                    className="hidden sm:inline-flex"
-                                    size="sm"
-                                    onClick={() =>
-                                        router.push("/configure/upload")
-                                    }
-                                    icon={FaArrowRightLong}
-                                    iconPosition="right"
-                                >
-                                    Create Case{" "}
-                                </Button>
+                                {user ? (
+                                    <Button
+                                        className="hidden sm:inline-flex"
+                                        size="sm"
+                                        onClick={() =>
+                                            router.push("/configure/upload")
+                                        }
+                                        icon={FaArrowRight}
+                                        iconPosition="right"
+                                    >
+                                        Create Case{" "}
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        className="hidden sm:inline-flex"
+                                        size="sm"
+                                        onClick={() => router.push("/sign-in")}
+                                        icon={FaArrowRight}
+                                        iconPosition="right"
+                                    >
+                                        Sign in{" "}
+                                    </Button>
+                                )}
                                 <UserDropdown user={user} />
                             </div>
                         </nav>

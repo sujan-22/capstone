@@ -9,7 +9,7 @@ export async function GET(
 ) {
     try {
         const { user } = await getServerSideSession();
-        const userId = user?.id || "";
+        const userId = user?.id;
         const isAdmin = user?.role === "admin";
         const { orderId } = await params;
         if (!userId) {
@@ -120,7 +120,6 @@ export async function GET(
 
             const order: IUserOrderWithDesign = {
                 id: String(r.order_id),
-                userId: String(r.user_id),
                 orderNumber: r.order_number,
                 subtotal: Number(r.sub_total),
                 tax: Number(r.tax),
@@ -181,6 +180,62 @@ export async function GET(
         console.error("Error in get-orders-with-designs:", err);
         return NextResponse.json(
             { error: "Internal server error" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function POST(
+    req: NextRequest,
+    { params }: { params: Promise<{ orderId: string }> }
+) {
+    try {
+        const { orderId: caseDesignId } = await params;
+
+        const { user } = await getServerSideSession();
+        if (!user?.id || !caseDesignId) {
+            return NextResponse.json(
+                { success: false, error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        const client = await pool.connect();
+        try {
+            const verifyRes = await client.query(
+                `SELECT id FROM case_design WHERE id = $1 AND user_id = $2`,
+                [caseDesignId, user.id]
+            );
+
+            if (verifyRes.rowCount === 0) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Unauthorized or design not found",
+                    },
+                    { status: 403 }
+                );
+            }
+
+            await client.query(
+                `UPDATE case_design
+           SET has_requested_to_share_publicly = TRUE,
+               updated_at = NOW()
+         WHERE id = $1`,
+                [caseDesignId]
+            );
+
+            return NextResponse.json({
+                success: true,
+                message: "Successfully requested to share the design publicly.",
+            });
+        } finally {
+            client.release();
+        }
+    } catch (err) {
+        console.error("Error in request-share API:", err);
+        return NextResponse.json(
+            { success: false, error: "Internal server error" },
             { status: 500 }
         );
     }

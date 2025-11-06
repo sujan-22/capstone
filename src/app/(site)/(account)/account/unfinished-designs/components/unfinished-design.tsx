@@ -13,11 +13,11 @@ interface Props {
     userId: string;
 }
 
-const UnfinishedDesign = ({ design, userId }: Props) => {
+const UnfinishedDesign = ({ design }: Props) => {
     const queryClient = useQueryClient();
 
     const deleteMutation = useMutation({
-        mutationFn: () => deleteUnfinishedDesign(userId, design.id),
+        mutationFn: () => deleteUnfinishedDesign(design.id),
         onSettled: () => queryClient.invalidateQueries(),
     });
 

@@ -12,11 +12,11 @@ interface Props {
     userId: string;
 }
 
-const Reminder = ({ reminder, userId }: Props) => {
+const Reminder = ({ reminder }: Props) => {
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: () => dismissReminder(userId, reminder.id),
+        mutationFn: () => dismissReminder(reminder.id),
         onSettled: (data) => {
             if (data?.success) {
                 queryClient.invalidateQueries({

@@ -14,9 +14,11 @@ import {
     CaseColorDTO,
     ColorsPage,
     catalogKeys,
+    createColor,
     fetchColorsPage,
     toggleCatalogItemActive,
 } from "../../actions/actions";
+import { ColorSwatchFormDialog } from "./color-dialog";
 
 const ColorsOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
@@ -106,6 +108,23 @@ const ColorsOverview: React.FC = () => {
         toggleActiveMutation.mutate({ id, next });
     };
 
+    const createColorMutation = useMutation({
+        mutationFn: (vals: { name: string; hex: string }) =>
+            createColor({ data: vals }),
+        onSuccess: async () => {
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.colors(),
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.all,
+                    exact: false,
+                }),
+            ]);
+        },
+    });
+
     return (
         <div className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -123,9 +142,18 @@ const ColorsOverview: React.FC = () => {
                     >
                         Search
                     </Button>
-                    <Button onClick={() => refetch()} icon={MdAdd}>
-                        Add color
-                    </Button>
+                    <ColorSwatchFormDialog
+                        title="Add Color"
+                        description="Pick a swatch and give it a clear, customer-friendly name."
+                        isPending={createColorMutation.isPending}
+                        trigger={<Button icon={MdAdd}>Add color</Button>}
+                        onSubmit={(vals) =>
+                            createColorMutation.mutateAsync({
+                                name: vals.name,
+                                hex: vals.hex,
+                            })
+                        }
+                    />
                 </div>
             </div>
 

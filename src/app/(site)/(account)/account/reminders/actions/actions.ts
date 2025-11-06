@@ -1,6 +1,6 @@
-"use server";
+"use client";
 
-import { NEXT_PUBLIC_URL } from "@/lib/constants";
+import { http } from "@/lib/http";
 import { IReminder } from "@/lib/types/reminders.types";
 
 export interface RemindersResponse {
@@ -9,24 +9,11 @@ export interface RemindersResponse {
     error?: string;
 }
 
-export const getReminders = async (
-    userId: string
-): Promise<RemindersResponse> => {
+export const getReminders = async (): Promise<RemindersResponse> => {
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/account/reminders/get-reminders`,
-            {
-                method: "GET",
-                headers: {
-                    "x-user-id": userId,
-                },
-                cache: "default",
-            }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch reminders");
-
-        const data: { reminders: IReminder[] } = await res.json();
+        const { data } = await http.get<{
+            reminders: IReminder[];
+        }>("/api/account/reminders/get-reminders");
 
         return {
             success: true,
@@ -42,33 +29,14 @@ export const getReminders = async (
 };
 
 export const dismissReminder = async (
-    userId: string,
     reminderId: string
 ): Promise<{ success: boolean; error?: string }> => {
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/account/reminders/dismiss-reminder`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-user-id": userId,
-                },
-                body: JSON.stringify({ reminderId }),
-            }
-        );
+        const { data } = await http.post<{
+            success: boolean;
+            error?: string;
+        }>("/api/account/reminders/dismiss-reminder", { reminderId });
 
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => null);
-            return {
-                success: false,
-                error:
-                    errorData?.error ||
-                    `Request failed with status ${res.status}`,
-            };
-        }
-
-        const data = await res.json().catch(() => null);
         return { success: data?.success ?? true, error: data?.error };
     } catch (err) {
         return {

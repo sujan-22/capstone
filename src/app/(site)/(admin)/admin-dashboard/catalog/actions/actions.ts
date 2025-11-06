@@ -542,3 +542,109 @@ export async function createModel({
         );
     }
 }
+
+export type CreateColorPayload = {
+    name: string;
+    hex: string;
+};
+
+export type CreateColorResponse = {
+    color: {
+        id: string;
+        name: string;
+        hex: string;
+        active: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+};
+
+export async function createColor({
+    data,
+    signal,
+}: {
+    data: CreateColorPayload;
+    signal?: AbortSignal;
+}): Promise<CreateColorResponse> {
+    try {
+        const res = await axios.post<CreateColorResponse>(
+            `${NEXT_PUBLIC_URL}/api/admin/catalog/colors`,
+            data,
+            {
+                withCredentials: true,
+                signal,
+                timeout: 15_000,
+                validateStatus: (s) => s >= 200 && s < 300,
+            }
+        );
+        return res.data;
+    } catch (err) {
+        const ax = err as AxiosError<ApiErrorShape>;
+        const status = ax.response?.status;
+        const serverMsg =
+            ax.response?.data?.error ||
+            ax.response?.data?.message ||
+            ax.message;
+
+        throw new Error(
+            status
+                ? `[${status}] Failed to create color: ${serverMsg}`
+                : `Failed to create color: ${serverMsg}`
+        );
+    }
+}
+
+export type UpdateColorPayload = {
+    name: string;
+    hex: string;
+};
+
+export type UpdateColorResponse = {
+    color: {
+        id: string;
+        name: string;
+        hex: string;
+        active: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+};
+
+export async function updateColor({
+    id,
+    data,
+    signal,
+}: {
+    id: string;
+    data: UpdateColorPayload;
+    signal?: AbortSignal;
+}): Promise<UpdateColorResponse> {
+    try {
+        const res = await axios.patch<UpdateColorResponse>(
+            `${NEXT_PUBLIC_URL}/api/admin/catalog/colors/${encodeURIComponent(
+                id
+            )}`,
+            data,
+            {
+                withCredentials: true,
+                signal,
+                timeout: 15_000,
+                validateStatus: (s) => s >= 200 && s < 300,
+            }
+        );
+        return res.data;
+    } catch (err) {
+        const ax = err as AxiosError<ApiErrorShape>;
+        const status = ax.response?.status;
+        const serverMsg =
+            ax.response?.data?.error ||
+            ax.response?.data?.message ||
+            ax.message;
+
+        throw new Error(
+            status
+                ? `[${status}] Failed to update color: ${serverMsg}`
+                : `Failed to update color: ${serverMsg}`
+        );
+    }
+}

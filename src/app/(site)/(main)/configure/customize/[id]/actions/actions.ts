@@ -1,12 +1,12 @@
-"use server";
+"use client";
 
-import { NEXT_PUBLIC_URL } from "@/lib/constants";
 import {
     CaseColor,
     CaseFinish,
     CaseMaterial,
     PhoneModel,
 } from "@/lib/database/table_types";
+import { http } from "@/lib/http";
 
 export interface UpdateImageResponse {
     success: boolean;
@@ -30,25 +30,12 @@ export const updateImageInAWS = async (
             formData.append("croppedImageUrl", croppedImageUrl);
         }
 
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/configure/customize/update-image`,
-            {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "x-user-id": userId,
-                },
-            }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            return {
-                success: false,
-                error: data?.error || "Failed to update image",
-            };
-        }
+        const { data } = await http.post<{
+            success: boolean;
+            croppedImageUrl: string;
+            message?: string;
+            error?: string;
+        }>("/api/configure/customize/update-image", formData);
 
         return {
             success: true,
@@ -81,21 +68,9 @@ export interface GetConfigDataResponse {
 
 export const getConfigData = async (): Promise<GetConfigDataResponse> => {
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/configure/customize/get-config-data`,
-            { method: "GET" }
+        const { data } = await http.get<ConfigDataResponse>(
+            "/api/configure/customize/get-config-data"
         );
-
-        const data: ConfigDataResponse | { error?: string } = await res.json();
-
-        if (!res.ok || "error" in data) {
-            return {
-                success: false,
-                error:
-                    (data as { error?: string }).error ||
-                    "Failed to fetch config data",
-            };
-        }
 
         return {
             success: true,
@@ -152,38 +127,27 @@ export const updateCaseConfig = async (
     }
 
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/configure/customize/update-config/${encodeURIComponent(
+        const { data } = await http.patch<{
+            success: boolean;
+            message: string;
+        }>(
+            `/api/configure/customize/update-config/${encodeURIComponent(
                 designId
             )}`,
-            {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            }
+            body
         );
 
-        const parsed = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-            const errMsg =
-                (parsed && (parsed.error || parsed.details)) ||
-                `Failed to update config (status ${res.status})`;
-            return { success: false, error: String(errMsg) };
-        }
-
-        const response = parsed as { success: boolean; message: string };
-
-        if (!response || !response.success) {
+        if (data?.success) {
             return {
-                success: false,
-                error: "Unexpected response shape from server",
+                success: true,
+                message: data.message ?? "Case design updated successfully",
             };
         }
 
-        return { success: true, message: "Case design updated successfully" };
+        return {
+            success: false,
+            error: data?.message || "Failed to update case design",
+        };
     } catch (err) {
         return {
             success: false,
@@ -193,38 +157,33 @@ export const updateCaseConfig = async (
 };
 
 export interface CustomizeCaseDesign {
-    width: number;
-    height: number;
-    imageUrl: string;
-    phoneModelId: string;
-    caseMaterialId: string;
-    caseFinishId: string;
-    caseColorId: string;
-    croppedImageUrl: string | null;
+    design: {
+        width: number;
+        height: number;
+        imageUrl: string;
+        phoneModelId: string;
+        caseMaterialId: string;
+        caseFinishId: string;
+        caseColorId: string;
+        croppedImageUrl: string | null;
+    } | null;
+    error?: string;
 }
 
 export const getCustomizeCaseDesign = async (
     designId: string
 ): Promise<CustomizeCaseDesign> => {
     if (!designId) {
-        throw new Error("Design ID is required");
+        return { error: "Design ID is required", design: null };
     }
 
-    const res = await fetch(
-        `${NEXT_PUBLIC_URL}/api/configure/customize/get-design/${designId}`,
-        {
-            method: "GET",
-            cache: "no-store",
-        }
+    const { data } = await http.get<CustomizeCaseDesign>(
+        `/api/configure/customize/get-design/${designId}`
     );
 
-    if (!res.ok) {
-        const errorBody = await res.json().catch(() => ({}));
-        throw new Error(
-            errorBody?.error || `Failed to fetch design (status ${res.status})`
-        );
+    if (!data || !data.design || data.error) {
+        return { error: "No design data found", design: null };
     }
 
-    const data: CustomizeCaseDesign = await res.json();
-    return data;
+    return { design: data.design };
 };

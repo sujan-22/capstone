@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
+import { getServerSideSession } from "@/hooks/use-session";
 
 interface FavoriteRequestBody {
-    userId: string;
     caseDesignId: string;
 }
 
 export async function POST(req: Request) {
-    const { userId, caseDesignId }: FavoriteRequestBody = await req.json();
+    const { caseDesignId }: FavoriteRequestBody = await req.json();
+    const { user } = await getServerSideSession();
+    const userId = user?.id;
 
     if (!userId || !caseDesignId) {
         return NextResponse.json(

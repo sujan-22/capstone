@@ -18,7 +18,7 @@ const FavoriteDesignOverview: React.FC<FavoriteDesignOverviewProps> = ({
 }) => {
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["get-favorite-designs", userId],
-        queryFn: async () => await getFavoriteDesignsByUser(userId),
+        queryFn: async () => await getFavoriteDesignsByUser(),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,

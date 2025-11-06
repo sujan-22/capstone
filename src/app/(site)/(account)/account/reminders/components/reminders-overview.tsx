@@ -18,7 +18,7 @@ const RemindersOverviewPage: React.FC<RemindersOverviewPageProps> = ({
 }) => {
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["get-reminders", userId],
-        queryFn: async () => await getReminders(userId),
+        queryFn: async () => await getReminders(),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,

@@ -7,3 +7,4 @@ export const ORDER_STATUSES = {
     SHIPPED: "Shipped",
     PENDING: "Pending",
 };
+export const ALLOW_HOSTS = new Set(["designmycase.s3.us-east-1.amazonaws.com"]);

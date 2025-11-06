@@ -144,8 +144,12 @@ export default function DesignConfigurator(props: Props) {
         if (!ctx) throw new Error("Failed to get canvas context");
 
         const userImage = new Image();
-        userImage.crossOrigin = "anonymous";
-        userImage.src = imageUrl;
+        // no crossOrigin needed for same-origin, but fine to leave
+        const proxied = `/api/image-proxy?url=${encodeURIComponent(
+            imageUrl
+        )}&t=${Date.now()}`;
+        userImage.src = proxied;
+
         await new Promise<void>((resolve, reject) => {
             userImage.onload = () => resolve();
             userImage.onerror = (e) => reject(e);

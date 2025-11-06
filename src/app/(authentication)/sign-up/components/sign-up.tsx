@@ -100,38 +100,48 @@ const SignUpPage: React.FC = () => {
             return;
         }
 
-        async function checkUsername() {
-            setChecking(true);
-            setUsernameAvailable(null);
-            try {
-                const res = await fetch(
-                    `/api/check-username?username=${debouncedUsername}`
-                );
-                const data = await res.json();
+        let cancelled = false;
+        setChecking(true);
+        setUsernameAvailable(null);
 
-                if (data.available === 0) {
-                    setUsernameAvailable(false);
+        (async () => {
+            try {
+                const { data, error } = await authClient.isUsernameAvailable({
+                    username: debouncedUsername,
+                });
+
+                if (cancelled) return;
+
+                if (error) {
+                    console.error("isUsernameAvailable error:", error);
+                    setUsernameAvailable(null);
+                    return;
+                }
+
+                const available = Boolean(data?.available);
+                setUsernameAvailable(available);
+
+                if (!available) {
                     form.setError("username", {
                         type: "manual",
                         message: "Username is already taken",
                     });
-                } else if (data.available === 2) {
-                    form.setError("username", {
-                        type: "manual",
-                        message: "Invalid username",
-                    });
                 } else {
                     form.clearErrors("username");
                 }
-            } catch (err) {
-                console.error(err);
-                setUsernameAvailable(null);
+            } catch (e) {
+                if (!cancelled) {
+                    console.error(e);
+                    setUsernameAvailable(null);
+                }
             } finally {
-                setChecking(false);
+                if (!cancelled) setChecking(false);
             }
-        }
+        })();
 
-        checkUsername();
+        return () => {
+            cancelled = true;
+        };
     }, [debouncedUsername, form]);
 
     const handleSignUp = async (values: SignUpValues) => {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
+import { getServerSideSession } from "@/hooks/use-session";
 
 type Body = {
     reminderId: string;
@@ -7,7 +8,8 @@ type Body = {
 
 export async function POST(req: NextRequest) {
     try {
-        const userId = req.headers.get("x-user-id") || "";
+        const { user } = await getServerSideSession();
+        const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
                 { error: "Not authenticated" },

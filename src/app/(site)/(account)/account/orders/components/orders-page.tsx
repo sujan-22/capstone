@@ -16,7 +16,7 @@ interface OrdersPageProps {
 const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["get-orders", userId],
-        queryFn: async () => await getOrdersByUser(userId),
+        queryFn: async () => await getOrdersByUser(),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,

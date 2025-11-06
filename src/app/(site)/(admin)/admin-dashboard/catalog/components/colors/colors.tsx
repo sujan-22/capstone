@@ -22,9 +22,12 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CaseColorDTO } from "../../actions/actions";
+import { CaseColorDTO, catalogKeys, updateColor } from "../../actions/actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ColorSwatchFormDialog } from "./color-dialog";
+import { normalizeHex } from "@/schema/catalog";
 
 type ColorRow = CaseColorDTO & { active?: boolean };
 
@@ -49,6 +52,69 @@ export const Colors: React.FC<Props> = ({
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    // inside Colors component
+    const qc = useQueryClient();
+    const [pendingId, setPendingId] = React.useState<string | null>(null);
+
+    const updateColorMutation = useMutation({
+        mutationFn: (vars: { id: string; name: string; hex: string }) =>
+            updateColor({
+                id: vars.id,
+                data: { name: vars.name.trim(), hex: normalizeHex(vars.hex) },
+            }),
+        onMutate: async ({ id, name, hex }) => {
+            setPendingId(id);
+            // pause any refetches for colors lists
+            await qc.cancelQueries({
+                queryKey: catalogKeys.colors(),
+                exact: false,
+            });
+
+            // snapshot previous data for rollback
+            const snapshots = qc.getQueriesData<{
+                pages: { colors: ColorRow[] }[];
+            }>({
+                queryKey: catalogKeys.colors(),
+            });
+
+            // optimistic patch
+            snapshots.forEach(([key, data]) => {
+                if (!data) return;
+                qc.setQueryData(key, {
+                    ...data,
+                    pages: data.pages.map((p) => ({
+                        ...p,
+                        colors: p.colors.map((c) =>
+                            c.id === id
+                                ? { ...c, name, hex: normalizeHex(hex) }
+                                : c
+                        ),
+                    })),
+                });
+            });
+
+            return { snapshots };
+        },
+        onError: (_err, _vars, ctx) => {
+            // rollback
+            ctx?.snapshots?.forEach(([key, data]) =>
+                qc.setQueryData(key, data)
+            );
+        },
+        onSettled: async () => {
+            setPendingId(null);
+            await Promise.all([
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.colors(),
+                    exact: false,
+                }),
+                qc.invalidateQueries({
+                    queryKey: catalogKeys.all,
+                    exact: false,
+                }),
+            ]);
+        },
+    });
 
     const columns = React.useMemo<ColumnDef<ColorRow, unknown>[]>(
         () => [
@@ -120,22 +186,44 @@ export const Colors: React.FC<Props> = ({
             {
                 id: "edit",
                 header: () => <span className="sr-only">Edit</span>,
-                cell: () => (
-                    <div className="flex justify-center">
-                        <Button
-                            icon={FiEdit}
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full"
-                            iconClassname="mr-0"
-                        />
-                    </div>
-                ),
+                cell: ({ row }) => {
+                    const { id, name, hex } = row.original;
+                    const isThisRowPending =
+                        pendingId === id || updateColorMutation.isPending;
+
+                    return (
+                        <div className="flex justify-center">
+                            <ColorSwatchFormDialog
+                                title="Edit Color"
+                                description="Pick a swatch and give it a clear, customer-friendly name."
+                                initial={{ name, hex }}
+                                isPending={isThisRowPending}
+                                trigger={
+                                    <Button
+                                        icon={FiEdit}
+                                        iconClassname="mr-0"
+                                        size="icon"
+                                        variant="ghost"
+                                        disabled={isThisRowPending}
+                                        aria-label={`Edit ${name}`}
+                                    />
+                                }
+                                onSubmit={(vals) =>
+                                    updateColorMutation.mutateAsync({
+                                        id,
+                                        name: vals.name,
+                                        hex: vals.hex,
+                                    })
+                                }
+                            />
+                        </div>
+                    );
+                },
                 enableSorting: false,
                 meta: { th: "w-12 text-center", td: "text-center" } as ColMeta,
             },
         ],
-        [onToggleActive]
+        [onToggleActive, updateColorMutation, pendingId]
     );
 
     const table = useReactTable({

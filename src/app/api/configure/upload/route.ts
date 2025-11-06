@@ -3,6 +3,10 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import { pool } from "@/lib/database/db";
 import type { QueryResult } from "pg";
+import { getServerSideSession } from "@/hooks/use-session";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const {
     AWS_S3_REGION,
@@ -95,7 +99,8 @@ export async function POST(request: Request) {
             );
         }
 
-        const userId = request.headers.get("x-user-id");
+        const { user } = await getServerSideSession();
+        const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
                 { error: "Missing x-user-id header." },

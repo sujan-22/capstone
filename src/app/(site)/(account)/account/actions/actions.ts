@@ -1,7 +1,8 @@
-"use server";
+"use client";
 
-import { NEXT_PUBLIC_URL } from "@/lib/constants";
-import { IUserInfo } from "@/lib/types/user-info.types";
+import { http } from "@/lib/http";
+import type { IUserInfo } from "@/lib/types/user-info.types";
+import type { AxiosError } from "axios";
 
 export interface UserInfoResponse {
     success: boolean;
@@ -9,34 +10,22 @@ export interface UserInfoResponse {
     error?: string;
 }
 
-export const getUserInfo = async (
-    userId: string
-): Promise<UserInfoResponse> => {
+export const getUserInfo = async (): Promise<UserInfoResponse> => {
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/account/get-account-info`,
-            {
-                method: "GET",
-                headers: {
-                    "x-user-id": userId,
-                },
-                cache: "default",
-            }
+        const { data } = await http.get<{ user: IUserInfo }>(
+            "/api/account/get-account-info"
         );
-
-        if (!res.ok) throw new Error("Failed to fetch user info");
-
-        const data: { user: IUserInfo } = await res.json();
 
         return {
             success: true,
-            user: data.user,
+            user: data?.user ?? null,
         };
-    } catch (err) {
+    } catch (e) {
+        const err = e as AxiosError<{ error?: string }>;
         return {
             success: false,
             user: null,
-            error: err instanceof Error ? err.message : "Unknown error",
+            error: err.response?.data?.error || err.message || "Unknown error",
         };
     }
 };

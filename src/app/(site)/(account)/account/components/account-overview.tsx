@@ -9,6 +9,7 @@ import { useSignOut } from "@/hooks/use-sign-out";
 import { useQuery } from "@tanstack/react-query";
 import { getUserInfo } from "../actions/actions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IoLogOut } from "react-icons/io5";
 
 interface AccountOverviewProps {
     user: IUser;
@@ -22,7 +23,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ user, session }) => {
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["get-user-info", user.id],
-        queryFn: async () => await getUserInfo(user.id),
+        queryFn: async () => await getUserInfo(),
         retry: true,
         retryDelay: 500,
         staleTime: 5 * 60 * 1000,
@@ -50,13 +51,15 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ user, session }) => {
 
                 <Button
                     variant="outline"
-                    size="sm"
                     onClick={async () => {
                         if (user) {
                             await signOut();
                         }
                     }}
-                    className="h-10 self-start"
+                    icon={IoLogOut}
+                    iconClassname="w-5 h-5"
+                    iconPosition="right"
+                    className="self-start"
                 >
                     Sign Out
                 </Button>

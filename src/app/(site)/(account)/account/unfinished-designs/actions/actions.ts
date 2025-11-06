@@ -1,6 +1,6 @@
-"use server";
+"use client";
 
-import { NEXT_PUBLIC_URL } from "@/lib/constants";
+import { http } from "@/lib/http";
 import { IUnfinishedDesign } from "@/lib/types/unfinished-designs.types";
 
 export interface UnfinishedDesignsResponse {
@@ -15,65 +15,37 @@ export interface DesignHandleResponse {
     error?: string;
 }
 
-export const getUnfinishedDesigns = async (
-    userId: string
-): Promise<UnfinishedDesignsResponse> => {
-    try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/account/unfinished-designs/get-unfinished-designs`,
-            {
-                method: "GET",
-                headers: {
-                    "x-user-id": userId,
-                },
-                cache: "default",
-            }
-        );
+export const getUnfinishedDesigns =
+    async (): Promise<UnfinishedDesignsResponse> => {
+        try {
+            const { data } = await http.get<{
+                unfinishedDesigns: IUnfinishedDesign[];
+            }>("/api/account/unfinished-designs/get-unfinished-designs");
 
-        if (!res.ok) throw new Error("Failed to fetch unfinished designs");
-
-        const data: { unfinishedDesigns: IUnfinishedDesign[] } =
-            await res.json();
-
-        return {
-            success: true,
-            designs: data.unfinishedDesigns,
-        };
-    } catch (err) {
-        return {
-            success: false,
-            designs: [],
-            error: err instanceof Error ? err.message : "Unknown error",
-        };
-    }
-};
+            return {
+                success: true,
+                designs: data.unfinishedDesigns,
+            };
+        } catch (err) {
+            return {
+                success: false,
+                designs: [],
+                error: err instanceof Error ? err.message : "Unknown error",
+            };
+        }
+    };
 
 export const deleteUnfinishedDesign = async (
-    userId: string,
     caseDesignId: string
 ): Promise<DesignHandleResponse> => {
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/account/unfinished-designs/delete-design`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-user-id": userId,
-                },
-                body: JSON.stringify({ designId: caseDesignId }),
-                cache: "default",
-            }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            return {
-                success: false,
-                error: data?.error ?? "Failed to delete design",
-            };
-        }
+        const { data } = await http.post<{
+            success: boolean;
+            message?: string;
+            error?: string;
+        }>("/api/account/unfinished-designs/delete-design", {
+            designId: caseDesignId,
+        });
 
         return {
             success: true,

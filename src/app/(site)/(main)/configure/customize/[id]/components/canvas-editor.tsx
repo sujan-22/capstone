@@ -2,11 +2,11 @@
 
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import HandleComponent from "./handle-component";
 import { CaseColor } from "@/lib/database/table_types";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface CanvasEditorProps {
     imageUrl: string;
@@ -42,7 +42,7 @@ export default function CanvasEditor({
                     ratio={896 / 1831}
                     className="pointer-events-none relative z-50 aspect-[896/1831] w-full"
                 >
-                    <NextImage
+                    <Image
                         fill
                         alt=""
                         src="/assets/phone-template/phone-template.png"
@@ -87,12 +87,11 @@ export default function CanvasEditor({
                 }}
             >
                 <div className="relative w-full h-full">
-                    <NextImage
+                    <Image
                         src={imageUrl}
+                        crossOrigin="anonymous"
                         alt=""
                         fill
-                        unoptimized
-                        crossOrigin="anonymous"
                         className=" pointer-events-none"
                     />
                 </div>

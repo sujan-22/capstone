@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { pool } from "@/lib/database/db";
 import type { QueryResult } from "pg";
+import { getServerSideSession } from "@/hooks/use-session";
 
 type PhoneModelRow = { id: string; model_name: string };
 type GenericNamedRow = { id: string; name: string };
@@ -9,7 +10,8 @@ type InsertReturn = { id: string };
 
 export async function POST(request: Request) {
     try {
-        const userId = request.headers.get("x-user-id");
+        const { user } = await getServerSideSession();
+        const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
                 { error: "Missing x-user-id header." },

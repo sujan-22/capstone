@@ -34,7 +34,7 @@ const CustomizeOverview = ({ id, user }: Props) => {
     });
 
     if (isLoading || isFetchingConfig) return <CustomizeOverviewSkeleton />;
-    if (error || isError)
+    if (error || isError || data?.error)
         return (
             <div className="flex justify-center items-center mt-auto min-h-[70vh]">
                 <ErrorMessage
@@ -44,7 +44,7 @@ const CustomizeOverview = ({ id, user }: Props) => {
             </div>
         );
 
-    if (!data || !configData?.data) {
+    if (!configData?.data || !data?.design) {
         return notFound();
     }
     const {
@@ -56,7 +56,7 @@ const CustomizeOverview = ({ id, user }: Props) => {
         caseMaterialId,
         phoneModelId,
         croppedImageUrl,
-    } = data;
+    } = data.design;
     const colors = configData.data.caseColors;
     const models = configData.data.phoneModels;
     const materials = configData.data.caseMaterials;

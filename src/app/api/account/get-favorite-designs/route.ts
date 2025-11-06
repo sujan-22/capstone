@@ -1,13 +1,15 @@
+import { getServerSideSession } from "@/hooks/use-session";
 import { pool } from "@/lib/database/db";
 import {
     FavoriteDesignRow,
     IFavoriteDesign,
 } from "@/lib/types/user-favorite-designs.types";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
-        const userId = req.headers.get("x-user-id") || "";
+        const { user } = await getServerSideSession();
+        const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
                 { error: "Not authenticated" },
