@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import axios from "axios";
 import { NEXT_PUBLIC_URL } from "@/lib/constants";
@@ -54,7 +54,6 @@ export const getImageGallery = async (
 };
 
 export const createDesignFromGalleryImage = async (
-    userId: string,
     gallery_image_id: string,
     imageUrl: string
 ): Promise<{ success: boolean; designId?: string; error?: string }> => {
@@ -73,7 +72,6 @@ export const createDesignFromGalleryImage = async (
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "x-user-id": userId,
                 },
             }
         );

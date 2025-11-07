@@ -7,7 +7,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
             <div className=" border rounded-md mt-3">
                 <Steps />
             </div>
-            {children}
+            <div className="my-8">
+                <div className="container">{children}</div>
+            </div>
         </div>
     );
 };

@@ -16,7 +16,6 @@ const FeaturedDesigns = ({ user }: { user: IUser | undefined }) => {
         queryKey: ["get-featured-designs-page", user?.id, currentSort],
         queryFn: async () =>
             await getFeaturedDesigns({
-                userId: user?.id,
                 sort: currentSort,
             }),
         retry: true,

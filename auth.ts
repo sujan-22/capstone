@@ -4,6 +4,12 @@ import { admin } from "better-auth/plugins";
 import { emailOTP } from "better-auth/plugins";
 import { Pool } from "pg";
 import { sendEmail } from "./actions/email";
+import {
+    renderChangeEmailEmail,
+    renderChangeEmailText,
+    renderOtpEmail,
+    renderOtpText,
+} from "@/lib/email/templates";
 
 export const auth = betterAuth({
     database: new Pool({
@@ -25,7 +31,8 @@ export const auth = betterAuth({
                 await sendEmail({
                     to: user.email,
                     subject: "Approve email change",
-                    text: `Click the link to approve the change: ${url}`,
+                    text: renderChangeEmailText(url),
+                    html: renderChangeEmailEmail(url),
                 });
             },
         },
@@ -46,11 +53,11 @@ export const auth = betterAuth({
             expiresIn: 10 * 60,
             allowedAttempts: 5,
             async sendVerificationOTP({ email, otp }) {
-                const body = `Your verification code is: ${otp}. It will expire in 10 minutes.`;
                 await sendEmail({
                     to: email,
                     subject: "Your verification code",
-                    text: body,
+                    text: renderOtpText(otp),
+                    html: renderOtpEmail(otp),
                 });
             },
         }),

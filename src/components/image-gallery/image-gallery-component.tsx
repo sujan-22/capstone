@@ -49,11 +49,7 @@ export default function ImageGalleryComponent({
             gallery_image_id: string;
             imageUrl: string;
         }) =>
-            createDesignFromGalleryImage(
-                userId!,
-                args.gallery_image_id,
-                args.imageUrl
-            ),
+            createDesignFromGalleryImage(args.gallery_image_id, args.imageUrl),
         onSuccess: (res) => {
             setPendingImageId(null);
             if (res.success && res.designId) {

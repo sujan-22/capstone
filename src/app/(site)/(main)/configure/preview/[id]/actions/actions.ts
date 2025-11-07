@@ -13,13 +13,20 @@ export const getDesignPreview = async (
     designId: string
 ): Promise<GetDesignPreviewResponse> => {
     try {
-        const { data } = await http.get<{ designPreview: IPreviewCaseDesign }>(
+        const { data } = await http.get<GetDesignPreviewResponse>(
             `/api/configure/preview/${encodeURIComponent(designId)}`
         );
 
+        if (data.error) {
+            return {
+                success: false,
+                error: data.error ?? "Failed to fetch design preview",
+            };
+        }
+
         return {
             success: true,
-            design: data.designPreview as IPreviewCaseDesign,
+            design: data.design,
         };
     } catch (err) {
         return {

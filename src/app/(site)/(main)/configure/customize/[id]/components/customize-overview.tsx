@@ -33,6 +33,10 @@ const CustomizeOverview = ({ id, user }: Props) => {
         staleTime: 5 * 60 * 1000,
     });
 
+    if (data?.error === "This design is already associated with an order") {
+        return notFound();
+    }
+
     if (isLoading || isFetchingConfig) return <CustomizeOverviewSkeleton />;
     if (error || isError || data?.error)
         return (

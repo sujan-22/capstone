@@ -182,7 +182,7 @@ export const getCustomizeCaseDesign = async (
     );
 
     if (!data || !data.design || data.error) {
-        return { error: "No design data found", design: null };
+        return { error: data.error ?? "No design data found", design: null };
     }
 
     return { design: data.design };
