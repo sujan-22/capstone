@@ -84,7 +84,7 @@ const UploadComponent = ({ userId }: { userId: string }) => {
     return (
         <div
             className={cn(
-                "relative h-[70vh] flex-1 mt-3 w-full rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:rounded-xl flex justify-center flex-col items-center",
+                "relative h-[70vh] flex-1 w-full rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:rounded-xl flex justify-center flex-col items-center",
                 { "ring-blue-900/25 bg-blue-900/10": isDragOver }
             )}
         >

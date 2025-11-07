@@ -11,6 +11,7 @@ interface CaseDesignRow {
     case_finish_id: string;
     case_color_id: string;
     cropped_image_url: string | null;
+    has_order: boolean;
 }
 
 export async function GET(
@@ -20,13 +21,13 @@ export async function GET(
     const { id: designId } = await params;
     const { user } = await getServerSideSession();
     const userId = user?.id;
+
     if (!userId) {
         return NextResponse.json(
             { error: "Not authenticated" },
             { status: 401 }
         );
     }
-
     if (!designId) {
         return NextResponse.json(
             { error: "Missing design id" },
@@ -36,25 +37,33 @@ export async function GET(
 
     try {
         const client = await pool.connect();
-
         try {
             const query = `
         SELECT 
-          width,
-          height,
-          COALESCE(cd.image, gi.url) AS "image",
-          phone_model_id,
-          case_material_id,
-          case_finish_id,
-          case_color_id,
-          cropped_image_url
+          cd.width,
+          cd.height,
+          COALESCE(cd.image, gi.url) AS image,
+          cd.phone_model_id,
+          cd.case_material_id,
+          cd.case_finish_id,
+          cd.case_color_id,
+          cd.cropped_image_url,
+          EXISTS (
+            SELECT 1
+            FROM "order" o
+            WHERE o.case_design_id = cd.id
+          ) AS has_order
         FROM case_design cd
         LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
         WHERE cd.id = $1
+          AND cd.user_id = $2          
         LIMIT 1;
       `;
 
-            const result = await client.query<CaseDesignRow>(query, [designId]);
+            const result = await client.query<CaseDesignRow>(query, [
+                designId,
+                userId,
+            ]);
 
             if (result.rowCount === 0) {
                 return NextResponse.json(
@@ -65,16 +74,13 @@ export async function GET(
 
             const design = result.rows[0];
 
-            const response: {
-                width: number;
-                height: number;
-                imageUrl: string | null;
-                phoneModelId: string;
-                caseMaterialId: string;
-                caseFinishId: string;
-                caseColorId: string;
-                croppedImageUrl: string | null;
-            } = {
+            if (design.has_order) {
+                return NextResponse.json({
+                    error: "This design is already associated with an order",
+                });
+            }
+
+            const response = {
                 width: design.width,
                 height: design.height,
                 imageUrl: design.image,

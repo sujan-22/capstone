@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useToast } from "./use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 interface UseFavoriteProps {
     caseDesignId: string;
@@ -16,63 +17,65 @@ export function useFavorite({
     const [loading, setLoading] = useState(false);
     const queryClient = useQueryClient();
 
-    const toggleFavorite = useCallback(
-        async (userId: string) => {
-            if (loading) return;
-            setLoading(true);
+    const toggleFavorite = useCallback(async () => {
+        if (loading) return;
+        setLoading(true);
 
-            const prevState = isFavorited;
-            setIsFavorited(!prevState);
+        const prevState = isFavorited;
+        setIsFavorited(!prevState);
 
-            try {
-                const res = await fetch("/api/favorite", {
-                    method: "POST",
+        try {
+            const { data } = await axios.post<{
+                error?: string;
+                success?: boolean;
+            }>(
+                `/api/favorite`,
+                {
+                    caseDesignId,
+                },
+                {
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId, caseDesignId }),
-                });
-
-                const data = await res.json();
-
-                if (!res.ok) {
-                    setIsFavorited(prevState);
-                    toast({
-                        title: "Oops!",
-                        description:
-                            data.error ||
-                            "Failed to update your favorites. Please try again.",
-                        variant: "destructive",
-                    });
-                    return;
                 }
+            );
 
-                toast({
-                    title: !prevState
-                        ? "Added to favorites!"
-                        : "Removed from favorites!",
-                    description: !prevState
-                        ? "This design has been added to your favorites."
-                        : "This design has been removed from your favorites.",
-                    variant: "default",
-                });
-
-                queryClient.invalidateQueries({
-                    queryKey: ["get-favorite-designs"],
-                });
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err) {
+            if (data.error || !data?.success) {
                 setIsFavorited(prevState);
                 toast({
-                    title: "Network error",
+                    title: "Oops!",
                     description:
-                        "Unable to update your favorites. Please check your connection and try again.",
+                        data.error ||
+                        "Failed to update your favorites. Please try again.",
                     variant: "destructive",
                 });
-            } finally {
-                setLoading(false);
+                return;
             }
-        },
-        [caseDesignId, isFavorited, loading, toast, queryClient]
-    );
+
+            toast({
+                title: !prevState
+                    ? "Added to favorites!"
+                    : "Removed from favorites!",
+                description: !prevState
+                    ? "This design has been added to your favorites."
+                    : "This design has been removed from your favorites.",
+                variant: "default",
+            });
+
+            queryClient.invalidateQueries({
+                queryKey: ["get-favorite-designs"],
+            });
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err) {
+            setIsFavorited(prevState);
+            toast({
+                title: "Network error",
+                description:
+                    "Unable to update your favorites. Please check your connection and try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [caseDesignId, isFavorited, loading, toast, queryClient]);
 
     return { isFavorited, toggleFavorite, loading };
 }

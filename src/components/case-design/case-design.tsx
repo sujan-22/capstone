@@ -38,7 +38,6 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     user,
     croppedImgUrl,
 }) => {
-    const userId = user?.id || "";
     const router = useRouter();
     const { isFavorited, toggleFavorite, loading } = useFavorite({
         caseDesignId: id,
@@ -79,7 +78,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
 
             <div className="mt-4 flex justify-between space-y-3">
                 <Button
-                    onClick={() => buyNow(userId)}
+                    onClick={() => buyNow()}
                     aria-label={`Buy ${caseName}`}
                     disabled={isBuyNowLoading}
                     isLoading={isBuyNowLoading}
@@ -96,7 +95,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                                 router.push("/sign-in");
                                 return;
                             }
-                            toggleFavorite(userId);
+                            toggleFavorite();
                             queryClient.invalidateQueries();
                         }}
                         aria-label={`Favorite ${caseName}`}

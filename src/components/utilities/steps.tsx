@@ -51,7 +51,7 @@ export default function Steps() {
                                                 : "secondary"
                                         }
                                         className={cn(
-                                            "flex items-center justify-center rounded-full w-8 h-8 p-0 hover:cursor-default hover:bg-black",
+                                            "flex items-center justify-center rounded-full w-8 h-8 p-0 hover:cursor-default",
                                             active ? "shadow-sm" : ""
                                         )}
                                     >

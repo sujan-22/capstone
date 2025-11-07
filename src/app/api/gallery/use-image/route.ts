@@ -27,6 +27,8 @@ export async function POST(request: Request) {
             );
         }
 
+        //4eb6d6f4-ba93-4419-8758-e724c0631ebb
+
         const { imageUrl, gallery_image_id } = body as {
             imageUrl?: string | null;
             gallery_image_id?: number | string | null;

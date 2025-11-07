@@ -12,7 +12,7 @@ interface Props {
     userId: string;
 }
 
-const FavoriteDesign = ({ design, userId }: Props) => {
+const FavoriteDesign = ({ design }: Props) => {
     const { toggleFavorite, loading } = useFavorite({
         caseDesignId: design.id,
         initialFavorited: design.isFavorited,
@@ -62,7 +62,7 @@ const FavoriteDesign = ({ design, userId }: Props) => {
 
                 <div className="mt-auto flex flex-wrap gap-2">
                     <Button
-                        onClick={() => buyNow(userId)}
+                        onClick={() => buyNow()}
                         aria-label={`Buy ${design.caseName}`}
                         disabled={isBuyNowLoading}
                         isLoading={isBuyNowLoading}
@@ -72,7 +72,7 @@ const FavoriteDesign = ({ design, userId }: Props) => {
                     </Button>
 
                     <Button
-                        onClick={() => toggleFavorite(userId)}
+                        onClick={() => toggleFavorite()}
                         size={"sm"}
                         aria-label={`Favorite ${design.caseName}`}
                         disabled={loading}

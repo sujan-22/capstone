@@ -16,7 +16,6 @@ export default function FeaturedDesigns({ user }: { user: IUser | undefined }) {
         queryKey: ["get-featured-designs", user?.id],
         queryFn: async () =>
             await getFeaturedDesigns({
-                userId: user?.id,
                 sort: "none",
                 limit: 3,
             }),

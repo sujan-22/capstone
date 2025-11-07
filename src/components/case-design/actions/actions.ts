@@ -1,7 +1,7 @@
-"use server";
+"use client";
 
-import { NEXT_PUBLIC_URL } from "@/lib/constants";
 import { ICaseDesignProps } from "../case-design";
+import { http } from "@/lib/http";
 
 export interface FeaturedDesignsResponse {
     success: boolean;
@@ -10,29 +10,16 @@ export interface FeaturedDesignsResponse {
 }
 
 export const getFeaturedDesigns = async ({
-    userId,
     sort = "none",
     limit,
 }: {
-    userId: string | undefined;
     sort: string;
     limit?: number;
 }): Promise<FeaturedDesignsResponse> => {
     try {
-        const res = await fetch(
-            `${NEXT_PUBLIC_URL}/api/get-featured-designs?sort=${sort}&limit=${limit}`,
-            {
-                method: "GET",
-                headers: {
-                    "x-user-id": userId ?? "",
-                },
-                cache: "default",
-            }
+        const { data } = await http.get<ICaseDesignProps[]>(
+            `/api/get-featured-designs?sort=${sort}&limit=${limit}`
         );
-
-        if (!res.ok) throw new Error("Failed to fetch featured designs");
-
-        const data: ICaseDesignProps[] = await res.json();
 
         return {
             success: true,

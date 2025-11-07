@@ -52,7 +52,10 @@ export async function GET(
         cm.price AS "materialPrice",
         cf.name AS "finish",
         cf.price AS "finishPrice",
-        (cm.price + cf.price) AS "price"
+        (cm.price + cf.price) AS "price",
+        EXISTS (
+          SELECT 1 FROM "order" o WHERE o.case_design_id = cd.id
+        ) AS "has_order"
       FROM case_design cd
       JOIN phone_model pm ON cd.phone_model_id = pm.id
       JOIN case_color cc ON cd.case_color_id = cc.id
@@ -63,10 +66,7 @@ export async function GET(
       LIMIT 1;
     `;
 
-        const res = await client.query<IPreviewCaseDesign>(query, [
-            userId,
-            designId,
-        ]);
+        const res = await client.query(query, [userId, designId]);
 
         if (res.rowCount === 0) {
             return NextResponse.json(
@@ -75,9 +75,29 @@ export async function GET(
             );
         }
 
-        const design = res.rows[0];
+        const row = res.rows[0];
+        if (row.has_order) {
+            return NextResponse.json({
+                error: "This design is already associated with an order",
+            });
+        }
 
-        return NextResponse.json({ designPreview: design, status: 200 });
+        return NextResponse.json({
+            design: {
+                id: row.id,
+                imgSrc: row.imgSrc,
+                caseName: row.caseName,
+                croppedImageUrl: row.croppedImageUrl,
+                modelName: row.modelName,
+                color: row.color,
+                material: row.material,
+                materialPrice: row.materialPrice,
+                finish: row.finish,
+                finishPrice: row.finishPrice,
+                price: row.price,
+            },
+            status: 200,
+        });
     } catch (error) {
         console.error("Error fetching design preview:", error);
         return NextResponse.json(

@@ -38,7 +38,6 @@ const Design: React.FC<ICaseDesignProps> = ({
     user,
     croppedImgUrl,
 }) => {
-    const userId = user?.id || "";
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -85,7 +84,17 @@ const Design: React.FC<ICaseDesignProps> = ({
 
             <div className="mt-4 flex justify-between space-y-3">
                 <Button
-                    onClick={() => buyNow(userId)}
+                    onClick={() => {
+                        if (!user) {
+                            router.push(
+                                `/sign-in?redirectTo=${encodeURIComponent(
+                                    currentUrl
+                                )}`
+                            );
+                            return;
+                        }
+                        buyNow();
+                    }}
                     aria-label={`Buy ${caseName}`}
                     disabled={isBuyNowLoading}
                     isLoading={isBuyNowLoading}
@@ -105,7 +114,7 @@ const Design: React.FC<ICaseDesignProps> = ({
                                 );
                                 return;
                             }
-                            toggleFavorite(userId);
+                            toggleFavorite();
                             queryClient.invalidateQueries();
                         }}
                         size={"sm"}
