@@ -4,12 +4,7 @@ import { admin } from "better-auth/plugins";
 import { emailOTP } from "better-auth/plugins";
 import { Pool } from "pg";
 import { sendEmail } from "./actions/email";
-import {
-    renderChangeEmailEmail,
-    renderChangeEmailText,
-    renderOtpEmail,
-    renderOtpText,
-} from "@/lib/email/templates";
+import { renderOtpEmail, renderOtpText } from "@/lib/email/templates";
 
 export const auth = betterAuth({
     database: new Pool({
@@ -27,14 +22,15 @@ export const auth = betterAuth({
     user: {
         changeEmail: {
             enabled: true,
-            sendChangeEmailVerification: async ({ user, url }) => {
-                await sendEmail({
-                    to: user.email,
-                    subject: "Approve email change",
-                    text: renderChangeEmailText(url),
-                    html: renderChangeEmailEmail(url),
-                });
-            },
+            // sendChangeEmailVerification: async ({ user, token }) => {
+            //     const url = `${process.env.NEXT_PUBLIC_BASE_URL}/email-verification/${token}`;
+            //     await sendEmail({
+            //         to: user.email,
+            //         subject: "Approve email change",
+            //         text: renderChangeEmailText(url),
+            //         html: renderChangeEmailEmail(url),
+            //     });
+            // },
         },
         deleteUser: {
             enabled: true,
