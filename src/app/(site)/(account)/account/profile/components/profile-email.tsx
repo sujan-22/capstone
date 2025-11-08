@@ -84,7 +84,7 @@ const ProfileEmail = ({ currentUser }: { currentUser: IUser }) => {
             >
                 <AccountInfo
                     label="Email"
-                    currentInfo={email}
+                    currentInfo={currentUser.email}
                     isSuccess={successState}
                     isError={!!errorState}
                     clearState={clearState}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/database/db";
 import { auth } from "../../../../../../auth";
+import { decodeCursor, encodeCursor, parseLimit } from "@/lib/utils";
 
 export type OrderListItem = {
     id: string;
@@ -23,31 +24,6 @@ export type OrdersResponse = {
     orders: OrderListItem[];
     nextCursor: string | null;
 };
-
-function parseLimit(value: string | null): number {
-    const n = Number(value ?? 20);
-    if (!Number.isFinite(n)) return 20;
-    return Math.min(100, Math.max(1, Math.floor(n)));
-}
-
-function encodeCursor(createdAtISO: string, id: string) {
-    return Buffer.from(`${createdAtISO}|${id}`, "utf-8").toString("base64url");
-}
-
-function decodeCursor(cursor: string | null): {
-    createdAt?: string;
-    id?: string;
-} {
-    if (!cursor) return {};
-    try {
-        const raw = Buffer.from(cursor, "base64url").toString("utf-8");
-        const [createdAtISO, id] = raw.split("|");
-        if (!createdAtISO || !id) return {};
-        return { createdAt: createdAtISO, id };
-    } catch {
-        return {};
-    }
-}
 
 export async function GET(req: Request) {
     const session = await auth.api.getSession({ headers: req.headers });

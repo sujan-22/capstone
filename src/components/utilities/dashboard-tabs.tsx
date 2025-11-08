@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
-const TABS = ["overview", "customers", "catalog", "orders"] as const;
+const TABS = ["overview", "customers", "catalog", "orders", "images"] as const;
 const BASE = "/admin-dashboard";
 
 export default function DashboardTabs() {
@@ -26,7 +26,7 @@ export default function DashboardTabs() {
 
     return (
         <Tabs value={active} onValueChange={go} className="w-full">
-            <TabsList className="flex flex-wrap">
+            <TabsList className="flex flex-wrap w-full">
                 {TABS.map((t) => (
                     <TabsTrigger
                         key={t}

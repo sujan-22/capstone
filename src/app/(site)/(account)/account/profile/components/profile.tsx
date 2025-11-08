@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import ProfileName from "./profile-name";
-import ProfileEmail from "./profile-email";
 import ProfilePassword from "./profile-password";
 import ProfileUsername from "./profile-username";
 import { authClient, IUser } from "../../../../../../../auth-client";
@@ -36,7 +35,6 @@ export default function AccountProfilePage({ user }: { user: IUser }) {
     }, []);
 
     const showPassword = lastLoginMethod === "email";
-    console.log("Last login method:", lastLoginMethod, showPassword);
 
     const handleConfirmDelete = async () => {
         await authClient.deleteUser(
@@ -83,8 +81,8 @@ export default function AccountProfilePage({ user }: { user: IUser }) {
                 <Separator />
                 <ProfileUsername currentUser={user} />
                 <Separator />
-                <ProfileEmail currentUser={user} />
-                <Separator />
+                {/* <ProfileEmail currentUser={user} />
+                <Separator /> */}
                 {showPassword && (
                     <>
                         <ProfilePassword />

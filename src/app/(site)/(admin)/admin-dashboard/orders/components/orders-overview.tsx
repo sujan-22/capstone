@@ -14,6 +14,7 @@ import {
 import { OrdersTable } from "./orders";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MdClear, MdSearch } from "react-icons/md";
+import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
 
 export default function OrdersOverview({}: { user: IUser }) {
     const [q, setQ] = React.useState<string>("");
@@ -36,7 +37,7 @@ export default function OrdersOverview({}: { user: IUser }) {
         queryFn: ({ pageParam, signal }) =>
             fetchAdminOrdersPage({
                 cursor: (pageParam as string | null) ?? null,
-                limit: 15,
+                limit: ADMIN_DATA_PAGE_SIZE,
                 q,
                 userId,
                 signal,

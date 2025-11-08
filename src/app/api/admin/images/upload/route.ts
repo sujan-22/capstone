@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { pool } from "@/lib/database/db";
+import type { QueryResult } from "pg";
 import { getServerSideSession } from "@/hooks/use-session";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const {
     AWS_S3_REGION,
@@ -40,23 +44,16 @@ function getFileExtension(filename: string): string {
     return match ? match[0] : "";
 }
 
-function extractS3KeyFromUrl(url: string): string | undefined {
-    try {
-        const decoded = decodeURIComponent(url);
-        const host = `${AWS_S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/`;
-        const idx = decoded.indexOf(host);
-        if (idx === -1) return undefined;
-        return decoded.slice(idx + host.length);
-    } catch {
-        return undefined;
-    }
-}
-
 async function uploadFileToS3(
     fileBuffer: Buffer,
-    key: string,
+    fileName: string,
     contentType: string
 ): Promise<string> {
+    const ext = getFileExtension(fileName);
+    const key = `gallery_image/${fileName.replace(
+        /\s+/g,
+        "_"
+    )}-${Date.now()}${ext}`;
     const params = {
         Bucket: AWS_S3_BUCKET_NAME,
         Key: key,
@@ -72,13 +69,14 @@ async function uploadFileToS3(
     )}`;
 }
 
+type InsertReturn = {
+    id: string;
+};
+
 export async function POST(request: Request) {
     try {
-        const { user } = await getServerSideSession();
         const formData = await request.formData();
         const maybeFile = formData.get("file");
-        const designIdRaw = formData.get("designId");
-        const croppedImageUrlRaw = formData.get("croppedImageUrl");
 
         if (!maybeFile || !(maybeFile instanceof File)) {
             return NextResponse.json(
@@ -87,14 +85,6 @@ export async function POST(request: Request) {
             );
         }
         const file: File = maybeFile;
-
-        if (!designIdRaw || typeof designIdRaw !== "string") {
-            return NextResponse.json(
-                { error: "Missing designId in form data." },
-                { status: 400 }
-            );
-        }
-        const designId = designIdRaw;
 
         const contentType = file.type || "application/octet-stream";
         if (!ALLOWED_MIME.has(contentType)) {
@@ -106,48 +96,55 @@ export async function POST(request: Request) {
             );
         }
 
+        const { user } = await getServerSideSession();
         const userId = user?.id;
-        if (!userId) {
+        if (!userId || user.role !== "admin") {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 401 }
             );
         }
 
-        let keyToUse: string | null = null;
-        if (croppedImageUrlRaw && typeof croppedImageUrlRaw === "string") {
-            const extracted = extractS3KeyFromUrl(croppedImageUrlRaw);
-            if (extracted) {
-                keyToUse = extracted;
-            }
-        }
-
-        if (!keyToUse) {
-            const ext = getFileExtension(file.name) || ".png";
-            const sanitized = file.name
-                .replace(/\s+/g, "_")
-                .replace(/[^a-zA-Z0-9._-]/g, "");
-            keyToUse = `cropped_images/${sanitized}-${Date.now()}${ext}`;
-        }
-
         const buffer = Buffer.from(await file.arrayBuffer());
 
-        const fileUrl = await uploadFileToS3(buffer, keyToUse, contentType);
+        // Upload to S3
+        const fileUrl = await uploadFileToS3(buffer, file.name, contentType);
 
         const client = await pool.connect();
-
         try {
-            await client.query(
-                `UPDATE case_design
-                 SET cropped_image_url = $1
-                 WHERE id = $2 AND user_id = $3`,
-                [fileUrl, designId, userId]
+            await client.query("BEGIN");
+
+            const insertQuery = `
+        INSERT INTO gallery_image (
+          url, created_at, updated_at
+        ) VALUES (
+          $1, NOW(), NOW()
+        )
+        RETURNING id
+      `;
+
+            const insertValues = [fileUrl];
+
+            const insertRes: QueryResult<InsertReturn> = await client.query(
+                insertQuery,
+                insertValues
             );
 
-            return NextResponse.json({
-                success: true,
-                croppedImageUrl: fileUrl,
-            });
+            await client.query("COMMIT");
+
+            const inserted = insertRes.rows[0];
+            const responsePayload: InsertReturn = {
+                id: inserted.id,
+            };
+
+            return NextResponse.json(responsePayload, { status: 200 });
+        } catch (dbErr) {
+            await client.query("ROLLBACK");
+            console.error("DB Error:", dbErr);
+            return NextResponse.json(
+                { error: "DB operation failed", details: String(dbErr) },
+                { status: 500 }
+            );
         } finally {
             client.release();
         }

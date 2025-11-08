@@ -1,8 +1,6 @@
 import React from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import { notFound } from "next/navigation";
-import CustomersOverview from "./components/customers-overview";
-import { AdminCustomersInfo } from "./components/info";
 import { Separator } from "@/components/ui/separator";
 import {
     Accordion,
@@ -10,6 +8,8 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import ImagesOverview from "./components/images-overview";
+import { AdminImagesInfo } from "./components/info";
 
 export default async function Page() {
     const { user } = await getServerSideSession();
@@ -27,12 +27,12 @@ export default async function Page() {
                 <AccordionItem value="item-1">
                     <AccordionTrigger>How to use?</AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-4 text-balance">
-                        <AdminCustomersInfo />
+                        <AdminImagesInfo />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
             <Separator className="mt-3 mb-5" />
-            <CustomersOverview user={user} />
+            <ImagesOverview />
         </>
     );
 }
