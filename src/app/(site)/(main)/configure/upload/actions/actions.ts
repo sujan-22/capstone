@@ -18,7 +18,6 @@ type ApiError = {
 
 export const uploadUserImage = async (
     file: File,
-    userId: string,
     onProgress: (progress: number) => void
 ): Promise<UploadFileResponse> => {
     try {
@@ -29,9 +28,6 @@ export const uploadUserImage = async (
             `${NEXT_PUBLIC_URL}/api/configure/upload`,
             formData,
             {
-                headers: {
-                    "x-user-id": userId,
-                },
                 onUploadProgress: (event) => {
                     if (event.total) {
                         const percent = Math.round(

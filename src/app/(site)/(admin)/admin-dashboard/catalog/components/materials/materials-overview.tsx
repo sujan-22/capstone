@@ -20,6 +20,7 @@ import {
 } from "../../actions/actions";
 import { CreateMaterialDialog } from "./create-material";
 import { updateMaterialSchema } from "@/schema/catalog";
+import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
 
 const MaterialsOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
@@ -39,7 +40,7 @@ const MaterialsOverview: React.FC = () => {
         queryFn: ({ pageParam, signal }) =>
             fetchMaterialsPage({
                 cursor: (pageParam as string | null) ?? null,
-                limit: 50,
+                limit: ADMIN_DATA_PAGE_SIZE,
                 q,
                 signal,
             }),

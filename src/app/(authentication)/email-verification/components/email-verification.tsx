@@ -2,16 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/utilities/auth-utilities/form-input";
 import Logo from "@/components/utilities/logo";
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "../../../../../auth-client";
 import useAuthStore from "@/context/use-auth-store";
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const emailVerificationSchema = z.object({
     verificationCode: z
@@ -21,15 +25,6 @@ const emailVerificationSchema = z.object({
 });
 
 type VerificationValues = z.infer<typeof emailVerificationSchema>;
-
-const fields = [
-    {
-        name: "verificationCode",
-        label: "Verification Code",
-        placeHolder: "Enter the 6-digit code",
-        type: "text",
-    },
-];
 
 const RESEND_COOLDOWN = 60;
 
@@ -200,16 +195,36 @@ const EmailVerificationPage: React.FC = () => {
                             onSubmit={form.handleSubmit(handleVerification)}
                             className="grid gap-4"
                         >
-                            {fields.map((f) => (
-                                <div key={f.name} className="py-1">
-                                    <FormInput
-                                        name={f.name}
-                                        label={f.label}
-                                        placeHolder={f.placeHolder}
-                                        type={f.type}
-                                    />
-                                </div>
-                            ))}
+                            <Controller
+                                control={form.control}
+                                name="verificationCode"
+                                render={({ field }) => (
+                                    <div className="flex items-center justify-center gap-3">
+                                        <InputOTP
+                                            maxLength={6}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                        >
+                                            <InputOTPGroup>
+                                                <InputOTPSlot index={0} />
+                                                <InputOTPSlot index={1} />
+                                                <InputOTPSlot index={2} />
+                                                <InputOTPSlot index={3} />
+                                                <InputOTPSlot index={4} />
+                                                <InputOTPSlot index={5} />
+                                            </InputOTPGroup>
+                                        </InputOTP>
+                                    </div>
+                                )}
+                            />
+                            {form.formState.errors.verificationCode && (
+                                <p className="text-sm text-red-500">
+                                    {
+                                        form.formState.errors.verificationCode
+                                            .message
+                                    }
+                                </p>
+                            )}
 
                             <Button
                                 isLoading={pending}

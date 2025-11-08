@@ -20,6 +20,7 @@ import {
 } from "../../actions/actions";
 import { PhoneModelFormDialog } from "./create-model";
 import { createPhoneModelSchema } from "@/schema/catalog";
+import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
 
 const ModelsOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
@@ -39,7 +40,7 @@ const ModelsOverview: React.FC = () => {
         queryFn: ({ pageParam, signal }) =>
             fetchModelsPage({
                 cursor: (pageParam as string | null) ?? null,
-                limit: 50,
+                limit: ADMIN_DATA_PAGE_SIZE,
                 q,
                 signal,
             }),

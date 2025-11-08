@@ -3,7 +3,7 @@ import { useDebounce } from "../use-debounce";
 
 describe("useDebounce", () => {
     beforeEach(() => {
-        jest.useFakeTimers(); // mock the timer system
+        jest.useFakeTimers();
     });
 
     afterEach(() => {
@@ -19,20 +19,16 @@ describe("useDebounce", () => {
         let value = "initial";
         const { result, rerender } = renderHook(() => useDebounce(value, 500));
 
-        // change the value before the delay
         value = "updated";
         rerender();
 
-        // still old value before timeout
         expect(result.current).toBe("initial");
 
-        // fast-forward 499ms → still old
         act(() => {
             jest.advanceTimersByTime(499);
         });
         expect(result.current).toBe("initial");
 
-        // fast-forward 1ms more → update happens
         act(() => {
             jest.advanceTimersByTime(1);
         });
@@ -43,7 +39,6 @@ describe("useDebounce", () => {
         let value = "first";
         const { result, rerender } = renderHook(() => useDebounce(value, 300));
 
-        // simulate rapid changes
         act(() => {
             value = "second";
             rerender();
@@ -53,10 +48,8 @@ describe("useDebounce", () => {
             jest.advanceTimersByTime(150);
         });
 
-        // Not enough time has passed for debounce to settle
         expect(result.current).toBe("first");
 
-        // Now let the timer complete
         act(() => {
             jest.advanceTimersByTime(300);
         });

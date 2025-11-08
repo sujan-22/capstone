@@ -8,3 +8,4 @@ export const ORDER_STATUSES = {
     PENDING: "Pending",
 };
 export const ALLOW_HOSTS = new Set(["designmycase.s3.us-east-1.amazonaws.com"]);
+export const ADMIN_DATA_PAGE_SIZE = 10;

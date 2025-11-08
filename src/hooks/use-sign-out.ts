@@ -10,6 +10,7 @@ export function useSignOut() {
     const signOut = async () => {
         try {
             await authClient.signOut({});
+            authClient.clearLastUsedLoginMethod();
             toast({
                 title: "Signed out",
                 description: "You have been signed out successfully.",

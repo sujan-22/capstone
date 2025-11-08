@@ -2,6 +2,14 @@ import React from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import { notFound } from "next/navigation";
 import OrdersOverview from "./components/orders-overview";
+import { Separator } from "@/components/ui/separator";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
+import { AdminOrdersInfo } from "./components/info";
 
 export default async function Page() {
     const { user } = await getServerSideSession();
@@ -9,5 +17,23 @@ export default async function Page() {
     if (!user) {
         return notFound();
     }
-    return <OrdersOverview user={user} />;
+    return (
+        <>
+            <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+                defaultValue="item-1"
+            >
+                <AccordionItem value="item-1">
+                    <AccordionTrigger>How to use?</AccordionTrigger>
+                    <AccordionContent className="flex flex-col gap-4 text-balance">
+                        <AdminOrdersInfo />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+            <Separator className="mt-3 mb-5" />
+            <OrdersOverview user={user} />
+        </>
+    );
 }

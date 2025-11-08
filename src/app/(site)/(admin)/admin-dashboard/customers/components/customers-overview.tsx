@@ -13,6 +13,7 @@ import { CustomersTable } from "./customers";
 import { useUserRoleMutations } from "@/hooks/use-toggle-role";
 import { IUser } from "../../../../../../../auth-client";
 import { CustomersItem } from "@/app/api/admin/customers/get-all/route";
+import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
 
 export default function CustomersOverview({ user }: { user: IUser }) {
     const [q, setQ] = React.useState<string>("");
@@ -32,7 +33,7 @@ export default function CustomersOverview({ user }: { user: IUser }) {
         queryFn: ({ pageParam, signal }) =>
             fetchAdminCustomersPage({
                 cursor: (pageParam as string | null) ?? null,
-                limit: 15,
+                limit: ADMIN_DATA_PAGE_SIZE,
                 q,
                 signal,
             }),
@@ -57,14 +58,14 @@ export default function CustomersOverview({ user }: { user: IUser }) {
                     banned: c.banned,
                     banReason: c.banReason,
                     banExpires: c.banExpires,
-                    username: c.username
+                    username: c.username,
                 }))
             ) ?? [],
         [data]
     );
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 mt-3">
             <div className="flex items-center gap-2">
                 <Input
                     value={q}

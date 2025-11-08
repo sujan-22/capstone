@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 
 export type StrengthResult = {
-    score: 0 | 1 | 2 | 3 | 4; // 0 = weakest, 4 = strongest
+    score: 0 | 1 | 2 | 3 | 4;
     label: "Too weak" | "Weak" | "Fair" | "Good" | "Strong";
-    percent: number; // for bar (0-100)
-    suggestions: string[]; // tips to improve
+    percent: number;
+    suggestions: string[];
     checks: {
-        length: boolean; // >= 8 or configurable
+        length: boolean;
         lower: boolean;
         upper: boolean;
         number: boolean;
@@ -14,11 +14,6 @@ export type StrengthResult = {
     };
 };
 
-/**
- * Lightweight, deterministic password strength estimator using regex checks.
- * Good enough for realtime UI feedback; optionally replace with zxcvbn for
- * stronger entropy-based scoring.
- */
 export function usePasswordStrength(password: string): StrengthResult {
     const minLength = 8;
 
@@ -31,7 +26,6 @@ export function usePasswordStrength(password: string): StrengthResult {
             special: /[^A-Za-z0-9]/.test(password),
         };
 
-        // simple points
         let points = 0;
         if (checks.length) points += 1;
         if (checks.lower) points += 1;
@@ -39,8 +33,6 @@ export function usePasswordStrength(password: string): StrengthResult {
         if (checks.number) points += 1;
         if (checks.special) points += 1;
 
-        // map points (0-5) to score 0-4
-        // require length to get above 0
         const rawScore = points;
         let score: StrengthResult["score"] = 0;
         if (!checks.length) score = 0;

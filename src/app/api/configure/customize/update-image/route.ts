@@ -1,4 +1,3 @@
-// app/api/upload/route.ts
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { pool } from "@/lib/database/db";
@@ -110,7 +109,7 @@ export async function POST(request: Request) {
         const userId = user?.id;
         if (!userId) {
             return NextResponse.json(
-                { error: "Missing x-user-id header." },
+                { error: "Unauthorized" },
                 { status: 401 }
             );
         }

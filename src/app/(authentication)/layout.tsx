@@ -1,4 +1,3 @@
-// src/app/(authentication)/layout.tsx
 export default function AuthLayout({
     children,
 }: {

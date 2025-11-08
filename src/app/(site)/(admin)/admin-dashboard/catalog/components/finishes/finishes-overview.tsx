@@ -20,6 +20,7 @@ import {
 import { Finishes } from "./finishes";
 import { CreateFinishDialog } from "./create-finish";
 import { updateFinishSchema } from "@/schema/catalog";
+import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
 
 const FinishesOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
@@ -39,7 +40,7 @@ const FinishesOverview: React.FC = () => {
         queryFn: ({ pageParam, signal }) =>
             fetchFinishesPage({
                 cursor: (pageParam as string | null) ?? null,
-                limit: 50,
+                limit: ADMIN_DATA_PAGE_SIZE,
                 q,
                 signal,
             }),

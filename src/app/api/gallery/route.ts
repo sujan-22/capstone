@@ -63,6 +63,7 @@ export async function GET(request: Request) {
                 WHERE gallery_image_id IS NOT NULL
                 GROUP BY gallery_image_id
             ) cd ON cd.gallery_image_id = gi.id
+            WHERE gi.active = TRUE
             ORDER BY ${orderBy}
             LIMIT $1 OFFSET $2
         `;

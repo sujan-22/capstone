@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { ORDER_STATUSES } from "./constants";
+import { ADMIN_DATA_PAGE_SIZE, ORDER_STATUSES } from "./constants";
 import { IUser } from "../../auth-client";
 
 export function cn(...inputs: ClassValue[]) {
@@ -90,4 +90,29 @@ export function getInitials(user?: IUser | null) {
             ? parts[0][0] + parts[parts.length - 1][0]
             : parts[0].slice(0, 2);
     return initials.toUpperCase();
+}
+
+export function parseLimit(value: string | null): number {
+    const n = Number(value ?? ADMIN_DATA_PAGE_SIZE);
+    if (!Number.isFinite(n)) return ADMIN_DATA_PAGE_SIZE;
+    return Math.min(100, Math.max(1, Math.floor(n)));
+}
+
+export function encodeCursor(createdAtISO: string, id: string) {
+    return Buffer.from(`${createdAtISO}|${id}`, "utf-8").toString("base64url");
+}
+
+export function decodeCursor(cursor: string | null): {
+    createdAt?: string;
+    id?: string;
+} {
+    if (!cursor) return {};
+    try {
+        const raw = Buffer.from(cursor, "base64url").toString("utf-8");
+        const [createdAtISO, id] = raw.split("|");
+        if (!createdAtISO || !id) return {};
+        return { createdAt: createdAtISO, id };
+    } catch {
+        return {};
+    }
 }

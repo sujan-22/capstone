@@ -19,6 +19,7 @@ import {
     toggleCatalogItemActive,
 } from "../../actions/actions";
 import { ColorSwatchFormDialog } from "./color-dialog";
+import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
 
 const ColorsOverview: React.FC = () => {
     const [q, setQ] = React.useState<string>("");
@@ -38,7 +39,7 @@ const ColorsOverview: React.FC = () => {
         queryFn: ({ pageParam, signal }) =>
             fetchColorsPage({
                 cursor: (pageParam as string | null) ?? null,
-                limit: 50,
+                limit: ADMIN_DATA_PAGE_SIZE,
                 q,
                 signal,
             }),
