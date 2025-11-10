@@ -12,7 +12,7 @@ import {
     DialogTrigger,
     DialogClose,
 } from "@/components/ui/dialog";
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdClose } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import type { FileRejection } from "react-dropzone";
@@ -134,6 +134,7 @@ export const AddImageDialog: React.FC<Props> = ({ onUploaded }) => {
                             type="button"
                             variant="outline"
                             disabled={isUploading}
+                            icon={MdClose}
                         >
                             Cancel
                         </Button>

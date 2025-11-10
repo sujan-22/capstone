@@ -96,7 +96,7 @@ describe("<CaseDesignComponent />", () => {
         );
     });
 
-    it("calls buyNow with the user id when Buy Now is clicked", async () => {
+    it("calls buyNow when Buy Now is clicked", async () => {
         const user = userEvent.setup();
 
         render(
@@ -112,7 +112,7 @@ describe("<CaseDesignComponent />", () => {
         await user.click(buyBtn);
 
         expect(buyNow).toHaveBeenCalledTimes(1);
-        expect(buyNow).toHaveBeenCalledWith("user-123");
+        expect((buyNow as jest.Mock).mock.calls[0].length).toBe(0);
     });
 
     it("redirects to /sign-in if no user and favorite is clicked", async () => {
@@ -145,7 +145,7 @@ describe("<CaseDesignComponent />", () => {
         await userEv.click(favBtn);
 
         expect(toggleFavorite).toHaveBeenCalledTimes(1);
-        expect(toggleFavorite).toHaveBeenCalledWith("user-123");
+        expect((toggleFavorite as jest.Mock).mock.calls[0].length).toBe(0);
         expect(invalidateQueries).toHaveBeenCalled();
     });
 

@@ -116,3 +116,10 @@ export function decodeCursor(cursor: string | null): {
         return {};
     }
 }
+
+export function getActiveHref(pathname: string, hrefs: readonly string[]) {
+    const matches = hrefs.filter(
+        (h) => pathname === h || pathname.startsWith(h + "/")
+    );
+    return matches.sort((a, b) => b.length - a.length)[0] ?? "";
+}

@@ -1,3 +1,10 @@
+// src/components/navbar/user-dropdown.tsx
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -8,35 +15,82 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown";
+import { Badge } from "@/components/ui/badge";
 import { useSignOut } from "@/hooks/use-sign-out";
+import { getActiveHref, getInitials } from "@/lib/utils";
 import { IUser } from "../../../auth-client";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { useState } from "react";
-import { getInitials } from "@/lib/utils";
+import {
+    User as UserIcon,
+    UserCircle,
+    ShoppingBag,
+    LayoutDashboard,
+    ImageIcon,
+    Star,
+    LogOut,
+    Plus,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const MY_ACCOUNT_LINKS = [
+    { label: "Account", href: "/account", icon: UserIcon },
+    { label: "Profile", href: "/account/profile", icon: UserCircle },
+    { label: "Orders", href: "/account/orders", icon: ShoppingBag },
+] as const;
+
+const USER_MENU_LINKS = [
+    { label: "Image Gallery", href: "/gallery-images", icon: ImageIcon },
+    { label: "Featured Designs", href: "/featured-designs", icon: Star },
+] as const;
+
+const ADMIN_LINKS = [
+    {
+        label: "Admin Dashboard",
+        href: "/admin-dashboard/overview",
+        icon: LayoutDashboard,
+    },
+] as const;
+
+function MenuLink({
+    href,
+    children,
+    active,
+}: {
+    href: string;
+    children: React.ReactNode;
+    active?: boolean;
+}) {
+    return (
+        <DropdownMenuItem asChild aria-current={active ? "page" : undefined}>
+            <Link
+                href={href}
+                className={cn(
+                    "flex w-full items-center gap-2",
+                    active && "bg-muted/60 font-medium"
+                )}
+                prefetch
+            >
+                {children}
+            </Link>
+        </DropdownMenuItem>
+    );
+}
 
 export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     const router = useRouter();
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
-    const MY_ACCOUNT_LINKS = [
-        { label: "Account", href: "/account" },
-        { label: "Profile", href: "/account/profile" },
-        { label: "Orders", href: "/account/orders" },
-    ];
-
-    const USER_MENU_LINKS = [
-        { label: "Image Gallery", href: "/gallery-images" },
-        { label: "Featured Designs", href: "/featured-designs" },
-    ];
-
-    const ADMIN_DASHBOARD_LINKS = [
-        { label: "Admin Dashboard", href: "/admin-dashboard/overview" },
-    ];
-
     const { signOut } = useSignOut();
+    const accountHrefs = MY_ACCOUNT_LINKS.map((l) => l.href);
+    const exploreHrefs = USER_MENU_LINKS.map((l) => l.href);
+    const adminHrefs = ADMIN_LINKS.map((l) => l.href);
+
+    const activeAccount = getActiveHref(pathname ?? "", accountHrefs);
+    const activeExplore = getActiveHref(pathname ?? "", exploreHrefs);
+    const activeAdmin = getActiveHref(pathname ?? "", adminHrefs);
+
     return (
-        <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
+        <DropdownMenu onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
@@ -48,9 +102,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                         {user?.image ? (
                             <Image
                                 src={user.image}
-                                alt={`${
-                                    user.name || user.username || "User"
-                                } profile picture`}
+                                alt=""
                                 fill
                                 sizes="32px"
                                 priority
@@ -58,7 +110,11 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                                 className="object-cover"
                             />
                         ) : (
-                            <span className="flex w-full h-full items-center justify-center text-[11px] font-semibold bg-muted text-muted-foreground">
+                            // decorative initials only
+                            <span
+                                aria-hidden
+                                className="flex w-full h-full items-center justify-center text-[11px] font-semibold bg-muted text-muted-foreground"
+                            >
                                 {getInitials(user)}
                             </span>
                         )}
@@ -71,87 +127,120 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                             {user?.email}
                         </span>
                     </span>
+                    {user?.role ? (
+                        <Badge
+                            variant="secondary"
+                            className="hidden md:inline-flex h-5 text-[10px]"
+                        >
+                            {user.role}
+                        </Badge>
+                    ) : null}
                     <MdKeyboardArrowDown
-                        className={`w-5 h-5 transition-transform ${
-                            isOpen ? "rotate-180" : ""
-                        }`}
+                        className={cn(
+                            "w-5 h-5 transition-transform",
+                            isOpen && "rotate-180"
+                        )}
                         aria-hidden="true"
                     />
-                    <span className="sr-only">Toggle user menu</span>
+                    <span className="sr-only">
+                        {isOpen ? "Close user menu" : "Open user menu"}
+                    </span>
                 </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuContent
+                className="w-64"
+                align="end"
+                sideOffset={8}
+                collisionPadding={8}
+            >
+                <DropdownMenuLabel className="flex items-center gap-2">
+                    <span className="sr-only">
+                        {user?.name || user?.username || "User"} menu
+                    </span>
+                    <span
+                        aria-hidden
+                        className="inline-flex h-6 w-6 items-center justify-center rounded bg-muted text-xs font-semibold"
+                    >
+                        {getInitials(user)}
+                    </span>
+                    <span className="truncate">
+                        {user?.name || user?.username || "Guest"}
+                    </span>
+                </DropdownMenuLabel>
+
                 <DropdownMenuGroup>
-                    {MY_ACCOUNT_LINKS.map((item) => {
-                        return (
-                            <DropdownMenuItem
-                                key={item.href}
-                                onClick={() => router.push(item.href)}
-                            >
-                                {item.label}
-                            </DropdownMenuItem>
-                        );
-                    })}
+                    {MY_ACCOUNT_LINKS.map(({ href, label, icon: Icon }) => (
+                        <MenuLink
+                            key={href}
+                            href={href}
+                            active={href === activeAccount}
+                        >
+                            <Icon className="h-4 w-4" />
+                            <span>{label}</span>
+                        </MenuLink>
+                    ))}
                 </DropdownMenuGroup>
+
                 <DropdownMenuSeparator />
 
-                <DropdownMenuLabel className="sm:hidden">
-                    Actions
-                </DropdownMenuLabel>
+                {/* Mobile-only quick action */}
                 <DropdownMenuItem
                     className="sm:hidden"
                     onClick={() => router.push("/configure/upload")}
                 >
+                    <Plus className="h-4 w-4 mr-2" />
                     Create Case
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator className="sm:hidden" />
 
                 <DropdownMenuLabel>Explore</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                    {USER_MENU_LINKS.map((item) => {
-                        return (
-                            <DropdownMenuItem
-                                key={item.href}
-                                onClick={() => router.push(item.href)}
-                            >
-                                {item.label}
-                            </DropdownMenuItem>
-                        );
-                    })}
+                    {USER_MENU_LINKS.map(({ href, label, icon: Icon }) => (
+                        <MenuLink
+                            key={href}
+                            href={href}
+                            active={href === activeExplore}
+                        >
+                            <Icon className="h-4 w-4" />
+                            <span>{label}</span>
+                        </MenuLink>
+                    ))}
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
 
                 {user?.role === "admin" && (
                     <>
+                        <DropdownMenuSeparator />
                         <DropdownMenuLabel>Admin</DropdownMenuLabel>
                         <DropdownMenuGroup>
-                            {ADMIN_DASHBOARD_LINKS.map((item) => {
-                                return (
-                                    <DropdownMenuItem
-                                        key={item.href}
-                                        onClick={() => router.push(item.href)}
-                                    >
-                                        {item.label}
-                                    </DropdownMenuItem>
-                                );
-                            })}
+                            {ADMIN_LINKS.map(({ href, label, icon: Icon }) => (
+                                <MenuLink
+                                    key={href}
+                                    href={href}
+                                    active={href === activeAdmin}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                    <span>{label}</span>
+                                </MenuLink>
+                            ))}
                         </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
                     </>
                 )}
+
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
-                    className="hover:cursor-pointer"
                     onClick={async () => {
-                        if (user) {
-                            await signOut();
-                        } else {
-                            router.push("/sign-in");
-                        }
+                        if (user) await signOut();
+                        else router.push("/sign-in");
                     }}
+                    className={cn(
+                        user ? "text-destructive focus:text-destructive" : "",
+                        "cursor-pointer"
+                    )}
                 >
-                    {user ? `Sign out` : `Sign in`}
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {user ? "Sign out" : "Sign in"}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

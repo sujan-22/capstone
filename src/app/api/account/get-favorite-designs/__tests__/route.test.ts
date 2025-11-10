@@ -1,19 +1,37 @@
-/** @jest-environment node */
-import { makeReq } from "@/lib/test/api";
-import { GET } from "../route";
+/**
+ * @jest-environment node
+ */
+
 import { pool } from "@/lib/database/db";
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
+
+const { getServerSideSession } = jest.requireMock("@/hooks/use-session") as {
+    getServerSideSession: jest.Mock;
+};
+
+function setSession(userId?: string) {
+    getServerSideSession.mockResolvedValue({
+        user: userId ? { id: userId } : null,
+    });
+}
+
 describe("GET /api/account/get-favorite-designs", () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    it("returns 401 when x-user-id header is missing", async () => {
-        const res = await GET(makeReq());
+    it("returns 401 when not authenticated", async () => {
+        setSession(undefined);
+        const { GET } = await import("../route");
+        const res = await GET();
+
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
             error: "Not authenticated",
@@ -22,6 +40,8 @@ describe("GET /api/account/get-favorite-designs", () => {
     });
 
     it("returns favorite designs for authenticated user", async () => {
+        setSession("user-123");
+
         const mockRelease = jest.fn();
         const mockQuery = jest.fn().mockResolvedValue({
             rows: [
@@ -46,7 +66,7 @@ describe("GET /api/account/get-favorite-designs", () => {
                     color: "White",
                     material: "TPU",
                     finish: "Glossy",
-                    price: 42, // numeric is fine too
+                    price: 42,
                     favorited_by_user_ids: ["user-123"],
                 },
             ],
@@ -57,7 +77,8 @@ describe("GET /api/account/get-favorite-designs", () => {
             release: mockRelease,
         });
 
-        const res = await GET(makeReq({ "x-user-id": "user-123" }));
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(pool.connect).toHaveBeenCalled();
         expect(mockQuery).toHaveBeenCalledTimes(1);
@@ -97,6 +118,8 @@ describe("GET /api/account/get-favorite-designs", () => {
     });
 
     it("returns empty list when no favorites", async () => {
+        setSession("user-123");
+
         const mockRelease = jest.fn();
         const mockQuery = jest.fn().mockResolvedValue({ rows: [] });
 
@@ -105,16 +128,19 @@ describe("GET /api/account/get-favorite-designs", () => {
             release: mockRelease,
         });
 
-        const res = await GET(makeReq({ "x-user-id": "user-123" }));
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toEqual({ favoriteDesigns: [] });
     });
 
     it("returns 500 on server error", async () => {
+        setSession("user-123");
         (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
 
-        const res = await GET(makeReq({ "x-user-id": "user-123" }));
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(res.status).toBe(500);
         await expect(res.json()).resolves.toEqual({

@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import ErrorMessage from "@/components/utilities/error";
 import Link from "next/link";
@@ -8,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getFavoriteDesignsByUser } from "../actions/actions";
 import UnfinishedDesignSkeleton from "../../unfinished-designs/components/skeleton/unfinished-design-skeleton";
 import FavoriteDesign from "./favorite-design";
+import AccountHeader from "../../components/account-header";
+import { Heart } from "lucide-react";
 
 interface FavoriteDesignOverviewProps {
     userId: string;
@@ -80,19 +81,13 @@ const FavoriteDesignOverview: React.FC<FavoriteDesignOverviewProps> = ({
 
     return (
         <div className="space-y-6">
-            <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-semibold">
-                    Your Favorite Designs
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-                    Here are all your favorite custom case designs. You can
+            <AccountHeader
+                heading="Your Favorite Designs"
+                description="Here are all your favorite custom case designs. You can
                     continue customizing them or remove them from favorites if
-                    you’ve completed them.
-                </p>
-            </div>
-
-            <Separator />
-
+                    you’ve completed them."
+                icon={Heart}
+            />
             <section className="flex flex-col gap-4">{renderContent()}</section>
         </div>
     );

@@ -153,7 +153,7 @@ const ModelsOverview: React.FC = () => {
                                 modelBrand: vals.modelBrand,
                             });
                         }}
-                        submitText="Create model"
+                        submitText="Save"
                         trigger={<Button icon={MdAdd}>Add model</Button>}
                     />
                 </div>

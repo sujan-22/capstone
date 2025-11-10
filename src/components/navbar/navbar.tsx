@@ -4,7 +4,7 @@ import { IUser } from "../../../auth-client";
 import MaxWidthWrapper from "../utilities/max-width-wrapper";
 import Logo from "../utilities/logo";
 import { Button } from "../ui/button";
-import { FaArrowRight } from "react-icons/fa6";
+import { FaArrowRightLong } from "react-icons/fa6";
 import { UserDropdown } from "./user-dropdown";
 import { useRouter } from "next/navigation";
 
@@ -26,14 +26,14 @@ const Navbar = ({ user }: { user: IUser | null | undefined }) => {
                             </div>
 
                             <div className="flex items-center gap-4 flex-1 basis-0 justify-end">
-                                {user ? (
+                                {user?.role === "admin" ? null : user ? (
                                     <Button
                                         className="hidden sm:inline-flex"
                                         size="sm"
                                         onClick={() =>
                                             router.push("/configure/upload")
                                         }
-                                        icon={FaArrowRight}
+                                        icon={FaArrowRightLong}
                                         iconPosition="right"
                                     >
                                         Create Case{" "}
@@ -43,7 +43,7 @@ const Navbar = ({ user }: { user: IUser | null | undefined }) => {
                                         className="hidden sm:inline-flex"
                                         size="sm"
                                         onClick={() => router.push("/sign-in")}
-                                        icon={FaArrowRight}
+                                        icon={FaArrowRightLong}
                                         iconPosition="right"
                                     >
                                         Sign in{" "}

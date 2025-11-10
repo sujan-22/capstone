@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import { getOrdersByUser } from "../actions/actions";
 import OrderOverview from "./orders-overview";
@@ -8,6 +7,8 @@ import ErrorMessage from "@/components/utilities/error";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import OrderCardSkeleton from "./skeleton/order-skeleton";
+import AccountHeader from "../../components/account-header";
+import { ShoppingBag } from "lucide-react";
 
 interface OrdersPageProps {
     userId: string;
@@ -70,15 +71,12 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
 
     return (
         <div className="space-y-6">
-            <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-semibold">Your Orders</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-                    View and manage your past orders, track status, and find
-                    order details.
-                </p>
-            </div>
-
-            <Separator />
+            <AccountHeader
+                heading="Your Orders"
+                description="View and manage your past orders, track status, and find
+                    order details."
+                icon={ShoppingBag}
+            />
 
             <section className="flex flex-col gap-4">{renderContent()}</section>
         </div>

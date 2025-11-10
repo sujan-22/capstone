@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { z } from "zod";
+import { MdClose } from "react-icons/md";
+import { IoMdSave } from "react-icons/io";
 
 export type CatalogLabels =
     | {
@@ -292,11 +294,16 @@ export const CatalogFormDialog: React.FC<CatalogFormDialogProps> = ({
                                 type="button"
                                 variant="outline"
                                 disabled={isPending || isSaving}
+                                icon={MdClose}
                             >
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button type="submit" isLoading={isPending || isSaving}>
+                        <Button
+                            type="submit"
+                            isLoading={isPending || isSaving}
+                            icon={IoMdSave}
+                        >
                             {submitText}
                         </Button>
                     </DialogFooter>

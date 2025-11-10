@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import ErrorMessage from "@/components/utilities/error";
 import Link from "next/link";
@@ -8,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getReminders } from "../actions/actions";
 import Reminder from "./reminder";
 import ReminderSkeleton from "./skeleton/reminder-skeleton";
+import AccountHeader from "../../components/account-header";
+import { Bell } from "lucide-react";
 
 interface RemindersOverviewPageProps {
     userId: string;
@@ -78,15 +79,12 @@ const RemindersOverviewPage: React.FC<RemindersOverviewPageProps> = ({
 
     return (
         <div className="space-y-6">
-            <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-semibold">Sent Reminders</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-                    Here is a history of reminders that have already been sent
-                    to your email for unfinished case designs.
-                </p>
-            </div>
-
-            <Separator />
+            <AccountHeader
+                heading="Your Reminders"
+                description="Here is a history of reminders that have already been sent
+                    to your email for unfinished case designs."
+                icon={Bell}
+            />
 
             <section className="flex flex-col gap-4">{renderContent()}</section>
         </div>

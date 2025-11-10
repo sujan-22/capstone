@@ -19,7 +19,7 @@ const SmallLogo = ({ className }: SmallLogoProps) => {
                 className
             )}
         >
-            DESIGN<span className="text-blue-600">MY</span>CASE
+            DESIGN<span className="text-blue-600 font-bold">MY</span>CASE
         </span>
     );
 };

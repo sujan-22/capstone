@@ -20,7 +20,7 @@ export const CreateFinishDialog: React.FC<{
             schema={schema}
             onSubmit={onSubmit}
             isPending={isPending}
-            submitText="Create"
+            submitText="Save"
             trigger={<Button icon={MdAdd}>Add finish</Button>}
         />
     );

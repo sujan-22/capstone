@@ -1,4 +1,5 @@
-import DashboardTabs from "@/components/utilities/dashboard-tabs";
+import AdminSubnav from "@/components/utilities/dashboard-tabs";
+// import DashboardTabs from "@/components/utilities/dashboard-tabs";
 import LayoutHeader from "@/components/utilities/layout-header";
 
 interface AdminDashboardLayoutProps {
@@ -14,7 +15,7 @@ export default function AdminDashboardLayout({
             description="Manage customers, products, and orders from a single dashboard.
                         Use the tabs below to navigate through different sections."
         >
-            <DashboardTabs />
+            <AdminSubnav className="mb-2" />
             <div className="flex-1">{children}</div>
         </LayoutHeader>
     );

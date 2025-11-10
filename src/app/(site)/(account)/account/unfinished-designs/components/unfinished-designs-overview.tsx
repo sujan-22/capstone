@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import ErrorMessage from "@/components/utilities/error";
 import Link from "next/link";
@@ -8,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getUnfinishedDesigns } from "../actions/actions";
 import UnfinishedDesign from "./unfinished-design";
 import UnfinishedDesignSkeleton from "./skeleton/unfinished-design-skeleton";
+import AccountHeader from "../../components/account-header";
+import { FileClock } from "lucide-react";
 
 interface UnfinishedDesignsOverviewPageProps {
     userId: string;
@@ -79,18 +80,13 @@ const UnfinishedDesignsOverviewPage: React.FC<
 
     return (
         <div className="space-y-6">
-            <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-semibold">
-                    Your Unfinished Designs
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-                    Here are all your ongoing custom case designs. You can
+            <AccountHeader
+                heading="Your Unfinished Designs"
+                description="Here are all your ongoing custom case designs. You can
                     continue customizing them or dismiss reminders for designs
-                    you’ve completed.
-                </p>
-            </div>
-
-            <Separator />
+                    you’ve completed."
+                icon={FileClock}
+            />
 
             <section className="flex flex-col gap-4">{renderContent()}</section>
         </div>

@@ -339,16 +339,18 @@ export interface GalleryImage {
     url: string;
     created_at: Date;
     updated_at: Date;
+    active: boolean | null;
 }
 export interface GalleryImageInput {
     id?: string;
     url: string;
     created_at?: Date;
     updated_at?: Date;
+    active?: boolean | null;
 }
 const gallery_image = {
     tableName: "gallery_image",
-    columns: ["id", "url", "created_at", "updated_at"],
+    columns: ["id", "url", "created_at", "updated_at", "active"],
     requiredForInsert: ["url"],
     primaryKey: "id",
     foreignKeys: {},
