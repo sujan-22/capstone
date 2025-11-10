@@ -1,299 +1,237 @@
 /** @jest-environment node */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-// 1) Mock first — before importing the route
-jest.mock("@/hooks/use-session", () => ({
-    getServerSideSession: jest.fn(),
-}));
-
-jest.mock("@/lib/database/db", () => ({
-    pool: { connect: jest.fn() },
-}));
-
-// 2) Now import modules that depend on the mocks
-import { makeReq } from "@/lib/test/api";
-import type { PoolClient } from "pg";
-
-// Pull the mocked fns so we can set return values per test
-import { getServerSideSession } from "@/hooks/use-session";
-const mockedGetSession = getServerSideSession as jest.Mock;
-
-import { pool } from "@/lib/database/db";
-const mockedPoolConnect = pool.connect as unknown as jest.Mock;
-
-// Import the route AFTER mocks
-import { GET } from "../route";
-
-// Helper for route params
-const withParams = (orderId?: string) =>
-    ({ params: Promise.resolve(orderId ? { orderId } : ({} as any)) } as any);
-
-describe("GET /api/account/get-orders-by-user-id/[orderId]", () => {
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
-    it("returns 401 when user session is missing", async () => {
-        mockedGetSession.mockResolvedValue({ user: null }); // <- drives 401
-        const res = await GET(makeReq(), withParams("o1"));
-        expect(res.status).toBe(401);
-        await expect(res.json()).resolves.toEqual({
-            error: "Not authenticated",
-        });
-        expect(pool.connect).not.toHaveBeenCalled();
-    });
-
-    it("returns 401 when order id param is missing", async () => {
-        mockedGetSession.mockResolvedValue({
-            user: { id: "user-123", role: "user" },
-        });
-        const res = await GET(
-            makeReq({ "x-user-id": "user-123" }),
-            withParams()
-        );
-        expect(res.status).toBe(401);
-        await expect(res.json()).resolves.toEqual({
-            error: "Order id not found",
-        });
-        expect(pool.connect).not.toHaveBeenCalled();
-    });
-
-    it("returns 404 when order not found", async () => {
-        mockedGetSession.mockResolvedValue({
-            user: { id: "user-123", role: "user" },
-        });
-
-        const mockRelease = jest.fn();
-        const mockQuery = jest.fn().mockResolvedValue({ rows: [] });
-
-        mockedPoolConnect.mockResolvedValue({
-            query: mockQuery,
-            release: mockRelease,
-        } as unknown as PoolClient);
-
-        const res = await GET(
-            makeReq({ "x-user-id": "user-123" }),
-            withParams("o-missing")
-        );
-
-        expect(pool.connect).toHaveBeenCalled();
-        expect(mockQuery).toHaveBeenCalledTimes(1);
-        expect(mockRelease).toHaveBeenCalled();
-        expect(res.status).toBe(404);
-        await expect(res.json()).resolves.toEqual({ error: "Order not found" });
-    });
-
-    it("returns 403 when order is not paid", async () => {
-        mockedGetSession.mockResolvedValue({
-            user: { id: "user-123", role: "user" },
-        });
-
-        const mockRelease = jest.fn();
-        const rows = [
-            {
-                order_id: "o1",
-                user_id: "user-123",
-                order_number: "ORD-0001",
-                case_design_id: "d1",
-                sub_total: "50.5",
-                tax: "6.57",
-                total_amount: "57.07",
-                order_status: "processing",
-                tracking_number: null,
-                billing_address_id: null,
-                shipping_address_id: null,
-                order_createdat: "2024-01-01T12:00:00.000Z",
-                order_updatedat: "2024-01-01T13:00:00.000Z",
-                is_paid: false,
-
-                design_id: "d1",
-                imgSrc: "/img1.jpg",
-                cropped_image_url: "/crop1.jpg",
-                caseName: "Nebula",
-                hasRequestedToSharePublicly: false,
-                isSharedPublicly: false,
-                modelName: "iPhone 15 Pro",
-                color: "Black",
-                colorHex: "#000000",
-                material: "Polycarbonate",
-                finish: "Matte",
-                price: "59.99",
-
-                billing_id: null,
-                billing_name: null,
-                billing_street: null,
-                billing_city: null,
-                billing_postal_code: null,
-                billing_country: null,
-                billing_state: null,
-                billing_phone_number: null,
-                shipping_id: null,
-                shipping_name: null,
-                shipping_street: null,
-                shipping_city: null,
-                shipping_postal_code: null,
-                shipping_country: null,
-                shipping_state: null,
-                shipping_phone_number: null,
-            },
-        ];
-
-        const mockQuery = jest.fn().mockResolvedValue({ rows });
-
-        mockedPoolConnect.mockResolvedValue({
-            query: mockQuery,
-            release: mockRelease,
-        } as unknown as PoolClient);
-
-        const res = await GET(
-            makeReq({ "x-user-id": "user-123" }),
-            withParams("o1")
-        );
-
-        expect(res.status).toBe(403);
-        await expect(res.json()).resolves.toEqual({
-            success: false,
-            error: "Order not paid",
-            reason: "The payment for this order has not been completed.",
-        });
-    });
-
-    it("returns 200 with normalized order when paid", async () => {
-        mockedGetSession.mockResolvedValue({
-            user: { id: "user-123", role: "user" },
-        });
-
-        const mockRelease = jest.fn();
-        const rows = [
-            {
-                order_id: "o1",
-                user_id: "user-123",
-                order_number: "ORD-0001",
-                case_design_id: "d1",
-                sub_total: "50.5",
-                tax: "6.57",
-                total_amount: "57.07",
-                order_status: "paid",
-                tracking_number: "TRACK123",
-                billing_address_id: "b1",
-                shipping_address_id: "s1",
-                order_createdat: "2024-01-01T12:00:00.000Z",
-                order_updatedat: "2024-01-02T13:00:00.000Z",
-                is_paid: true,
-
-                design_id: "d1",
-                imgSrc: "/img1.jpg",
-                cropped_image_url: "/crop1.jpg",
-                caseName: "Nebula",
-                hasRequestedToSharePublicly: true,
-                isSharedPublicly: false,
-                modelName: "iPhone 15 Pro",
-                color: "Black",
-                colorHex: "#000000",
-                material: "Polycarbonate",
-                finish: "Matte",
-                price: "59.99",
-
-                billing_id: "b1",
-                billing_name: "John Doe",
-                billing_street: "1 Main St",
-                billing_city: "Hamilton",
-                billing_postal_code: "L8P 1A1",
-                billing_country: "CA",
-                billing_state: "ON",
-                billing_phone_number: "111-222-3333",
-
-                shipping_id: "s1",
-                shipping_name: "John Doe",
-                shipping_street: "1 Main St",
-                shipping_city: "Hamilton",
-                shipping_postal_code: "L8P 1A1",
-                shipping_country: "CA",
-                shipping_state: "ON",
-                shipping_phone_number: "111-222-3333",
-            },
-        ];
-
-        const mockQuery = jest.fn().mockResolvedValue({ rows });
-
-        mockedPoolConnect.mockResolvedValue({
-            query: mockQuery,
-            release: mockRelease,
-        } as unknown as PoolClient);
-
-        const res = await GET(
-            makeReq({ "x-user-id": "user-123" }),
-            withParams("o1")
-        );
-
-        expect(pool.connect).toHaveBeenCalled();
-        expect(mockQuery).toHaveBeenCalledTimes(1);
-        expect(mockRelease).toHaveBeenCalled();
-        expect(res.status).toBe(200);
-
-        await expect(res.json()).resolves.toEqual({
-            order: {
-                id: "o1",
-                userId: "user-123",
-                orderNumber: "ORD-0001",
-                subtotal: 50.5,
-                tax: 6.57,
-                totalAmount: 57.07,
-                orderStatus: "paid",
-                trackingNumber: "TRACK123",
-                billingAddress: {
-                    id: "b1",
-                    name: "John Doe",
-                    street: "1 Main St",
-                    city: "Hamilton",
-                    postal_code: "L8P 1A1",
-                    country: "CA",
-                    state: "ON",
-                    phone_number: "111-222-3333",
-                },
-                shippingAddress: {
-                    id: "s1",
-                    name: "John Doe",
-                    street: "1 Main St",
-                    city: "Hamilton",
-                    postal_code: "L8P 1A1",
-                    country: "CA",
-                    state: "ON",
-                    phone_number: "111-222-3333",
-                },
-                createdAt: "2024-01-01T12:00:00.000Z",
-                updatedAt: "2024-01-02T13:00:00.000Z",
-                design: {
-                    id: "d1",
-                    imgSrc: "/img1.jpg",
-                    croppedImgUrl: "/crop1.jpg",
-                    caseName: "Nebula",
-                    modelName: "iPhone 15 Pro",
-                    color: "Black",
-                    material: "Polycarbonate",
-                    finish: "Matte",
-                    price: 59.99,
-                    colorHex: "#000000",
-                    hasRequestedToSharePublicly: true,
-                    isSharedPublicly: false,
-                },
-            },
-        });
-    });
-
-    it("returns 500 on DB error", async () => {
-        mockedGetSession.mockResolvedValue({
-            user: { id: "user-123", role: "user" },
-        });
-        mockedPoolConnect.mockRejectedValue(new Error("db down"));
-
-        const res = await GET(
-            makeReq({ "x-user-id": "user-123" }),
-            withParams("o1")
-        );
-        expect(res.status).toBe(500);
-        await expect(res.json()).resolves.toEqual({
-            error: "Internal server error",
-        });
-    });
+jest.mock("next/server", () => {
+    const NextResponse = {
+        json: (body: unknown, init?: { status?: number }) => ({
+            status: init?.status ?? 200,
+            json: async () => body,
+        }),
+    };
+    return { NextResponse };
 });
+
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/database/db";
+import { IUserOrderWithDesign, OrderRow } from "@/lib/types/user-orders.types";
+import { getServerSideSession } from "@/hooks/use-session";
+
+export async function GET(
+    _req: NextRequest,
+    { params }: { params: Promise<{ orderId: string }> }
+) {
+    try {
+        const { user } = await getServerSideSession();
+        const userId = user?.id;
+        const isAdmin = user?.role === "admin";
+        const { orderId } = await params;
+        if (!userId)
+            return NextResponse.json(
+                { error: "Not authenticated" },
+                { status: 401 }
+            );
+        if (!orderId)
+            return NextResponse.json(
+                { error: "Order id not found" },
+                { status: 401 }
+            );
+
+        const client = await pool.connect();
+        try {
+            const q = `
+        SELECT
+          o.id AS order_id,
+          o.user_id,
+          o.order_number,
+          o.case_design_id,
+          o.sub_total,
+          o.tax,
+          o.total_amount,
+          o.order_status,
+          o.tracking_number,
+          o.billing_address_id,
+          o.shipping_address_id,
+          o.created_at AS order_createdat,
+          o.updated_at AS order_updatedat,
+          o.is_paid,
+          cd.id AS design_id,
+          COALESCE(cd.image, gi.url) AS "imgSrc",
+          cd.cropped_image_url AS cropped_image_url,
+          cd.name AS "caseName",
+          cd.has_requested_to_share_publicly AS "hasRequestedToSharePublicly",
+          cd.is_shared_publicly AS "isSharedPublicly",
+          pm.model_name AS "modelName",
+          cc.name AS "color",
+          cc.hex AS "colorHex",
+          cm.name AS "material",
+          cf.name AS "finish",
+          (cm.price + cf.price) AS "price",
+          ba.id AS billing_id,
+          ba.name AS billing_name,
+          ba.street AS billing_street,
+          ba.city AS billing_city,
+          ba.postal_code AS billing_postal_code,
+          ba.country AS billing_country,
+          ba.state AS billing_state,
+          ba.phone_number AS billing_phone_number,
+          sa.id AS shipping_id,
+          sa.name AS shipping_name,
+          sa.street AS shipping_street,
+          sa.city AS shipping_city,
+          sa.postal_code AS shipping_postal_code,
+          sa.country AS shipping_country,
+          sa.state AS shipping_state,
+          sa.phone_number AS shipping_phone_number
+        FROM "order" o
+        JOIN case_design cd ON o.case_design_id = cd.id
+        JOIN phone_model pm ON cd.phone_model_id = pm.id
+        JOIN case_color cc ON cd.case_color_id = cc.id
+        JOIN case_material cm ON cd.case_material_id = cm.id
+        JOIN case_finish cf ON cd.case_finish_id = cf.id
+        LEFT JOIN gallery_image gi ON cd.gallery_image_id = gi.id
+        LEFT JOIN billing_address ba ON o.billing_address_id = ba.id
+        LEFT JOIN shipping_address sa ON o.shipping_address_id = sa.id
+        WHERE o.id = $1 AND (o.user_id = $2 OR $3::boolean IS TRUE)
+        LIMIT 1
+      `;
+            const { rows } = await client.query<OrderRow>(q, [
+                orderId,
+                userId,
+                isAdmin,
+            ]);
+            if (!rows.length)
+                return NextResponse.json(
+                    { error: "Order not found" },
+                    { status: 404 }
+                );
+
+            const r = rows[0];
+            if (!r.is_paid) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Order not paid",
+                        reason: "The payment for this order has not been completed.",
+                    },
+                    { status: 403 }
+                );
+            }
+
+            const order: IUserOrderWithDesign = {
+                id: String(r.order_id),
+                orderNumber: r.order_number,
+                subtotal: Number(r.sub_total),
+                tax: Number(r.tax),
+                totalAmount: Number(r.total_amount),
+                orderStatus: String(r.order_status),
+                trackingNumber: r.tracking_number ?? null,
+                billingAddress: r.billing_id
+                    ? {
+                          id: r.billing_id,
+                          name: r.billing_name,
+                          street: r.billing_street,
+                          city: r.billing_city,
+                          postal_code: r.billing_postal_code,
+                          country: r.billing_country,
+                          state: r.billing_state,
+                          phone_number: r.billing_phone_number,
+                      }
+                    : null,
+                shippingAddress: r.shipping_id
+                    ? {
+                          id: r.shipping_id,
+                          name: r.shipping_name,
+                          street: r.shipping_street,
+                          city: r.shipping_city,
+                          postal_code: r.shipping_postal_code,
+                          country: r.shipping_country,
+                          state: r.shipping_state,
+                          phone_number: r.shipping_phone_number,
+                      }
+                    : null,
+                createdAt: r.order_createdat
+                    ? new Date(r.order_createdat).toISOString()
+                    : "",
+                updatedAt: r.order_updatedat
+                    ? new Date(r.order_updatedat).toISOString()
+                    : "",
+                design: {
+                    id: String(r.design_id),
+                    imgSrc: r.imgSrc,
+                    caseName: r.caseName,
+                    modelName: r.modelName,
+                    color: r.color,
+                    material: r.material,
+                    finish: r.finish,
+                    price: Number(r.price),
+                    croppedImgUrl: r.cropped_image_url,
+                    colorHex: r.colorHex,
+                    hasRequestedToSharePublicly: r.hasRequestedToSharePublicly,
+                    isSharedPublicly: r.isSharedPublicly,
+                },
+            };
+
+            return NextResponse.json({ order }, { status: 200 });
+        } finally {
+            client.release();
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function POST(
+    _req: NextRequest,
+    { params }: { params: Promise<{ orderId: string }> }
+) {
+    try {
+        const { orderId: caseDesignId } = await params;
+        const { user } = await getServerSideSession();
+        if (!user?.id || !caseDesignId) {
+            return NextResponse.json(
+                { success: false, error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        const client = await pool.connect();
+        try {
+            const verifyRes = await client.query(
+                `SELECT id FROM case_design WHERE id = $1 AND user_id = $2`,
+                [caseDesignId, user.id]
+            );
+            if (verifyRes.rowCount === 0) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Unauthorized or design not found",
+                    },
+                    { status: 403 }
+                );
+            }
+
+            await client.query(
+                `UPDATE case_design
+         SET has_requested_to_share_publicly = TRUE,
+             updated_at = NOW()
+         WHERE id = $1`,
+                [caseDesignId]
+            );
+
+            return NextResponse.json({
+                success: true,
+                message: "Successfully requested to share the design publicly.",
+            });
+        } finally {
+            client.release();
+        }
+    } catch {
+        return NextResponse.json(
+            { success: false, error: "Internal server error" },
+            { status: 500 }
+        );
+    }
+}

@@ -21,6 +21,8 @@ import {
 } from "@/schema/catalog";
 import { CreateColorResponse } from "../../actions/actions";
 import { SwatchGrid } from "./swatch-grid";
+import { IoMdSave } from "react-icons/io";
+import { MdClose } from "react-icons/md";
 
 type Props = {
     title: string;
@@ -170,11 +172,16 @@ export const ColorSwatchFormDialog: React.FC<Props> = ({
                                 type="button"
                                 variant="outline"
                                 disabled={isPending}
+                                icon={MdClose}
                             >
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button type="submit" isLoading={isPending}>
+                        <Button
+                            type="submit"
+                            isLoading={isPending}
+                            icon={IoMdSave}
+                        >
                             {submitText}
                         </Button>
                     </DialogFooter>

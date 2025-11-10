@@ -22,6 +22,8 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { MdDelete } from "react-icons/md";
+import AccountHeader from "../../components/account-header";
+import { User } from "lucide-react";
 
 export default function AccountProfilePage({ user }: { user: IUser }) {
     const { toast } = useToast();
@@ -66,15 +68,12 @@ export default function AccountProfilePage({ user }: { user: IUser }) {
 
     return (
         <div className="space-y-6">
-            <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-semibold">Your Profile</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-                    Update your profile information to personalize your shopping
-                    experience.
-                </p>
-            </div>
-
-            <Separator />
+            <AccountHeader
+                heading="Your Profile"
+                description="Update your profile information to personalize your shopping
+                    experience."
+                icon={User}
+            />
 
             <div className="flex flex-col gap-y-8 w-full">
                 <ProfileName currentUser={user} />

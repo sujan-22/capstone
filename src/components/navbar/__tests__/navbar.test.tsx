@@ -59,8 +59,11 @@ describe("<Navbar />", () => {
         );
 
         expect(
-            screen.getByRole("button", { name: /Create Case/i })
+            screen.getByRole("button", { name: /Sign in/i })
         ).toBeInTheDocument();
+        expect(
+            screen.queryByRole("button", { name: /Create Case/i })
+        ).toBeNull();
     });
 
     it('navigates to "/configure/upload" when "Create Case" is clicked', async () => {

@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { z } from "zod";
 import { createPhoneModelSchema } from "@/schema/catalog";
+import { IoMdSave } from "react-icons/io";
+import { MdClose } from "react-icons/md";
 
 export type PhoneModelValues = {
     modelName: string;
@@ -235,11 +237,16 @@ export const PhoneModelFormDialog: React.FC<PhoneModelFormDialogProps> = ({
                                 type="button"
                                 variant="outline"
                                 disabled={isPending || isSaving}
+                                icon={MdClose}
                             >
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button type="submit" isLoading={isPending || isSaving}>
+                        <Button
+                            type="submit"
+                            isLoading={isPending || isSaving}
+                            icon={IoMdSave}
+                        >
                             {submitText}
                         </Button>
                     </DialogFooter>

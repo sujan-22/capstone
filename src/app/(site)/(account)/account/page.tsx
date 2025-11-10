@@ -2,6 +2,7 @@ import React from "react";
 import AccountOverview from "./components/account-overview";
 import { getServerSideSession } from "@/hooks/use-session";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "ACCOUNT | DESIGNMYCASE",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 const Page = async () => {
     const { user, session } = await getServerSideSession();
     if (!user || !session) {
-        return;
+        redirect("/sign-in");
     }
     return <AccountOverview user={user} session={session} />;
 };

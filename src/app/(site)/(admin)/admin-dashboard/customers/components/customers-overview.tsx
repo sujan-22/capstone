@@ -14,6 +14,7 @@ import { useUserRoleMutations } from "@/hooks/use-toggle-role";
 import { IUser } from "../../../../../../../auth-client";
 import { CustomersItem } from "@/app/api/admin/customers/get-all/route";
 import { ADMIN_DATA_PAGE_SIZE } from "@/lib/constants";
+import { MdSearch } from "react-icons/md";
 
 export default function CustomersOverview({ user }: { user: IUser }) {
     const [q, setQ] = React.useState<string>("");
@@ -73,7 +74,11 @@ export default function CustomersOverview({ user }: { user: IUser }) {
                     placeholder="Search name, username, or email…"
                     className="w-full max-w-sm"
                 />
-                <Button onClick={() => refetch()} variant="outline">
+                <Button
+                    onClick={() => refetch()}
+                    icon={MdSearch}
+                    variant="outline"
+                >
                     Search
                 </Button>
             </div>

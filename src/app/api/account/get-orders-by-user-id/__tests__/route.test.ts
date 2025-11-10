@@ -1,15 +1,11 @@
 /** @jest-environment node */
 
-import { makeReq } from "@/lib/test/api";
-import { GET } from "../route";
 import { pool } from "@/lib/database/db";
 
-// Mock DB pool
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
-// Mock session (route awaits it even though it only logs)
 const getServerSideSessionMock = jest
     .fn()
     .mockResolvedValue({ user: { id: "user-123" } });
@@ -20,10 +16,16 @@ jest.mock("@/hooks/use-session", () => ({
 describe("GET /api/account/get-orders-by-user-id", () => {
     afterEach(() => {
         jest.clearAllMocks();
+        getServerSideSessionMock
+            .mockReset()
+            .mockResolvedValue({ user: { id: "user-123" } });
     });
 
     it("returns 401 when x-user-id header is missing", async () => {
-        const res = await GET(makeReq());
+        getServerSideSessionMock.mockResolvedValueOnce({ user: null });
+        const { GET } = await import("../route");
+        const res = await GET();
+
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
             error: "Not authenticated",
@@ -35,7 +37,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
         const mockRelease = jest.fn();
         const rows = [
             {
-                // order fields
                 order_id: "o1",
                 user_id: "user-123",
                 order_number: "ORD-0001",
@@ -49,8 +50,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 shipping_address_id: "s1",
                 order_createdat: "2024-01-01T12:00:00.000Z",
                 order_updatedat: "2024-01-02T13:00:00.000Z",
-
-                // design block
                 design_id: "d1",
                 imgSrc: "/img1.jpg",
                 cropped_image_url: "/crop1.jpg",
@@ -65,8 +64,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 price: "59.99",
                 isFavorited: true,
                 totalFavorites: 3,
-
-                // billing
                 billing_id: "b1",
                 billing_name: "John Doe",
                 billing_street: "1 Main St",
@@ -75,8 +72,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 billing_country: "CA",
                 billing_state: "ON",
                 billing_phone_number: "111-222-3333",
-
-                // shipping
                 shipping_id: "s1",
                 shipping_name: "John Doe",
                 shipping_street: "1 Main St",
@@ -87,7 +82,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 shipping_phone_number: "111-222-3333",
             },
             {
-                // minimal second row, some nullables
                 order_id: "o2",
                 user_id: "user-123",
                 order_number: "ORD-0002",
@@ -101,7 +95,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 shipping_address_id: null,
                 order_createdat: "2024-01-03T10:00:00.000Z",
                 order_updatedat: null,
-
                 design_id: "d2",
                 imgSrc: "/img2.jpg",
                 cropped_image_url: "/crop2.jpg",
@@ -116,8 +109,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 price: 42,
                 isFavorited: false,
                 totalFavorites: 0,
-
-                // billing/shipping nulls are fine
                 billing_id: null,
                 billing_name: null,
                 billing_street: null,
@@ -126,7 +117,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 billing_country: null,
                 billing_state: null,
                 billing_phone_number: null,
-
                 shipping_id: null,
                 shipping_name: null,
                 shipping_street: null,
@@ -145,7 +135,8 @@ describe("GET /api/account/get-orders-by-user-id", () => {
             release: mockRelease,
         });
 
-        const res = await GET(makeReq({ "x-user-id": "user-123" }));
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(getServerSideSessionMock).toHaveBeenCalled();
         expect(pool.connect).toHaveBeenCalled();
@@ -157,7 +148,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
             orders: [
                 {
                     id: "o1",
-                    userId: "user-123",
                     orderNumber: "ORD-0001",
                     subtotal: 50.5,
                     tax: 6.57,
@@ -205,7 +195,6 @@ describe("GET /api/account/get-orders-by-user-id", () => {
                 },
                 {
                     id: "o2",
-                    userId: "user-123",
                     orderNumber: "ORD-0002",
                     subtotal: 40,
                     tax: 5,
@@ -246,7 +235,8 @@ describe("GET /api/account/get-orders-by-user-id", () => {
             release: mockRelease,
         });
 
-        const res = await GET(makeReq({ "x-user-id": "user-123" }));
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toEqual({ orders: [] });
@@ -255,7 +245,9 @@ describe("GET /api/account/get-orders-by-user-id", () => {
     it("returns 500 on server error", async () => {
         (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
 
-        const res = await GET(makeReq({ "x-user-id": "user-123" }));
+        const { GET } = await import("../route");
+        const res = await GET();
+
         expect(res.status).toBe(500);
         await expect(res.json()).resolves.toEqual({
             error: "Internal server error",

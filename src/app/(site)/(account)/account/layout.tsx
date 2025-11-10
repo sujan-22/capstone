@@ -10,41 +10,30 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { AccountSidebar } from "./components/account-sidebar";
 import LayoutHeader from "@/components/utilities/layout-header";
+import { Home, User, ShoppingBag, Heart, Bell, FileClock } from "lucide-react";
 
 const sidebarNavItems = [
-    {
-        title: "Overview",
-        href: "/account",
-    },
-    {
-        title: "Profile",
-        href: "/account/profile",
-    },
-    {
-        title: "Orders",
-        href: "/account/orders",
-    },
+    { title: "Overview", href: "/account", icon: Home },
+    { title: "Profile", href: "/account/profile", icon: User },
+    { title: "Orders", href: "/account/orders", icon: ShoppingBag },
     {
         title: "Favorite Designs",
         href: "/account/favorite-designs",
+        icon: Heart,
     },
-    {
-        title: "Reminders",
-        href: "/account/reminders",
-    },
+    { title: "Reminders", href: "/account/reminders", icon: Bell },
     {
         title: "Unfinished Designs",
         href: "/account/unfinished-designs",
+        icon: FileClock,
     },
 ];
 
-interface SettingsLayoutClientProps {
+interface AccountLayoutProps {
     children: React.ReactNode;
 }
 
-export default function SettingsLayoutClient({
-    children,
-}: SettingsLayoutClientProps) {
+export default function AccountLayout({ children }: AccountLayoutProps) {
     const router = useRouter();
     const pathName = usePathname();
 
@@ -52,11 +41,10 @@ export default function SettingsLayoutClient({
         <>
             <LayoutHeader
                 heading="Your Account Settings"
-                description="Customize your profile, manage preferences, and keep
-                        track of your account activity."
+                description="Track orders & favorites, manage reminders, resume unfinished designs, and update your profile information."
             >
                 <div className="flex flex-col lg:flex-row lg:space-x-12 lg:space-y-0">
-                    <aside className="hidden space-y-8 lg:block lg:w-1/5">
+                    <aside className="hidden space-y-8 lg:block lg:w-1/5 lg:pr-5 lg:border-r">
                         <AccountSidebar items={sidebarNavItems} />
                     </aside>
                     <div className="block lg:hidden mb-6">
@@ -64,7 +52,7 @@ export default function SettingsLayoutClient({
                             onValueChange={(value) => router.push(value)}
                             defaultValue={pathName}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select a page" />
                             </SelectTrigger>
                             <SelectContent>

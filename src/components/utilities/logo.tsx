@@ -11,11 +11,17 @@ const Logo = () => {
     return (
         <Link
             href={"/"}
-            className={`${italiana.className} text-3xl sm:text-4xl md:text-4xl lg:text-4xl tracking-wide`}
+            className={`${italiana.className} text-3xl sm:text-4xl md:text-4xl lg:text-4xl`}
         >
-            DESIGN<span className=" text-blue-600">MY</span>CASE
+            DESIGN<span className=" text-blue-600 font-bold">MY</span>CASE
         </Link>
     );
 };
+
+// const Logo = () => {
+//     return (
+//         <Image src="/1.png" alt="DesignMyCase Logo" width={140} height={50} />
+//     );
+// };
 
 export default Logo;

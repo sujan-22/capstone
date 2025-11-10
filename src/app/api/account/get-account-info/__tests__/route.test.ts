@@ -1,23 +1,37 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { makeReq } from "@/lib/test/api";
-import { GET } from "../route";
 import { pool } from "@/lib/database/db";
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
+
+const { getServerSideSession } = jest.requireMock("@/hooks/use-session") as {
+    getServerSideSession: jest.Mock;
+};
+
+function setSession(userId?: string) {
+    getServerSideSession.mockResolvedValue({
+        user: userId ? { id: userId } : null,
+    });
+}
+
 describe("GET /api/account/get-account-info", () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    it("returns 401 when x-user-id header is missing", async () => {
-        const res = await GET(makeReq());
+    it("returns 401 when not authenticated", async () => {
+        setSession(undefined);
+
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
@@ -27,6 +41,8 @@ describe("GET /api/account/get-account-info", () => {
     });
 
     it("returns user info when authenticated", async () => {
+        setSession("user-123");
+
         const mockRelease = jest.fn();
         const mockQuery = jest.fn().mockResolvedValue({
             rows: [
@@ -37,16 +53,13 @@ describe("GET /api/account/get-account-info", () => {
                 },
             ],
         });
-
         (pool.connect as jest.Mock).mockResolvedValue({
             query: mockQuery,
             release: mockRelease,
         });
 
-        const req = {
-            headers: new Headers({ "x-user-id": "user-123" }),
-        } as any;
-        const res = await GET(req);
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(pool.connect).toHaveBeenCalled();
         expect(mockQuery).toHaveBeenCalledTimes(1);
@@ -55,7 +68,6 @@ describe("GET /api/account/get-account-info", () => {
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toEqual({
             user: {
-                userId: "user-123",
                 totalOrders: 2,
                 favoriteDesignsCount: 5,
             },
@@ -63,10 +75,11 @@ describe("GET /api/account/get-account-info", () => {
     });
 
     it("returns 500 on server error", async () => {
+        setSession("u1");
         (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
 
-        const req = { headers: new Headers({ "x-user-id": "u1" }) } as any;
-        const res = await GET(req);
+        const { GET } = await import("../route");
+        const res = await GET();
 
         expect(res.status).toBe(500);
         await expect(res.json()).resolves.toEqual({

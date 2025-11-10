@@ -22,7 +22,7 @@ export const EditFinishDialog: React.FC<{
             onSubmit={onSubmit}
             initialData={initialData}
             isPending={isPending}
-            submitText="Save changes"
+            submitText="Save"
             trigger={
                 <Button
                     variant="ghost"

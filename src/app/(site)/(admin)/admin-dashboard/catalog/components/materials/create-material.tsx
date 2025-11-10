@@ -20,7 +20,7 @@ export const CreateMaterialDialog: React.FC<{
             schema={schema}
             onSubmit={onSubmit}
             isPending={isPending}
-            submitText="Create"
+            submitText="Save"
             trigger={<Button icon={MdAdd}>Add material</Button>}
         />
     );
