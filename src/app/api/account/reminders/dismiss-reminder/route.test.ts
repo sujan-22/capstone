@@ -1,18 +1,32 @@
 /** @jest-environment node */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { pool } from "@/lib/database/db";
-import { POST } from "./route";
-import { NextRequest } from "next/server";
+jest.mock("next/server", () => {
+    const NextResponse = {
+        json: (body: unknown, init?: { status?: number }) => ({
+            status: init?.status ?? 200,
+            json: async () => body,
+        }),
+    };
+    return { NextResponse };
+});
+
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
-function makePost(
-    headers?: Record<string, string>,
-    body?: unknown
-): NextRequest {
-    const req = new Request(
+import { POST } from "./route";
+import { pool } from "@/lib/database/db";
+import { getServerSideSession } from "@/hooks/use-session";
+
+const mockSession = getServerSideSession as jest.Mock;
+
+function makePost(headers?: Record<string, string>, body?: unknown): any {
+    return new Request(
         "http://localhost/api/account/reminders/dismiss-reminder",
         {
             method: "POST",
@@ -22,9 +36,7 @@ function makePost(
             },
             body: body === undefined ? undefined : JSON.stringify(body),
         }
-    );
-
-    return req as unknown as NextRequest;
+    ) as any;
 }
 
 describe("POST /api/account/reminders/dismiss-reminder", () => {
@@ -32,7 +44,9 @@ describe("POST /api/account/reminders/dismiss-reminder", () => {
         jest.clearAllMocks();
     });
 
-    it("returns 401 when x-user-id header is missing", async () => {
+    it("returns 401 when user session is missing", async () => {
+        mockSession.mockResolvedValue({ user: null });
+
         const res = await POST(makePost());
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
@@ -42,7 +56,9 @@ describe("POST /api/account/reminders/dismiss-reminder", () => {
     });
 
     it("returns 400 when reminderId is missing", async () => {
-        const res = await POST(makePost({ "x-user-id": "u1" }, {}));
+        mockSession.mockResolvedValue({ user: { id: "u1" } });
+
+        const res = await POST(makePost({ "x-any": "ignored" }, {}));
         expect(res.status).toBe(400);
         await expect(res.json()).resolves.toEqual({
             error: "reminderId is required",
@@ -51,16 +67,16 @@ describe("POST /api/account/reminders/dismiss-reminder", () => {
     });
 
     it("returns 404 when reminder not found or not owned by user", async () => {
+        mockSession.mockResolvedValue({ user: { id: "u1" } });
+
         const release = jest.fn();
         const query = jest.fn().mockResolvedValue({ rowCount: 0 });
         (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await POST(
-            makePost({ "x-user-id": "u1" }, { reminderId: "r1" })
-        );
+        const res = await POST(makePost({}, { reminderId: "r1" }));
 
         expect(pool.connect).toHaveBeenCalled();
-        expect(query).toHaveBeenCalledTimes(1);
+        expect(query).toHaveBeenCalledWith(expect.any(String), ["r1", "u1"]);
         expect(release).toHaveBeenCalled();
         expect(res.status).toBe(404);
         await expect(res.json()).resolves.toEqual({
@@ -69,13 +85,13 @@ describe("POST /api/account/reminders/dismiss-reminder", () => {
     });
 
     it("returns 200 on successful dismiss", async () => {
+        mockSession.mockResolvedValue({ user: { id: "u1" } });
+
         const release = jest.fn();
         const query = jest.fn().mockResolvedValue({ rowCount: 1 });
         (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await POST(
-            makePost({ "x-user-id": "u1" }, { reminderId: "r1" })
-        );
+        const res = await POST(makePost({}, { reminderId: "r1" }));
 
         expect(pool.connect).toHaveBeenCalled();
         expect(query).toHaveBeenCalledWith(expect.any(String), ["r1", "u1"]);
@@ -88,12 +104,10 @@ describe("POST /api/account/reminders/dismiss-reminder", () => {
     });
 
     it("returns 500 on server error", async () => {
+        mockSession.mockResolvedValue({ user: { id: "u1" } });
         (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
 
-        const res = await POST(
-            makePost({ "x-user-id": "u1" }, { reminderId: "r1" })
-        );
-
+        const res = await POST(makePost({}, { reminderId: "r1" }));
         expect(res.status).toBe(500);
         await expect(res.json()).resolves.toEqual({
             error: "Internal server error",

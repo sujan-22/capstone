@@ -73,8 +73,10 @@ export async function GET(req: Request) {
   `;
     params.push(limit + 1);
 
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
+
         const { rows } = await client.query<ColorRow>(sql, params);
 
         const hasNext = rows.length > limit;
@@ -106,6 +108,6 @@ export async function GET(req: Request) {
             { status: 500 }
         );
     } finally {
-        client.release();
+        if (client) client.release?.();
     }
 }

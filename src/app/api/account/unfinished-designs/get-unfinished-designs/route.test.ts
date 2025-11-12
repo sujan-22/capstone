@@ -1,31 +1,37 @@
-/** @jest-environment node */
+/**
+ * @jest-environment node
+ */
 
 import { pool } from "@/lib/database/db";
-import { GET } from "./route";
-import type { NextRequest } from "next/server";
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
-function makeGet(headers?: Record<string, string>): NextRequest {
-    const req = new Request(
-        "http://localhost/api/account/get-unfinished-design",
-        {
-            method: "GET",
-            headers: { ...(headers || {}) },
-        }
-    );
-    return req as unknown as NextRequest;
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
+
+const { getServerSideSession } = jest.requireMock("@/hooks/use-session") as {
+    getServerSideSession: jest.Mock;
+};
+
+function setSession(userId?: string) {
+    getServerSideSession.mockResolvedValue({
+        user: userId ? { id: userId } : null,
+    });
 }
 
-describe("GET /api/account/get-unfinished-design", () => {
+describe("GET /api/account/unfinished-designs/get-unfinished-designs", () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    it("returns 401 when x-user-id header is missing", async () => {
-        const res = await GET(makeGet());
+    it("returns 401 when not authenticated", async () => {
+        setSession(undefined);
+        const { GET } = await import("./route");
+
+        const res = await GET();
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
             error: "Not authenticated",
@@ -34,6 +40,8 @@ describe("GET /api/account/get-unfinished-design", () => {
     });
 
     it("returns mapped unfinished designs for authenticated user", async () => {
+        setSession("user-123");
+
         const release = jest.fn();
         const rows = [
             {
@@ -71,11 +79,12 @@ describe("GET /api/account/get-unfinished-design", () => {
                 dismissed_at: null,
             },
         ];
-
         const query = jest.fn().mockResolvedValue({ rows });
         (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await GET(makeGet({ "x-user-id": "user-123" }));
+        const { GET } = await import("./route");
+
+        const res = await GET();
 
         expect(pool.connect).toHaveBeenCalled();
         expect(query).toHaveBeenCalledTimes(1);
@@ -119,19 +128,29 @@ describe("GET /api/account/get-unfinished-design", () => {
     });
 
     it("returns empty list when no unfinished designs", async () => {
+        setSession("user-123");
+
         const release = jest.fn();
         const query = jest.fn().mockResolvedValue({ rows: [] });
         (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await GET(makeGet({ "x-user-id": "user-123" }));
+        const { GET } = await import("./route");
+
+        const res = await GET();
+
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toEqual({ unfinishedDesigns: [] });
         expect(release).toHaveBeenCalled();
     });
 
     it("returns 500 when db connect fails", async () => {
+        setSession("user-123");
         (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
-        const res = await GET(makeGet({ "x-user-id": "user-123" }));
+
+        const { GET } = await import("./route");
+
+        const res = await GET();
+
         expect(res.status).toBe(500);
         await expect(res.json()).resolves.toEqual({
             error: "Internal server error",

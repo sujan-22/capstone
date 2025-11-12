@@ -31,8 +31,9 @@ export async function GET(req: Request) {
             : new Date(decoded.createdAt).toISOString()
         : undefined;
 
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
         const base = `
       WITH usage AS (
         SELECT cd.gallery_image_id AS gid,
@@ -96,6 +97,8 @@ export async function GET(req: Request) {
             { status: 500 }
         );
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }

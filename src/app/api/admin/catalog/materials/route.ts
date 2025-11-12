@@ -20,14 +20,18 @@ export async function POST(req: Request) {
         parsed = updateMaterialSchema.parse(body);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
+        const message = Array.isArray(e?.errors)
+            ? JSON.stringify(e.errors)
+            : String(e?.message ?? e);
         return NextResponse.json(
-            { error: "Invalid input", message: e?.errors ?? String(e) },
+            { error: "Invalid input", message },
             { status: 400 }
         );
     }
 
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
         const q = `
           INSERT INTO case_material (name, description, price, active, created_at, updated_at)
           VALUES ($1, $2, $3, TRUE, NOW(), NOW())
@@ -80,6 +84,8 @@ export async function POST(req: Request) {
             { status: 500 }
         );
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }

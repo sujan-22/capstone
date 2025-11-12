@@ -1,106 +1,109 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import DashboardTabs from "../dashboard-tabs";
 
-const push = jest.fn();
 let mockPathname = "/admin-dashboard";
 
 jest.mock("next/navigation", () => ({
-    useRouter: () => ({ push }),
     usePathname: () => mockPathname,
 }));
 
-const TabsContext = React.createContext<{
-    value: string;
-    onValueChange: (v: string) => void;
-}>({ value: "", onValueChange: () => {} });
+import AdminSubnav from "../dashboard-tabs";
 
-function MockTabs(props: any) {
-    const { value, onValueChange, children } = props;
-    return (
-        <TabsContext.Provider value={{ value, onValueChange }}>
-            <div data-testid="tabs">{children}</div>
-        </TabsContext.Provider>
-    );
-}
-
-function MockTabsList(props: any) {
-    return <div data-testid="tabs-list">{props.children}</div>;
-}
-
-function MockTabsTrigger(props: any) {
-    const ctx = React.useContext(TabsContext);
-    const selected = ctx.value === props.value;
-    return (
-        <button
-            role="tab"
-            aria-selected={selected ? "true" : "false"}
-            onClick={() => ctx.onValueChange(props.value)}
-        >
-            {props.children}
-        </button>
-    );
-}
-
-jest.mock("../../ui/tabs", () => ({
-    Tabs: (props: any) => <MockTabs {...props} />,
-    TabsList: (props: any) => <MockTabsList {...props} />,
-    TabsTrigger: (props: any) => <MockTabsTrigger {...props} />,
-}));
-
-describe("<DashboardTabs />", () => {
+describe("<AdminSubnav />", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockPathname = "/admin-dashboard";
     });
 
-    it('defaults active tab to "overview" when at base route', () => {
-        render(<DashboardTabs />);
+    it("renders all admin links with correct hrefs", () => {
+        render(<AdminSubnav />);
 
-        expect(screen.getByRole("tab", { name: /overview/i })).toHaveAttribute(
-            "aria-selected",
-            "true"
+        expect(screen.getByRole("link", { name: /overview/i })).toHaveAttribute(
+            "href",
+            "/admin-dashboard/overview"
         );
-        expect(screen.getByRole("tab", { name: /customers/i })).toHaveAttribute(
-            "aria-selected",
-            "false"
+        expect(
+            screen.getByRole("link", { name: /customers/i })
+        ).toHaveAttribute("href", "/admin-dashboard/customers");
+        expect(screen.getByRole("link", { name: /catalog/i })).toHaveAttribute(
+            "href",
+            "/admin-dashboard/catalog"
+        );
+        expect(screen.getByRole("link", { name: /orders/i })).toHaveAttribute(
+            "href",
+            "/admin-dashboard/orders"
+        );
+        expect(screen.getByRole("link", { name: /images/i })).toHaveAttribute(
+            "href",
+            "/admin-dashboard/images"
         );
     });
 
-    it("computes active tab from pathname segment", () => {
+    it("shows no active link at the base route (/admin-dashboard)", () => {
+        mockPathname = "/admin-dashboard";
+        render(<AdminSubnav />);
+
+        // None should have aria-current at the base path
+        expect(
+            screen.getByRole("link", { name: /overview/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /customers/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /catalog/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /orders/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /images/i })
+        ).not.toHaveAttribute("aria-current");
+    });
+
+    it("marks a link active when pathname starts with its href (orders)", () => {
         mockPathname = "/admin-dashboard/orders";
-        render(<DashboardTabs />);
+        render(<AdminSubnav />);
 
-        expect(screen.getByRole("tab", { name: /orders/i })).toHaveAttribute(
-            "aria-selected",
-            "true"
+        expect(screen.getByRole("link", { name: /orders/i })).toHaveAttribute(
+            "aria-current",
+            "page"
         );
-        expect(screen.getByRole("tab", { name: /overview/i })).toHaveAttribute(
-            "aria-selected",
-            "false"
-        );
+        expect(
+            screen.getByRole("link", { name: /overview/i })
+        ).not.toHaveAttribute("aria-current");
     });
 
-    it("falls back to overview when segment is unknown", () => {
+    it("marks a link active for nested routes under the same section (customers subpage)", () => {
+        mockPathname = "/admin-dashboard/customers/123";
+        render(<AdminSubnav />);
+
+        expect(
+            screen.getByRole("link", { name: /customers/i })
+        ).toHaveAttribute("aria-current", "page");
+        expect(
+            screen.getByRole("link", { name: /orders/i })
+        ).not.toHaveAttribute("aria-current");
+    });
+
+    it("shows no active link for unknown segments", () => {
         mockPathname = "/admin-dashboard/unknown-seg";
-        render(<DashboardTabs />);
+        render(<AdminSubnav />);
 
-        expect(screen.getByRole("tab", { name: /overview/i })).toHaveAttribute(
-            "aria-selected",
-            "true"
-        );
-    });
-
-    it("navigates to selected tab on click", async () => {
-        const user = userEvent.setup();
-        render(<DashboardTabs />);
-
-        await user.click(screen.getByRole("tab", { name: /customers/i }));
-        expect(push).toHaveBeenCalledWith("/admin-dashboard/customers");
-
-        await user.click(screen.getByRole("tab", { name: /images/i }));
-        expect(push).toHaveBeenCalledWith("/admin-dashboard/images");
+        expect(
+            screen.getByRole("link", { name: /overview/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /customers/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /catalog/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /orders/i })
+        ).not.toHaveAttribute("aria-current");
+        expect(
+            screen.getByRole("link", { name: /images/i })
+        ).not.toHaveAttribute("aria-current");
     });
 });

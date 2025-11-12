@@ -4,9 +4,9 @@ import { pool } from "@/lib/database/db";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-    const client = await pool.connect();
-
+    let client;
     try {
+        client = await pool.connect();
         const { user } = await getServerSideSession();
         const userId = user?.id;
         const url = new URL(req.url);
@@ -56,6 +56,8 @@ export async function GET(req: Request) {
             { status: 500 }
         );
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }

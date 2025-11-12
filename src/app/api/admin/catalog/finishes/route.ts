@@ -26,8 +26,9 @@ export async function POST(req: Request) {
         );
     }
 
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
         const q = `
           INSERT INTO case_finish (name, description, price, active, created_at, updated_at)
           VALUES ($1, $2, $3, TRUE, NOW(), NOW())
@@ -80,6 +81,8 @@ export async function POST(req: Request) {
             { status: 500 }
         );
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }

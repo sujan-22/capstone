@@ -1,26 +1,25 @@
-/** @jest-environment node */
+/**
+ * @jest-environment node
+ */
 
 import { pool } from "@/lib/database/db";
-import { GET } from "./route";
-import { NextRequest } from "next/server";
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
 
-function makeGet(headers?: Record<string, string>): NextRequest {
-    const req = new Request(
-        "http://localhost/api/account/reminders/get-reminders",
-        {
-            method: "GET",
-            headers: {
-                "content-type": "application/json",
-                ...(headers || {}),
-            },
-        }
-    );
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
 
-    return req as unknown as NextRequest;
+const { getServerSideSession } = jest.requireMock("@/hooks/use-session") as {
+    getServerSideSession: jest.Mock;
+};
+
+function setSession(userId?: string) {
+    getServerSideSession.mockResolvedValue({
+        user: userId ? { id: userId } : null,
+    });
 }
 
 describe("GET /api/account/reminders/get-reminders", () => {
@@ -28,8 +27,13 @@ describe("GET /api/account/reminders/get-reminders", () => {
         jest.clearAllMocks();
     });
 
-    it("returns 401 when x-user-id header is missing", async () => {
-        const res = await GET(makeGet());
+    it("returns 401 when not authenticated", async () => {
+        setSession(undefined);
+
+        // Import AFTER mocks so better-auth never loads
+        const { GET } = await import("./route");
+
+        const res = await GET();
         expect(res.status).toBe(401);
         await expect(res.json()).resolves.toEqual({
             error: "Not authenticated",
@@ -38,6 +42,8 @@ describe("GET /api/account/reminders/get-reminders", () => {
     });
 
     it("returns reminders for authenticated user", async () => {
+        setSession("u1");
+
         const release = jest.fn();
         const rows = [
             {
@@ -62,7 +68,9 @@ describe("GET /api/account/reminders/get-reminders", () => {
         const query = jest.fn().mockResolvedValue({ rows });
         (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await GET(makeGet({ "x-user-id": "u1" }));
+        const { GET } = await import("./route");
+
+        const res = await GET();
 
         expect(pool.connect).toHaveBeenCalled();
         expect(query).toHaveBeenCalledWith(expect.any(String), ["u1"]);
@@ -94,19 +102,26 @@ describe("GET /api/account/reminders/get-reminders", () => {
     });
 
     it("returns empty array when no reminders", async () => {
+        setSession("u1");
+
         const release = jest.fn();
         const query = jest.fn().mockResolvedValue({ rows: [] });
         (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await GET(makeGet({ "x-user-id": "u1" }));
+        const { GET } = await import("./route");
+
+        const res = await GET();
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toEqual({ reminders: [] });
     });
 
     it("returns 500 on server error", async () => {
+        setSession("u1");
         (pool.connect as jest.Mock).mockRejectedValue(new Error("db down"));
 
-        const res = await GET(makeGet({ "x-user-id": "u1" }));
+        const { GET } = await import("./route");
+
+        const res = await GET();
         expect(res.status).toBe(500);
         await expect(res.json()).resolves.toEqual({
             error: "Internal server error",

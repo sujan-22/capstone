@@ -5,12 +5,27 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { Check } from "lucide-react";
+import { Inspect, Settings, Upload } from "lucide-react";
 
 const steps = [
-    { id: 1, label: "Choose an Image", href: "/configure/upload" },
-    { id: 2, label: "Customize Your Case", href: "/configure/customize" },
-    { id: 3, label: "Review Your Selections", href: "/configure/preview" },
+    {
+        id: 1,
+        label: "Choose an Image",
+        href: "/configure/upload",
+        icon: Upload,
+    },
+    {
+        id: 2,
+        label: "Customize Your Case",
+        href: "/configure/customize",
+        icon: Settings,
+    },
+    {
+        id: 3,
+        label: "Review Your Selections",
+        href: "/configure/preview",
+        icon: Inspect,
+    },
 ];
 
 export default function Steps() {
@@ -55,14 +70,7 @@ export default function Steps() {
                                             active ? "shadow-sm" : ""
                                         )}
                                     >
-                                        {completed ? (
-                                            <Check
-                                                className="w-4 h-4 text-white"
-                                                color="white"
-                                            />
-                                        ) : (
-                                            index + 1
-                                        )}
+                                        <step.icon className="w-4 h-4" />
                                     </Button>
 
                                     <span
@@ -86,8 +94,8 @@ export default function Steps() {
                                             "h-0.5 flex-1 transition-colors duration-200 min-w-6 self-center",
                                             "sm:mx-3 max-[640px]:mx-1 max-[640px]:max-w-[60px]",
                                             completed
-                                                ? "bg-primary"
-                                                : "bg-muted"
+                                                ? "bg-blue-600"
+                                                : "bg-muted-foreground/30"
                                         )}
                                         aria-hidden
                                     />

@@ -1,12 +1,25 @@
 /** @jest-environment node */
 
 import { NextRequest } from "next/server";
-import { POST } from "./route";
 import { pool } from "@/lib/database/db";
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
+
+// ⬇️ Mock the session module to avoid loading better-auth/ESM
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
+const { getServerSideSession } = jest.requireMock("@/hooks/use-session") as {
+    getServerSideSession: jest.Mock<Promise<{ user: { id: string } | null }>>;
+};
+
+function setSession(userId?: string) {
+    getServerSideSession.mockResolvedValue(
+        userId ? { user: { id: userId } } : { user: null }
+    );
+}
 
 function makePost(body?: unknown): NextRequest {
     const req = new Request("http://localhost/api/favorite", {
@@ -23,21 +36,25 @@ describe("POST /api/favorite", () => {
     });
 
     it("returns 400 when userId or caseDesignId is missing", async () => {
-        // Missing both
+        // missing both
+        setSession(undefined);
+        const { POST } = await import("./route");
         const r1 = await POST(makePost({}));
         expect(r1.status).toBe(400);
         await expect(r1.json()).resolves.toEqual({
             error: "Missing userId or caseDesignId",
         });
 
-        // Missing caseDesignId
-        const r2 = await POST(makePost({ userId: "u1" }));
+        // missing caseDesignId
+        setSession("u1");
+        const r2 = await POST(makePost({ userId: "u1" })); // body.userId is ignored by route
         expect(r2.status).toBe(400);
         await expect(r2.json()).resolves.toEqual({
             error: "Missing userId or caseDesignId",
         });
 
-        // Missing userId
+        // missing userId
+        setSession(undefined);
         const r3 = await POST(makePost({ caseDesignId: "cd1" }));
         expect(r3.status).toBe(400);
         await expect(r3.json()).resolves.toEqual({
@@ -48,19 +65,16 @@ describe("POST /api/favorite", () => {
     });
 
     it("returns 404 when case design not found", async () => {
+        setSession("u1");
+
         const release = jest.fn();
-        const query = jest.fn().mockResolvedValueOnce({ rows: [] }); // no rows returned
+        const query = jest.fn().mockResolvedValueOnce({ rows: [] });
 
-        (pool.connect as jest.Mock).mockResolvedValue({
-            query,
-            release,
-        });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await POST(
-            makePost({ userId: "u1", caseDesignId: "cd-missing" })
-        );
+        const { POST } = await import("./route");
+        const res = await POST(makePost({ caseDesignId: "cd-missing" }));
 
-        // Ensure correct SQL shape and parameters
         expect(query).toHaveBeenCalledTimes(1);
         const [sql, params] = query.mock.calls[0];
         expect(sql).toMatch(/UPDATE\s+case_design/i);
@@ -74,23 +88,17 @@ describe("POST /api/favorite", () => {
     });
 
     it("toggles to 'added' when userId is present in returned array", async () => {
+        setSession("u1");
+
         const release = jest.fn();
-
         const query = jest.fn().mockResolvedValueOnce({
-            rows: [
-                {
-                    favorited_by_user_ids: ["u1", "u2"], // includes calling user
-                    total_favorites: 2,
-                },
-            ],
+            rows: [{ favorited_by_user_ids: ["u1", "u2"], total_favorites: 2 }],
         });
 
-        (pool.connect as jest.Mock).mockResolvedValue({
-            query,
-            release,
-        });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await POST(makePost({ userId: "u1", caseDesignId: "cd1" }));
+        const { POST } = await import("./route");
+        const res = await POST(makePost({ caseDesignId: "cd1" }));
 
         expect(query).toHaveBeenCalledTimes(1);
         const [sql, params] = query.mock.calls[0];
@@ -107,23 +115,17 @@ describe("POST /api/favorite", () => {
     });
 
     it("toggles to 'removed' when userId is absent in returned array", async () => {
+        setSession("u1");
+
         const release = jest.fn();
-
         const query = jest.fn().mockResolvedValueOnce({
-            rows: [
-                {
-                    favorited_by_user_ids: ["u2", "u3"], // does NOT include calling user
-                    total_favorites: 2,
-                },
-            ],
+            rows: [{ favorited_by_user_ids: ["u2", "u3"], total_favorites: 2 }],
         });
 
-        (pool.connect as jest.Mock).mockResolvedValue({
-            query,
-            release,
-        });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await POST(makePost({ userId: "u1", caseDesignId: "cd1" }));
+        const { POST } = await import("./route");
+        const res = await POST(makePost({ caseDesignId: "cd1" }));
 
         expect(query).toHaveBeenCalledTimes(1);
         const [sql, params] = query.mock.calls[0];
@@ -140,17 +142,17 @@ describe("POST /api/favorite", () => {
     });
 
     it("returns 500 when an error occurs during update", async () => {
+        setSession("u1");
+
         const release = jest.fn();
         const query = jest
             .fn()
             .mockRejectedValueOnce(new Error("update failed"));
 
-        (pool.connect as jest.Mock).mockResolvedValue({
-            query,
-            release,
-        });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
 
-        const res = await POST(makePost({ userId: "u1", caseDesignId: "cd1" }));
+        const { POST } = await import("./route");
+        const res = await POST(makePost({ caseDesignId: "cd1" }));
 
         expect(query).toHaveBeenCalledTimes(1);
         expect(res.status).toBe(500);

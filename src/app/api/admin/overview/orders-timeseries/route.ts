@@ -67,8 +67,9 @@ export async function GET(req: Request) {
 
     const tz = "America/Toronto";
 
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
         const sql = `
   WITH
   series AS (
@@ -144,6 +145,8 @@ export async function GET(req: Request) {
             { status: 500 }
         );
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
