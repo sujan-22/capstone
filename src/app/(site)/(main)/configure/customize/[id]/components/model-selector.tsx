@@ -20,7 +20,7 @@ interface Props {
 
 export default function ModelSelector({ models, value, onSelect }: Props) {
     return (
-        <div className="relative flex flex-col gap-3 w-full">
+        <div className="relative flex flex-col w-full">
             <label className="block text-sm font-medium text-gray-700 mb-2">
                 Model
             </label>

@@ -8,6 +8,7 @@ import { useBuyNow } from "@/hooks/use-buy-now";
 import { IUser } from "../../../../../auth-client";
 import Phone from "@/components/utilities/phone";
 import { Button } from "@/components/ui/button";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 export interface ICaseDesignProps {
     id: string;
@@ -121,6 +122,7 @@ const Design: React.FC<ICaseDesignProps> = ({
                         aria-label={`Favorite ${caseName}`}
                         disabled={loading}
                         isLoading={loading}
+                        icon={isFavorited ? FaHeart : FaRegHeart}
                     >
                         {isFavorited ? "Favorited" : "Favorite"}
                     </Button>

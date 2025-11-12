@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBuyNow } from "@/hooks/use-buy-now";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 export interface ICaseDesignProps {
     id: string;
@@ -102,6 +103,7 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
                         disabled={loading}
                         isLoading={loading}
                         variant={"secondary"}
+                        icon={isFavorited ? FaHeart : FaRegHeart}
                         size={"sm"}
                     >
                         {isFavorited ? "Favorited" : "Favorite"}

@@ -2,12 +2,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { NextRequest } from "next/server";
-import { POST } from "./route";
 import { pool } from "@/lib/database/db";
 
 jest.mock("@/lib/database/db", () => ({
     pool: { connect: jest.fn() },
 }));
+
+// ⬇️ Mock use-session BEFORE importing the route to avoid better-auth/ESM
+jest.mock("@/hooks/use-session", () => ({
+    getServerSideSession: jest.fn(),
+}));
+
+const { getServerSideSession } = jest.requireMock("@/hooks/use-session") as {
+    getServerSideSession: jest.Mock<
+        Promise<{ user: { id: string } | null }>,
+        any
+    >;
+};
+
+function setSession(userId?: string) {
+    getServerSideSession.mockResolvedValue(
+        userId ? { user: { id: userId } } : { user: null }
+    );
+}
 
 function makePost(
     headers?: Record<string, string>,
@@ -21,7 +38,6 @@ function makePost(
         },
         body: body === undefined ? undefined : JSON.stringify(body),
     });
-
     return req as unknown as NextRequest;
 }
 
@@ -31,7 +47,10 @@ describe("POST /api/buy-now/[designId]", () => {
     });
 
     it("returns 400 when designId or userId is missing", async () => {
-        const res1 = await POST(makePost({ "x-user-id": "u1" }), {
+        setSession("u1"); // user present, but empty designId
+        const { POST } = await import("./route");
+
+        const res1 = await POST(makePost(), {
             params: Promise.resolve({ designId: "" as any }),
         });
         expect(res1.status).toBe(400);
@@ -39,6 +58,7 @@ describe("POST /api/buy-now/[designId]", () => {
             error: "Missing credentials",
         });
 
+        setSession(undefined); // no user, designId present
         const res2 = await POST(makePost(), {
             params: Promise.resolve({ designId: "d1" }),
         });
@@ -50,16 +70,17 @@ describe("POST /api/buy-now/[designId]", () => {
     });
 
     it("returns 404 when design not found", async () => {
+        setSession("user-123");
+
         const release = jest.fn();
         const query = jest
             .fn()
-            .mockResolvedValueOnce({ rowCount: 0 }) // SELECT returns no rows
-            // these won't be called, but keep placeholders to avoid undefined errors if called
+            .mockResolvedValueOnce({ rowCount: 0 })
             .mockResolvedValueOnce({ rows: [] });
 
-        const begin = jest.fn().mockResolvedValue(undefined);
-        const commit = jest.fn().mockResolvedValue(undefined);
-        const rollback = jest.fn().mockResolvedValue(undefined);
+        const begin = jest.fn();
+        const commit = jest.fn();
+        const rollback = jest.fn();
 
         (pool.connect as jest.Mock).mockResolvedValue({
             query: (sql: string, params?: any[]) => {
@@ -71,7 +92,8 @@ describe("POST /api/buy-now/[designId]", () => {
             release,
         });
 
-        const res = await POST(makePost({ "x-user-id": "user-123" }), {
+        const { POST } = await import("./route");
+        const res = await POST(makePost(), {
             params: Promise.resolve({ designId: "d-missing" }),
         });
 
@@ -90,11 +112,12 @@ describe("POST /api/buy-now/[designId]", () => {
     });
 
     it("duplicates a design and returns newDesignId on success", async () => {
-        const release = jest.fn();
+        setSession("user-123");
 
-        const begin = jest.fn().mockResolvedValue(undefined);
-        const commit = jest.fn().mockResolvedValue(undefined);
-        const rollback = jest.fn().mockResolvedValue(undefined);
+        const release = jest.fn();
+        const begin = jest.fn();
+        const commit = jest.fn();
+        const rollback = jest.fn();
 
         const selectRow = {
             phone_model_id: "pm1",
@@ -110,8 +133,8 @@ describe("POST /api/buy-now/[designId]", () => {
 
         const query = jest
             .fn()
-            .mockResolvedValueOnce({ rowCount: 1, rows: [selectRow] }) // SELECT old design
-            .mockResolvedValueOnce({ rows: [{ id: "new-design-123" }] }); // INSERT returning id
+            .mockResolvedValueOnce({ rowCount: 1, rows: [selectRow] })
+            .mockResolvedValueOnce({ rows: [{ id: "new-design-123" }] });
 
         (pool.connect as jest.Mock).mockResolvedValue({
             query: (sql: string, params?: any[]) => {
@@ -123,7 +146,8 @@ describe("POST /api/buy-now/[designId]", () => {
             release,
         });
 
-        const res = await POST(makePost({ "x-user-id": "user-123" }), {
+        const { POST } = await import("./route");
+        const res = await POST(makePost(), {
             params: Promise.resolve({ designId: "d1" }),
         });
 
@@ -164,10 +188,12 @@ describe("POST /api/buy-now/[designId]", () => {
     });
 
     it("returns 500 and rolls back when an error occurs mid-transaction", async () => {
+        setSession("user-123");
+
         const release = jest.fn();
-        const begin = jest.fn().mockResolvedValue(undefined);
-        const commit = jest.fn().mockResolvedValue(undefined);
-        const rollback = jest.fn().mockResolvedValue(undefined);
+        const begin = jest.fn();
+        const commit = jest.fn();
+        const rollback = jest.fn();
 
         const query = jest
             .fn()
@@ -199,7 +225,8 @@ describe("POST /api/buy-now/[designId]", () => {
             release,
         });
 
-        const res = await POST(makePost({ "x-user-id": "user-123" }), {
+        const { POST } = await import("./route");
+        const res = await POST(makePost(), {
             params: Promise.resolve({ designId: "d1" }),
         });
 
