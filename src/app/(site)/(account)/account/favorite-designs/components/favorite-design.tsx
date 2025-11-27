@@ -25,6 +25,7 @@ const FavoriteDesign = ({ design }: Props) => {
     return (
         <div
             key={design.id}
+            data-testid="favorite-card"
             className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
         >
             <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">

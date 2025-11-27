@@ -133,7 +133,17 @@ describe("POST /api/buy-now/[designId]", () => {
 
         const query = jest
             .fn()
+            // 1) fetch original design from case_design
             .mockResolvedValueOnce({ rowCount: 1, rows: [selectRow] })
+            // 2) phone_model active check
+            .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: "pm1" }] })
+            // 3) case_material active check
+            .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: "mat1" }] })
+            // 4) case_color active check
+            .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: "col1" }] })
+            // 5) case_finish active check
+            .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: "fin1" }] })
+            // 6) INSERT INTO case_design ... RETURNING id
             .mockResolvedValueOnce({ rows: [{ id: "new-design-123" }] });
 
         (pool.connect as jest.Mock).mockResolvedValue({
@@ -152,13 +162,39 @@ describe("POST /api/buy-now/[designId]", () => {
         });
 
         expect(begin).toHaveBeenCalled();
+
+        // 1) SELECT FROM case_design ...
         expect(query).toHaveBeenNthCalledWith(
             1,
             expect.stringMatching(/SELECT[\s\S]*FROM\s+case_design/i),
             ["d1"]
         );
+
+        // 2–5) active checks for each FK
         expect(query).toHaveBeenNthCalledWith(
             2,
+            expect.stringMatching(/FROM\s+phone_model/i),
+            ["pm1"]
+        );
+        expect(query).toHaveBeenNthCalledWith(
+            3,
+            expect.stringMatching(/FROM\s+case_material/i),
+            ["mat1"]
+        );
+        expect(query).toHaveBeenNthCalledWith(
+            4,
+            expect.stringMatching(/FROM\s+case_color/i),
+            ["col1"]
+        );
+        expect(query).toHaveBeenNthCalledWith(
+            5,
+            expect.stringMatching(/FROM\s+case_finish/i),
+            ["fin1"]
+        );
+
+        // 6) INSERT INTO case_design ... RETURNING id
+        expect(query).toHaveBeenNthCalledWith(
+            6,
             expect.stringMatching(
                 /INSERT\s+INTO\s+case_design[\s\S]*RETURNING\s+id/i
             ),
@@ -175,6 +211,7 @@ describe("POST /api/buy-now/[designId]", () => {
                 "g1",
             ]
         );
+
         expect(commit).toHaveBeenCalled();
         expect(rollback).not.toHaveBeenCalled();
         expect(release).toHaveBeenCalled();
