@@ -22,6 +22,7 @@ export function AccountSidebar({
                 className
             )}
             {...props}
+            data-testid="Account navigation"
         >
             {items.map(({ href, title, icon: Icon }) => {
                 const active = pathname === href;
