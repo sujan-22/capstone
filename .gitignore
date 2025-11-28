@@ -9,5 +9,3 @@ node_modules
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
-tree.sh
-project_file_tree.txt
