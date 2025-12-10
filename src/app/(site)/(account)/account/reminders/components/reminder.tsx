@@ -80,7 +80,10 @@ const Reminder = ({ reminder }: Props) => {
                     >
                         Dismiss
                     </Button>
-                    <Link href={`/configure/customize/${reminder.id}`} passHref>
+                    <Link
+                        href={`/configure/customize/${reminder.caseDesignId}`}
+                        passHref
+                    >
                         <Button size="sm">Continue Customizing</Button>
                     </Link>
                 </div>
