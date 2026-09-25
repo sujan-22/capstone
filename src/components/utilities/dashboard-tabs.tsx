@@ -13,47 +13,77 @@ import {
 
 const NAV = [
     { slug: "overview", label: "Overview", icon: LayoutDashboard },
+    { slug: "orders", label: "Orders", icon: Receipt },
     { slug: "customers", label: "Customers", icon: Users },
     { slug: "catalog", label: "Catalog", icon: Package },
-    { slug: "orders", label: "Orders", icon: Receipt },
     { slug: "images", label: "Images", icon: ImagesIcon },
 ] as const;
 
-export default function AdminSubnav({ className }: { className?: string }) {
+/**
+ * Admin section navigation. Vertical in the desktop sidebar, a scrolling row
+ * of pills in the mobile top bar. Both sit on ink.
+ */
+export default function AdminSubnav({
+    className,
+    orientation = "vertical",
+}: {
+    className?: string;
+    orientation?: "vertical" | "horizontal";
+}) {
     const pathname = usePathname();
+    const vertical = orientation === "vertical";
 
     return (
-        <nav
-            aria-label="Admin sections"
-            className={cn("relative -mx-1 overflow-x-auto", className)}
-        >
-            <ul className="min-w-max flex gap-1 p-1 rounded-lg border bg-background">
-                {NAV.map(({ slug, label, icon: Icon }) => {
+        <nav aria-label="Admin sections" className={className}>
+            <ul
+                className={cn(
+                    vertical
+                        ? "flex flex-col gap-0.5"
+                        : "scrollbar-none flex gap-1.5 overflow-x-auto"
+                )}
+            >
+                {NAV.map(({ slug, label, icon: Icon }, i) => {
                     const href = `/admin-dashboard/${slug}`;
                     const active = pathname.startsWith(href);
                     return (
-                        <li key={slug}>
+                        <li key={slug} className="shrink-0">
                             <Link
                                 href={href}
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
-                                    "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
-                                    "transition-colors rounded-lg",
+                                    "group flex items-center gap-3 text-sm font-medium transition-colors",
+                                    vertical
+                                        ? "rounded-lg px-3 py-2.5"
+                                        : "rounded-full px-3.5 py-1.5",
                                     active
-                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                        : "text-foreground/80 hover:bg-muted"
+                                        ? "bg-paper text-ink"
+                                        : "text-paper/70 hover:bg-paper/[0.07] hover:text-paper"
                                 )}
                             >
-                                <Icon className="h-4 w-4" />
-                                <span className="capitalize">{label}</span>
+                                <Icon
+                                    aria-hidden
+                                    className={cn(
+                                        "size-4 shrink-0",
+                                        active ? "text-cobalt" : "text-paper/60"
+                                    )}
+                                />
+                                <span>{label}</span>
+                                {vertical ? (
+                                    <span
+                                        aria-hidden
+                                        className={cn(
+                                            "type-label ml-auto",
+                                            active ? "text-ink-soft" : "text-paper/40"
+                                        )}
+                                    >
+                                        0{i + 1}
+                                    </span>
+                                ) : null}
                             </Link>
                         </li>
                     );
                 })}
             </ul>
-
-            {/* <span className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background to-transparent" />
-            <span className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent" /> */}
         </nav>
     );
 }

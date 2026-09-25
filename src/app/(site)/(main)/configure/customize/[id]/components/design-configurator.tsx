@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { useToast } from "@/hooks/use-toast";
@@ -218,8 +217,10 @@ export default function DesignConfigurator(props: Props) {
 
     const isSaving = saveImageMut.isPending || updateConfigMut.isPending;
 
+    const total = Number(options.finish.price) + Number(options.material.price);
+
     return (
-        <div className="relative h-[70vh] grid grid-cols-1 lg:grid-cols-3">
+        <div className="grid overflow-hidden rounded-lg border border-rule bg-paper-raised shadow-[0_40px_80px_-60px_rgb(20_20_20/0.45)] lg:grid-cols-[minmax(0,1fr)_400px]">
             <CanvasEditor
                 imageUrl={imageUrl}
                 imageDimensions={imageDimensions}
@@ -232,85 +233,116 @@ export default function DesignConfigurator(props: Props) {
                 containerRef={containerRef}
             />
 
-            <div className="h-[70vh] w-full col-span-full lg:col-span-1 flex flex-col bg-white">
-                <ScrollArea className="relative flex-1 overflow-auto">
-                    <div
-                        aria-hidden="true"
-                        className="absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none"
-                    />
-                    <div className=" mt-8 lg:mt-0 pr-8 lg:pl-8 pb-12">
-                        <h2 className=" tracking-tight font-bold text-3xl">
-                            Customize your case
-                        </h2>
-                        <div className=" w-full h-px bg-zinc-200 my-6" />
-                        <div className="relative mt-4 h-full flex flex-col justify-between">
-                            <div className="flex flex-col gap-6">
-                                <ColorPicker
-                                    colors={colors}
-                                    value={options.color}
-                                    onChange={(c) =>
-                                        setOptions((p) => ({ ...p, color: c }))
-                                    }
-                                />
+            <aside className="flex flex-col border-t border-rule lg:h-[clamp(480px,calc(100dvh-15rem),820px)] lg:border-l lg:border-t-0">
+                <header className="border-b border-rule px-6 py-5">
+                    <p className="type-label text-ink-soft">Job ticket</p>
+                    <h1 className="type-title mt-2">Customise your case</h1>
+                </header>
 
-                                <ModelSelector
-                                    models={models}
-                                    value={options.model}
-                                    onSelect={(m) =>
-                                        setOptions((p) => ({ ...p, model: m }))
-                                    }
-                                />
+                <div className="flex-1 divide-y divide-rule overflow-y-auto">
+                    <OptionSection n="01" title="Colour" value={options.color.name}>
+                        <ColorPicker
+                            colors={colors}
+                            value={options.color}
+                            onChange={(c) =>
+                                setOptions((p) => ({ ...p, color: c }))
+                            }
+                        />
+                    </OptionSection>
 
-                                <OptionRadioGroup
-                                    name="material"
-                                    options={materials}
-                                    value={options.material}
-                                    onChange={(v) =>
-                                        setOptions((p) => ({
-                                            ...p,
-                                            material: v,
-                                        }))
-                                    }
-                                />
+                    <OptionSection n="02" title="Model">
+                        <ModelSelector
+                            models={models}
+                            value={options.model}
+                            onSelect={(m) =>
+                                setOptions((p) => ({ ...p, model: m }))
+                            }
+                        />
+                    </OptionSection>
 
-                                <OptionRadioGroup
-                                    name="finish"
-                                    options={finishes}
-                                    value={options.finish}
-                                    onChange={(v) =>
-                                        setOptions((p) => ({ ...p, finish: v }))
-                                    }
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </ScrollArea>
+                    <OptionSection n="03" title="Material">
+                        <OptionRadioGroup
+                            name="material"
+                            options={materials}
+                            value={options.material}
+                            onChange={(v) =>
+                                setOptions((p) => ({
+                                    ...p,
+                                    material: v,
+                                }))
+                            }
+                        />
+                    </OptionSection>
 
-                <div className=" w-full px-8">
-                    <div className=" h-px w-full bg-zinc-200" />
-                    <div className=" w-full flex my-3 justify-end items-center">
-                        <div className=" w-full flex gap-6 items-center">
-                            <p className=" font-medium whitespace-nowrap">
-                                {formatPrice(
-                                    Number(options.finish.price) +
-                                        Number(options.material.price)
-                                )}
-                            </p>
-                            <Button
-                                isLoading={isSaving}
-                                disabled={isSaving}
-                                onClick={handleContinue}
-                                size="sm"
-                                variant={"outline"}
-                                className=" w-full"
-                            >
-                                Continue{" "}
-                                <FaArrowRightLong className=" h-4 w-4 ml-1.5 inline" />
-                            </Button>
-                        </div>
-                    </div>
+                    <OptionSection n="04" title="Finish">
+                        <OptionRadioGroup
+                            name="finish"
+                            options={finishes}
+                            value={options.finish}
+                            onChange={(v) =>
+                                setOptions((p) => ({ ...p, finish: v }))
+                            }
+                        />
+                    </OptionSection>
                 </div>
-            </div>
+
+                <footer className="border-t border-rule bg-paper px-6 py-5">
+                    <div className="flex items-end justify-between gap-4">
+                        <div>
+                            <p className="type-label text-ink-soft">Your case</p>
+                            <p
+                                aria-live="polite"
+                                className="mt-1.5 font-mono text-[1.75rem] leading-none font-medium tracking-[-0.03em]"
+                            >
+                                {formatPrice(total)}
+                            </p>
+                        </div>
+                        <p className="text-right text-xs leading-relaxed text-ink-soft">
+                            Before tax.
+                            <br />
+                            Shipping is free.
+                        </p>
+                    </div>
+                    <Button
+                        isLoading={isSaving}
+                        disabled={isSaving}
+                        onClick={handleContinue}
+                        size="lg"
+                        className="mt-5 w-full"
+                        icon={FaArrowRightLong}
+                        iconPosition="right"
+                    >
+                        {isSaving ? "Saving your design…" : "Continue to proof"}
+                    </Button>
+                </footer>
+            </aside>
         </div>
+    );
+}
+
+function OptionSection({
+    n,
+    title,
+    value,
+    children,
+}: {
+    n: string;
+    title: string;
+    value?: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <section className="px-6 py-6">
+            <div className="mb-4 flex items-baseline justify-between gap-3">
+                <h2 className="flex items-baseline gap-2.5">
+                    <span className="type-label text-ink-soft">{n}</span>
+                    <span className="type-heading">{title}</span>
+                </h2>
+                {value ? (
+                    <span className="truncate text-sm text-ink-soft">{value}</span>
+                ) : null}
+            </div>
+            {children}
+        </section>
     );
 }

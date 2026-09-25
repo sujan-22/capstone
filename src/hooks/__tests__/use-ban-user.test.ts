@@ -39,7 +39,7 @@ jest.mock("@tanstack/react-query", () => {
 });
 
 jest.mock(
-    "@/app/(site)/(admin)/admin-dashboard/customers/actions/actions",
+    "@/app/(admin)/admin-dashboard/customers/actions/actions",
     () => ({
         adminCustomersKeys: { all: ["admin", "customers"] },
     })

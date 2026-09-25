@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { safeRedirect } from "@/lib/utils";
+import AuthHeading from "../../components/auth-heading";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import Logo from "@/components/utilities/logo";
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "../../../../../auth-client";
 import useAuthStore from "@/context/use-auth-store";
@@ -38,7 +39,7 @@ const EmailVerificationPage: React.FC = () => {
 
     useEffect(() => {
         const params = searchParams.get("redirectTo");
-        if (params) setRedirectTo(params);
+        if (params) setRedirectTo(safeRedirect(params));
     }, [searchParams]);
 
     const [pending, setPending] = useState(false);
@@ -166,91 +167,79 @@ const EmailVerificationPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-transparent">
-            <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
-                <div className="mb-6 w-full flex flex-col items-center space-y-4">
-                    <Logo />
-                    <p className="md:text-xl lg:text-xl sm:text-xl text-md">
-                        Verify Your Email
-                    </p>
-                    <p className="text-muted-foreground text-sm text-center">
-                        {email ? (
-                            <>
-                                We sent a 6-digit verification code to{" "}
-                                <span className=" font-semibold">{email}</span>.
-                                Enter it below.
-                            </>
-                        ) : (
-                            <>
-                                Please check your email and enter the
-                                verification code below.
-                            </>
-                        )}
-                    </p>
-                </div>
+        <>
+            <AuthHeading
+                eyebrow="Verify your email"
+                title="Check your inbox"
+                description={
+                    email ? (
+                        <>
+                            We sent a 6-digit code to{" "}
+                            <span className="font-semibold text-ink">
+                                {email}
+                            </span>
+                            . Enter it below to finish setting up your
+                            account.
+                        </>
+                    ) : (
+                        "Enter the 6-digit code we emailed you to finish setting up your account."
+                    )
+                }
+            />
 
-                <div className="w-full">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(handleVerification)}
-                            className="grid gap-4"
-                        >
-                            <Controller
-                                control={form.control}
-                                name="verificationCode"
-                                render={({ field }) => (
-                                    <div className="flex items-center justify-center gap-3">
-                                        <InputOTP
-                                            maxLength={6}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                        >
-                                            <InputOTPGroup>
-                                                <InputOTPSlot index={0} />
-                                                <InputOTPSlot index={1} />
-                                                <InputOTPSlot index={2} />
-                                                <InputOTPSlot index={3} />
-                                                <InputOTPSlot index={4} />
-                                                <InputOTPSlot index={5} />
-                                            </InputOTPGroup>
-                                        </InputOTP>
-                                    </div>
-                                )}
-                            />
-                            {form.formState.errors.verificationCode && (
-                                <p className="text-sm text-red-500">
-                                    {
-                                        form.formState.errors.verificationCode
-                                            .message
-                                    }
-                                </p>
-                            )}
-
-                            <Button
-                                isLoading={pending}
-                                type="submit"
-                                className="w-full mt-2"
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(handleVerification)}
+                    className="grid gap-5"
+                >
+                    <Controller
+                        control={form.control}
+                        name="verificationCode"
+                        render={({ field }) => (
+                            <InputOTP
+                                maxLength={6}
+                                value={field.value}
+                                onChange={field.onChange}
+                                aria-label="Verification code"
+                                containerClassName="justify-between"
                             >
-                                Verify Email
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
+                                <InputOTPGroup className="w-full justify-between gap-2">
+                                    {Array.from({ length: 6 }).map((_, i) => (
+                                        <InputOTPSlot key={i} index={i} />
+                                    ))}
+                                </InputOTPGroup>
+                            </InputOTP>
+                        )}
+                    />
+                    {form.formState.errors.verificationCode && (
+                        <p className="text-sm text-destructive">
+                            {form.formState.errors.verificationCode.message}
+                        </p>
+                    )}
 
-                <div className="mt-4 w-full flex flex-col items-center">
                     <Button
-                        variant="link"
-                        className="text-blue-500 px-0"
-                        onClick={handleResend}
-                        disabled={resendPending || cooldown > 0}
+                        isLoading={pending}
+                        type="submit"
+                        size="lg"
+                        className="mt-1 w-full"
                     >
-                        {cooldown > 0
-                            ? `Resend Code (${cooldown}s)`
-                            : "Resend Code"}
+                        Verify email
                     </Button>
-                </div>
-            </div>
-        </div>
+                </form>
+            </Form>
+
+            <p className="mt-8 text-center text-sm text-ink-soft">
+                Didn&rsquo;t get it?{" "}
+                <Button
+                    variant="link"
+                    className="h-auto font-semibold"
+                    onClick={handleResend}
+                    disabled={resendPending || cooldown > 0}
+                >
+                    {cooldown > 0 ? `Resend code in ${cooldown}s` : "Resend code"}
+                </Button>
+            </p>
+        </>
     );
 };
 

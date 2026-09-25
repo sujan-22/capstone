@@ -4,11 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getOrdersByUser } from "../actions/actions";
 import OrderOverview from "./orders-overview";
 import ErrorMessage from "@/components/utilities/error";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import OrderCardSkeleton from "./skeleton/order-skeleton";
 import AccountHeader from "../../components/account-header";
-import { ShoppingBag } from "lucide-react";
 
 interface OrdersPageProps {
     userId: string;
@@ -28,7 +25,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
 
     const renderContent = () => {
         if (isLoading) {
-            return Array.from({ length: 4 }).map((_, i) => (
+            return Array.from({ length: 3 }).map((_, i) => (
                 <OrderCardSkeleton key={i} />
             ));
         }
@@ -51,34 +48,24 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
             );
         }
 
-        if (!orders.length) {
-            return (
-                <div className="w-full flex flex-col items-center gap-4 col-span-full text-center">
-                    <h2 className="text-2xl font-semibold">No orders yet</h2>
-                    <p className="text-base text-muted-foreground max-w-md">
-                        You don&apos;t have any orders yet. Start shopping to
-                        place your first order.
-                    </p>
-                    <Link href="/" passHref>
-                        <Button className="mt-2">Continue shopping</Button>
-                    </Link>
-                </div>
-            );
-        }
-
         return <OrderOverview orders={orders} userId={userId} />;
     };
 
     return (
-        <div className="space-y-6">
+        <div>
             <AccountHeader
-                heading="Your Orders"
-                description="View and manage your past orders, track status, and find
-                    order details."
-                icon={ShoppingBag}
+                heading="Orders"
+                description="Every case you've ordered, with its status, receipt and delivery details."
+                aside={
+                    orders.length ? (
+                        <span className="type-label text-ink-soft">
+                            {orders.length} {orders.length === 1 ? "order" : "orders"}
+                        </span>
+                    ) : null
+                }
             />
 
-            <section className="flex flex-col gap-4">{renderContent()}</section>
+            <section className="flex flex-col">{renderContent()}</section>
         </div>
     );
 };

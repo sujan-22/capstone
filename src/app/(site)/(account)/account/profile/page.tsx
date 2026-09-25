@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { unstable_noStore } from "next/cache";
 
 export const metadata: Metadata = {
-    title: "PROFILE | DESIGNMYCASE",
+    title: "Profile",
     description:
         "Update your profile information to personalize your shopping experience.",
     robots: {

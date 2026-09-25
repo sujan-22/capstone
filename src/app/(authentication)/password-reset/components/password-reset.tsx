@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { safeRedirect } from "@/lib/utils";
+import AuthHeading from "../../components/auth-heading";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
-import Logo from "@/components/utilities/logo";
 import { useToast } from "@/hooks/use-toast";
 import useAuthStore from "@/context/use-auth-store";
 import { authClient } from "../../../../../auth-client";
@@ -64,7 +65,7 @@ const PasswordResetPage: React.FC = () => {
 
     useEffect(() => {
         const params = searchParams.get("redirectTo");
-        if (params) setRedirectTo(params);
+        if (params) setRedirectTo(safeRedirect(params));
     }, [searchParams]);
 
     const form = useForm<SignUpValues>({
@@ -117,58 +118,61 @@ const PasswordResetPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-transparent">
-            <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
-                <div className="mb-6 w-full flex flex-col items-center space-y-4">
-                    <Logo />
-                    <p className="md:text-xl lg:text-xl sm:text-xl text-md">
-                        Reset Your Password
-                    </p>
-                    <p className="text-muted-foreground text-sm text-center">
-                        Enter a new password below to regain access to your
-                        account.
-                    </p>
-                </div>
+        <>
+            <AuthHeading
+                eyebrow="Reset password"
+                title="Choose a new password"
+                description={
+                    email ? (
+                        <>
+                            Enter the code we sent to{" "}
+                            <span className="font-semibold text-ink">
+                                {email}
+                            </span>{" "}
+                            and pick a new password.
+                        </>
+                    ) : (
+                        "Enter the code from your email and pick a new password."
+                    )
+                }
+            />
 
-                <div className="w-full">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(handleSignUp)}
-                            className="grid gap-4"
-                        >
-                            {fields.map((f) => (
-                                <div key={f.name} className="py-1">
-                                    <FormInput
-                                        name={f.name}
-                                        label={f.label}
-                                        placeHolder={f.placeHolder}
-                                        type={f.type}
-                                    />
-                                    {f.name === "password" && (
-                                        <div className="mt-2">
-                                            <PasswordStrengthMeter
-                                                password={password}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(handleSignUp)}
+                    className="grid gap-5"
+                >
+                    {fields.map((f) => (
+                        <div key={f.name}>
+                            <FormInput
+                                name={f.name}
+                                label={f.label}
+                                placeHolder={f.placeHolder}
+                                type={f.type}
+                                autoComplete={
+                                    f.name === "verificationCode"
+                                        ? "one-time-code"
+                                        : "new-password"
+                                }
+                            />
+                            {f.name === "password" && (
+                                <PasswordStrengthMeter password={password} />
+                            )}
+                        </div>
+                    ))}
 
-                            <div className="pt-2">
-                                <Button
-                                    isLoading={pending}
-                                    type="submit"
-                                    className="w-full"
-                                    disabled={strength.score < 2}
-                                >
-                                    Update Password
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
-            </div>
-        </div>
+                    <Button
+                        isLoading={pending}
+                        type="submit"
+                        size="lg"
+                        className="mt-1 w-full"
+                        disabled={strength.score < 2}
+                    >
+                        Update password
+                    </Button>
+                </form>
+            </Form>
+        </>
     );
 };
 

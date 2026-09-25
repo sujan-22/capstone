@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Phone from "@/components/utilities/phone";
+import DesignRow from "../../components/design-row";
+import { formatPrice } from "@/lib/utils";
 import React from "react";
 import { IFavoriteDesign } from "@/lib/types/user-favorite-designs.types";
 import { useFavorite } from "@/hooks/use-favorite";
@@ -23,68 +24,45 @@ const FavoriteDesign = ({ design }: Props) => {
     });
 
     return (
-        <div
-            key={design.id}
+        <DesignRow
             data-testid="favorite-card"
-            className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
-        >
-            <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                <Phone
-                    imgSrc={design.croppedImgUrl}
-                    altText={design.caseName}
-                />
-            </div>
-
-            <div className="flex-1 flex flex-col gap-2">
-                <div className="flex-1 flex flex-col gap-2">
-                    <h4 className="text-lg font-semibold truncate">
-                        {design.caseName}
-                    </h4>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <p>
-                            <span className="font-medium">Model:</span>{" "}
-                            {design.modelName}
-                        </p>
-                        <p>
-                            <span className="font-medium">Color:</span>{" "}
-                            {design.color}
-                        </p>
-                        <p>
-                            <span className="font-medium">Material:</span>{" "}
-                            {design.material}
-                        </p>
-                        <p>
-                            <span className="font-medium">Finish:</span>{" "}
-                            {design.finish}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="mt-auto flex flex-wrap gap-2">
+            imgSrc={design.croppedImgUrl}
+            caseName={design.caseName}
+            modelName={design.modelName}
+            color={design.color}
+            material={design.material}
+            finish={design.finish}
+            badge={
+                <span className="shrink-0 font-mono text-[0.9375rem] font-medium">
+                    {formatPrice(design.price)}
+                </span>
+            }
+            actions={
+                <>
                     <Button
                         onClick={() => buyNow()}
-                        aria-label={`Buy ${design.caseName}`}
                         disabled={isBuyNowLoading}
                         isLoading={isBuyNowLoading}
-                        size={"sm"}
+                        size="sm"
+                        className="h-9 px-4"
                     >
-                        Buy Now
+                        Buy now
+                        <span className="sr-only">: {design.caseName}</span>
                     </Button>
-
                     <Button
                         onClick={() => toggleFavorite()}
-                        size={"sm"}
-                        aria-label={`Favorite ${design.caseName}`}
+                        size="sm"
                         disabled={loading}
                         isLoading={loading}
-                        variant={"outline"}
+                        variant="outline"
+                        className="h-9 px-4"
                     >
-                        Remove from favorite
+                        Remove from favourites
+                        <span className="sr-only">: {design.caseName}</span>
                     </Button>
-                </div>
-            </div>
-        </div>
+                </>
+            }
+        />
     );
 };
 

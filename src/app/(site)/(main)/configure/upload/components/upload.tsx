@@ -8,6 +8,7 @@ import { FileRejection } from "react-dropzone";
 import { useMutation } from "@tanstack/react-query";
 import { uploadUserImage } from "../actions/actions";
 import ImageUpload from "@/components/utilities/image-upload";
+import CropMarks from "@/components/print/crop-marks";
 
 const UploadComponent = ({ }: { userId: string }) => {
     const [isDragOver, setIsDragOver] = useState(false);
@@ -83,21 +84,22 @@ const UploadComponent = ({ }: { userId: string }) => {
     return (
         <div
             className={cn(
-                "relative h-[70vh] flex-1 w-full rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:rounded-xl flex justify-center flex-col items-center",
-                { "ring-blue-900/25 bg-blue-900/10": isDragOver }
+                "relative flex min-h-[440px] rounded-md p-3 transition-colors duration-300 sm:min-h-[560px] sm:p-4 lg:h-full",
+                isDragOver
+                    ? "bg-cobalt-tint"
+                    : "bg-paper-raised shadow-[0_1px_0_rgb(20_20_20/0.04),0_30px_60px_-40px_rgb(20_20_20/0.35)]"
             )}
         >
-            <div className="relative flex flex-1 flex-col items-center justify-center w-full">
-                <ImageUpload
-                    onDropAccepted={onDropAccepted}
-                    onDropRejected={onDropRejected}
-                    setIsDragOver={setIsDragOver}
-                    isDragOver={isDragOver}
-                    isUploading={isUploading}
-                    isPending={isPending}
-                    uploadProgress={uploadProgress}
-                />
-            </div>
+            <CropMarks gap={10} length={16} />
+            <ImageUpload
+                onDropAccepted={onDropAccepted}
+                onDropRejected={onDropRejected}
+                setIsDragOver={setIsDragOver}
+                isDragOver={isDragOver}
+                isUploading={isUploading}
+                isPending={isPending}
+                uploadProgress={uploadProgress}
+            />
         </div>
     );
 };

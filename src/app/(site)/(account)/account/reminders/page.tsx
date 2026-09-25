@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import RemindersOverviewPage from "./components/reminders-overview";
 
 export const metadata: Metadata = {
-    title: "REMINDERS | DESIGNMYCASE",
+    title: "Reminders",
     description:
         "View and manage all your upcoming reminders for your unfinished custom case designs.",
     robots: {

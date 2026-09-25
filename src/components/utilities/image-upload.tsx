@@ -1,9 +1,10 @@
-'use client";';
+"use client";
 
 import { Image, Loader2, MousePointerSquareDashed } from "lucide-react";
 import { SetStateAction } from "react";
 import Dropzone, { FileRejection } from "react-dropzone";
 import { Progress } from "../ui/progress";
+import { cn } from "@/lib/utils";
 
 interface Props {
     onDropAccepted: (files: File[]) => void;
@@ -24,6 +25,8 @@ const ImageUpload: React.FC<Props> = ({
     uploadProgress,
     onDropRejected,
 }) => {
+    const busy = isUploading || isPending;
+
     return (
         <Dropzone
             onDropRejected={onDropRejected}
@@ -36,56 +39,91 @@ const ImageUpload: React.FC<Props> = ({
             }}
             onDragEnter={() => setIsDragOver(true)}
             onDragLeave={() => setIsDragOver(false)}
+            disabled={busy}
         >
             {({ getRootProps, getInputProps }) => {
                 return (
                     <div
-                        className="h-full w-full flex flex-1 flex-col items-center justify-center"
+                        className={cn(
+                            "group flex h-full w-full flex-1 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed px-6 py-12 text-center outline-none transition-colors focus-visible:border-cobalt",
+                            isDragOver
+                                ? "border-cobalt"
+                                : "border-ink/15 hover:border-ink/35",
+                            busy && "cursor-default"
+                        )}
                         {...getRootProps()}
                     >
-                        <input {...getInputProps()} />
-                        {isDragOver ? (
-                            <MousePointerSquareDashed className="h-6 w-6 text-zinc-500" />
-                        ) : isUploading || isPending ? (
-                            <Loader2 className="animate-spin h-6 w-6 text-zinc-500 mb-2" />
-                        ) : (
-                            // eslint-disable-next-line jsx-a11y/alt-text
-                            <Image className="h-6 w-6 text-zinc-500 mb-2" />
-                        )}
+                        <input {...getInputProps()} aria-label="Upload a photo" />
 
-                        <div className="flex flex-col justify-center mb-2 text-sm text-zinc-700">
+                        <span
+                            aria-hidden
+                            className={cn(
+                                "relative flex aspect-[9/16] w-16 items-center justify-center rounded-[14px] border-2 transition-all duration-500 ease-out-expo",
+                                isDragOver
+                                    ? "-rotate-6 scale-110 border-cobalt bg-cobalt text-white"
+                                    : "border-ink/25 bg-paper text-ink-soft group-hover:-rotate-3 group-hover:border-ink/50"
+                            )}
+                        >
+                            <span className="absolute left-1.5 top-1.5 size-4 rounded-[5px] bg-current opacity-30" />
+                            {isDragOver ? (
+                                <MousePointerSquareDashed className="size-6" />
+                            ) : busy ? (
+                                <Loader2 className="size-6 animate-spin" />
+                            ) : (
+                                // eslint-disable-next-line jsx-a11y/alt-text
+                                <Image className="size-6" />
+                            )}
+                        </span>
+
+                        <div className="mt-7 flex flex-col items-center" aria-live="polite">
                             {isUploading ? (
-                                <div className="flex flex-col items-center">
-                                    <p>Uploading...</p>
+                                <>
+                                    <p className="type-title">Uploading…</p>
                                     <Progress
-                                        className="mt-2 w-40 h-2 bg-gray-300"
+                                        className="mt-5 h-1.5 w-56"
                                         value={uploadProgress}
                                     />
-                                </div>
+                                    <p className="type-label mt-3 text-ink-soft">
+                                        {uploadProgress}% sent
+                                    </p>
+                                </>
                             ) : isPending ? (
-                                <div className="flex flex-col items-center">
-                                    <p>Redirecting, please wait...</p>
-                                </div>
+                                <>
+                                    <p className="type-title">
+                                        Setting up your case
+                                    </p>
+                                    <p className="mt-3 text-ink-soft">
+                                        Redirecting, please wait…
+                                    </p>
+                                </>
                             ) : isDragOver ? (
-                                <p>
-                                    <span className="font-semibold">
-                                        Drop file{" "}
-                                    </span>
-                                    to upload
-                                </p>
+                                <>
+                                    <p className="type-title text-cobalt">
+                                        Drop file to upload
+                                    </p>
+                                    <p className="mt-3 text-ink-soft">
+                                        Let go and we&rsquo;ll put it on a case.
+                                    </p>
+                                </>
                             ) : (
-                                <p>
-                                    <span className="font-semibold">
-                                        Click to upload{" "}
-                                    </span>
-                                    or drag and drop
-                                </p>
+                                <>
+                                    <p className="type-title">
+                                        Drop your photo here
+                                    </p>
+                                    <p className="mt-3 text-ink-soft">
+                                        or{" "}
+                                        <span className="font-semibold text-cobalt underline underline-offset-4">
+                                            click to browse
+                                        </span>{" "}
+                                        your files
+                                    </p>
+                                </>
                             )}
                         </div>
 
-                        {isPending ? null : (
-                            <p className="text-xs text-zinc-500">
-                                PNG, JPG, JPEG
+                        {busy ? null : (
+                            <p className="type-label mt-8 text-ink-soft">
+                                PNG, JPG or JPEG · up to 10 MB
                             </p>
                         )}
                     </div>

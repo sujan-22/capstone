@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import Phone from "@/components/utilities/phone";
+import PressSheet from "@/components/print/press-sheet";
+import PrintedCase from "@/components/print/printed-case";
+import { ArrowRight, Lock } from "lucide-react";
 import { createCheckoutSession, getDesignPreview } from "../actions/actions";
 import { IUser } from "../../../../../../../../auth-client";
 import DesignSummary from "./design-summary";
@@ -93,9 +95,9 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
     const design = data.design;
 
     return (
-        <div className=" mt-3 flex flex-col md:flex-row gap-6">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
             <div
-                className="pointer-events-none select-none fixed inset-0 overflow-visible flex items-start justify-center z-[10000000]"
+                className="pointer-events-none fixed inset-0 z-[10000000] flex select-none items-start justify-center overflow-visible"
                 aria-hidden="true"
             >
                 <Confetti
@@ -104,48 +106,87 @@ const DesignPreviewOverview = ({ id: designId, user }: Props) => {
                         angle: 90,
                         spread: 90,
                         startVelocity: 40,
-                        elementCount: 100,
+                        elementCount: 110,
                         dragFriction: 0.12,
                         duration: CONFETTI_DURATION_MS,
                         stagger: 3,
                         width: "8px",
                         height: "14px",
-                        colors: ["#000", "#333", "#666"],
+                        colors: ["#00a3e0", "#e6007e", "#ffe500", "#141414", "#2a36f0"],
                     }}
                 />
             </div>
-            <div className="flex-shrink-0 mx-auto md:mx-0 flex items-start">
-                <div className="relative sm:w-48 w-56 h-auto lg:w-64 rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                    <Phone
-                        imgSrc={design.croppedImageUrl}
-                        altText={design.caseName}
+
+            <div className="min-w-0 lg:col-span-7">
+                <div className="relative lg:sticky lg:top-24">
+                    <div
+                        aria-hidden
+                        className="halftone absolute inset-x-6 bottom-10 top-10 rounded-[3px] bg-cobalt text-white/[0.16] sm:inset-x-10"
                     />
+                    <PressSheet
+                        className="relative mx-auto w-full max-w-[520px]"
+                        slug={
+                            <>
+                                Proof · {design.modelName} · {design.material} ·{" "}
+                                {design.finish}
+                            </>
+                        }
+                        footer="1 of 1 · awaiting approval"
+                        trimClassName="w-[200px] sm:w-[250px]"
+                    >
+                        <PrintedCase
+                            src={design.croppedImageUrl}
+                            alt={`Proof of your ${design.caseName} case`}
+                            sizes="(max-width: 640px) 200px, 250px"
+                            background={design.colorHex}
+                            priority
+                        />
+                    </PressSheet>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-4">
-                <DesignSummary design={design} />
+            <div className="min-w-0 lg:col-span-5">
+                <p className="type-label text-ink-soft">Step 03 · Proof</p>
+                <h1 className="type-display mt-4 !text-[clamp(2.5rem,4.6vw,4rem)]">
+                    Check your proof.
+                </h1>
+                <p className="mt-5 text-lg leading-relaxed text-ink-soft">
+                    This is exactly what we&rsquo;ll print. Happy with it?
+                    Approve it to continue to secure checkout with Stripe.
+                </p>
 
-                <div className="mt-4 flex gap-3 justify-end">
+                <div className="mt-10">
+                    <DesignSummary design={design} />
+                </div>
+
+                <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row">
                     <Button
-                        size={"sm"}
-                        variant={"outline"}
+                        size="lg"
+                        variant="outline"
+                        className="sm:flex-1"
                         onClick={() =>
                             router.push(`/configure/customize/${designId}`)
                         }
                     >
-                        Edit Selections
+                        Edit selections
                     </Button>
 
                     <Button
-                        size={"sm"}
+                        size="lg"
+                        className="sm:flex-[1.4]"
                         onClick={() => handleCheckout()}
                         isLoading={isPending}
                         disabled={isPending}
+                        icon={ArrowRight}
+                        iconPosition="right"
                     >
-                        Checkout
+                        Approve &amp; checkout
                     </Button>
                 </div>
+                <p className="mt-4 flex items-center gap-2 text-xs text-ink-soft">
+                    <Lock aria-hidden className="size-3.5" />
+                    Payments are processed securely by Stripe.
+                </p>
             </div>
         </div>
     );

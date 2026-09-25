@@ -1,127 +1,85 @@
 import React from "react";
+import { Check } from "lucide-react";
 import { usePasswordStrength } from "@/hooks/use-password-strength";
-import { FaCircleCheck } from "react-icons/fa6";
-import { GoDotFill } from "react-icons/go";
+import { cn } from "@/lib/utils";
 
 type Props = {
     password: string;
 };
 
+const TONES = [
+    "bg-destructive",
+    "bg-destructive",
+    "bg-[#d4a900]",
+    "bg-cobalt",
+    "bg-success",
+];
+
 export default function PasswordStrengthMeter({ password }: Props) {
-    const { score, label, percent, suggestions, checks } =
+    const { score, label, suggestions, checks } =
         usePasswordStrength(password);
 
-    const color =
-        score <= 1
-            ? "bg-red-500"
-            : score === 2
-            ? "bg-yellow-500"
-            : score === 3
-            ? "bg-amber-600"
-            : "bg-green-500";
-
     if (!password) {
-        return;
+        return null;
     }
 
+    const rules = [
+        { ok: checks.length, text: "Minimum 8 characters" },
+        { ok: checks.upper, text: "Uppercase letter" },
+        { ok: checks.lower, text: "Lowercase letter" },
+        { ok: checks.number, text: "Number" },
+        { ok: checks.special, text: "Special character" },
+    ];
+
     return (
-        <div className="mt-2">
-            <div className="w-full h-2 bg-slate-200 rounded overflow-hidden">
-                <div
-                    className={`h-full ${color}`}
-                    style={{
-                        width: `${percent}%`,
-                        transition: "width 200ms ease",
-                    }}
-                    aria-hidden
-                />
+        <div className="mt-3">
+            <div className="flex items-center gap-3">
+                <div className="grid flex-1 grid-cols-4 gap-1" aria-hidden>
+                    {[1, 2, 3, 4].map((step) => (
+                        <span
+                            key={step}
+                            className={cn(
+                                "h-1.5 rounded-full transition-colors duration-300",
+                                score >= step ? TONES[score] : "bg-ink/10"
+                            )}
+                        />
+                    ))}
+                </div>
+                <span className="type-label w-16 text-right text-ink">
+                    {label}
+                </span>
             </div>
 
-            <div className="flex items-center justify-between mt-2 text-xs">
-                <div className="font-medium">{label}</div>
-                <div className="text-muted-foreground">{percent}%</div>
-            </div>
-
-            <ul className="mt-2 text-xs space-y-1">
-                <li
-                    className={`flex items-center ${
-                        checks.length ? "text-green-600" : "text-red-600"
-                    }`}
-                >
-                    <span className="mr-2 text-sm">
-                        {checks.length ? (
-                            <FaCircleCheck className=" w-4 h-4" />
-                        ) : (
-                            <GoDotFill className=" w-4 h-4" />
+            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                {rules.map((rule) => (
+                    <li
+                        key={rule.text}
+                        className={cn(
+                            "flex items-center gap-1.5",
+                            rule.ok ? "text-success" : "text-ink-soft"
                         )}
-                    </span>
-                    Minimum {8} characters
-                </li>
-                <li
-                    className={`flex items-center ${
-                        checks.upper ? "text-green-600" : "text-red-600"
-                    }`}
-                >
-                    <span className="mr-2 text-sm">
-                        {checks.upper ? (
-                            <FaCircleCheck className=" w-4 h-4" />
-                        ) : (
-                            <GoDotFill className=" w-4 h-4" />
-                        )}
-                    </span>
-                    Uppercase letter
-                </li>
-                <li
-                    className={`flex items-center ${
-                        checks.lower ? "text-green-600" : "text-red-600"
-                    }`}
-                >
-                    <span className="mr-2 text-sm">
-                        {checks.lower ? (
-                            <FaCircleCheck className=" w-4 h-4" />
-                        ) : (
-                            <GoDotFill className=" w-4 h-4" />
-                        )}
-                    </span>
-                    Lowercase letter
-                </li>
-                <li
-                    className={`flex items-center ${
-                        checks.number ? "text-green-600" : "text-red-600"
-                    }`}
-                >
-                    <span className="mr-2 text-sm">
-                        {checks.number ? (
-                            <FaCircleCheck className=" w-4 h-4" />
-                        ) : (
-                            <GoDotFill className=" w-4 h-4" />
-                        )}
-                    </span>
-                    Number
-                </li>
-                <li
-                    className={`flex items-center ${
-                        checks.special ? "text-green-600" : "text-red-600"
-                    }`}
-                >
-                    <span className="mr-2 text-sm">
-                        {checks.special ? (
-                            <FaCircleCheck className=" w-4 h-4" />
-                        ) : (
-                            <GoDotFill className=" w-4 h-4" />
-                        )}
-                    </span>
-                    Special character
-                </li>
+                    >
+                        <span
+                            aria-hidden
+                            className={cn(
+                                "flex size-3.5 items-center justify-center rounded-full",
+                                rule.ok ? "bg-success text-white" : "border border-ink/25"
+                            )}
+                        >
+                            {rule.ok ? <Check className="size-2.5" strokeWidth={3} /> : null}
+                        </span>
+                        {rule.text}
+                        <span className="sr-only">
+                            {rule.ok ? " (done)" : " (missing)"}
+                        </span>
+                    </li>
+                ))}
             </ul>
 
             {suggestions.length > 0 && (
-                <div
-                    className="mt-2 text-xs text-muted-foreground"
-                    aria-live="polite"
-                >
+                <p className="mt-2 text-xs text-ink-soft" aria-live="polite">
                     {suggestions[0]}
-                </div>
+                </p>
             )}
         </div>
     );

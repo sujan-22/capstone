@@ -48,6 +48,7 @@ export async function GET(
         cd.cropped_image_url AS "croppedImageUrl",
         pm.model_name AS "modelName",
         cc.name AS "color",
+        cc.hex AS "colorHex",
         cm.name AS "material",
         cm.price AS "materialPrice",
         cf.name AS "finish",

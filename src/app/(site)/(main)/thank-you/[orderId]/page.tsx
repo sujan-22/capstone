@@ -2,10 +2,11 @@ import React, { Suspense } from "react";
 import { getServerSideSession } from "@/hooks/use-session";
 import { Metadata } from "next";
 import ThankyouComponent from "./components/thank-you";
+import MaxWidthWrapper from "@/components/utilities/max-width-wrapper";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-    title: "Order Confirmation | DESIGNMYCASE",
+    title: "Order confirmed",
     description:
         "Thank you for your order! Your custom phone case is being processed. View your order details and track its status with DESIGNMYCASE.",
     keywords: [
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
         "custom phone cover purchase",
     ],
     openGraph: {
-        title: "Order Confirmed | DESIGNMYCASE",
+        title: "Order confirmed · DesignMyCase",
         description:
             "Your order has been successfully placed! Thank you for choosing DESIGNMYCASE. Track your order and stay updated on its progress.",
         type: "website",
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Order Confirmed | DESIGNMYCASE",
+        title: "Order confirmed · DesignMyCase",
         description:
             "Your custom phone case order is confirmed! Thank you for shopping with DESIGNMYCASE.",
     },
@@ -47,8 +48,10 @@ export default async function Page({
     }
 
     return (
-        <Suspense>
-            <ThankyouComponent user={user} orderId={orderId} />
-        </Suspense>
+        <MaxWidthWrapper>
+            <Suspense>
+                <ThankyouComponent user={user} orderId={orderId} />
+            </Suspense>
+        </MaxWidthWrapper>
     );
 }

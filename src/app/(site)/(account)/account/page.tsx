@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-    title: "ACCOUNT | DESIGNMYCASE",
+    title: "Account",
     description:
         "Manage your account details, view your profile, and access your order history with DESIGNMYCASE.",
     robots: {

@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import OrderDetailsPage from "./components/order-details";
 
 export const metadata: Metadata = {
-    title: "ORDER DETAILS | DESIGNMYCASE",
+    title: "Order details",
     description:
         "View detailed information about your order, including the case design, model, color, material, finish, and shipping details on DESIGNMYCASE.",
     robots: {

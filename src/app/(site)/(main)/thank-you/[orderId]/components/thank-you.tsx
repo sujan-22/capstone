@@ -30,7 +30,7 @@ const ThankyouComponent = ({
 
     if (isError) {
         return (
-            <div className="flex justify-center items-center mt-auto min-h-[80vh]">
+            <div className="flex min-h-[70vh] items-center justify-center">
                 <ErrorMessage
                     message="There was an error from our end. Please try again later!"
                     onRetry={() => refetch()}
@@ -41,20 +41,24 @@ const ThankyouComponent = ({
 
     if (data?.status === 403) {
         return (
-            <div className="flex flex-col justify-center items-center mt-auto min-h-[80vh] text-center px-4">
-                <h2 className="text-2xl font-semibold mb-3">
-                    Payment Not Received
-                </h2>
-                <p className="text-muted-foreground max-w-md mb-6">
-                    We couldn’t process your payment for this order. Don’t
-                    worry, your design has been automatically saved! You can
-                    review it on your{" "}
-                    <span className="font-medium text-primary">
+            <div className="flex min-h-[70vh] flex-col items-start justify-center py-16">
+                <p className="type-label text-destructive">
+                    Payment not received
+                </p>
+                <h1 className="type-display mt-5 max-w-[14ch] !text-[clamp(2.5rem,5vw,4.5rem)]">
+                    We couldn&rsquo;t take payment for this order.
+                </h1>
+                <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
+                    Don&rsquo;t worry, your design has been saved
+                    automatically. You&rsquo;ll find it in your{" "}
+                    <span className="font-semibold text-ink">
                         Unfinished Designs
-                    </span>{" "}
-                    page and try again when you’re ready.
+                    </span>
+                    , ready to try again whenever you are.
                 </p>
                 <Button
+                    size="lg"
+                    className="mt-8"
                     onClick={() => router.push("/account/unfinished-designs")}
                 >
                     Go to Unfinished Designs

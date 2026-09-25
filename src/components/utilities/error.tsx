@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 interface ErrorMessageProps {
     message?: string;
@@ -16,9 +17,19 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
 }) => {
     return (
         <div
-            className={`flex flex-col items-center justify-center gap-3 text-center text-red-600 min-h-auto ${className}`}
+            role="alert"
+            className={cn(
+                "flex flex-col items-center justify-center gap-4 px-6 py-12 text-center",
+                className
+            )}
         >
-            <p className="text-sm sm:text-base">{message}</p>
+            <span
+                aria-hidden
+                className="flex size-10 items-center justify-center rounded-full bg-destructive/10 font-mono text-lg font-semibold text-destructive"
+            >
+                !
+            </span>
+            <p className="max-w-md text-base text-ink">{message}</p>
             {onRetry && (
                 <Button variant="outline" size="sm" onClick={onRetry}>
                     Retry

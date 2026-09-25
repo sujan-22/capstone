@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { safeRedirect } from "@/lib/utils";
+import AuthHeading from "../../components/auth-heading";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
-import Logo from "@/components/utilities/logo";
 import { authClient } from "../../../../../auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -40,7 +42,7 @@ const ForgotPasswordPage: React.FC = () => {
 
     useEffect(() => {
         const params = searchParams.get("redirectTo");
-        if (params) setRedirectTo(params);
+        if (params) setRedirectTo(safeRedirect(params));
     }, [searchParams]);
 
     const form = useForm<VerificationValues>({
@@ -86,48 +88,50 @@ const ForgotPasswordPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-transparent">
-            <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
-                <div className="mb-6 w-full flex flex-col items-center space-y-4">
-                    <Logo />
-                    <p className="md:text-xl lg:text-xl sm:text-xl text-md">
-                        Reset Your Password
-                    </p>
-                    <p className="text-muted-foreground text-sm text-center">
-                        Enter your registered email address and we will send you
-                        a verification code.
-                    </p>
-                </div>
+        <>
+            <AuthHeading
+                eyebrow="Reset password"
+                title="Forgot your password?"
+                description="Enter the email address on your account and we'll send you a 6-digit code to reset it."
+            />
 
-                <div className="w-full">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(handleVerification)}
-                            className="grid gap-4"
-                        >
-                            {fields.map((f) => (
-                                <div key={f.name} className="py-1">
-                                    <FormInput
-                                        name={f.name}
-                                        label={f.label}
-                                        placeHolder={f.placeHolder}
-                                        type={f.type}
-                                    />
-                                </div>
-                            ))}
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(handleVerification)}
+                    className="grid gap-5"
+                >
+                    {fields.map((f) => (
+                        <FormInput
+                            key={f.name}
+                            name={f.name}
+                            label={f.label}
+                            placeHolder={f.placeHolder}
+                            type={f.type}
+                            autoComplete="email"
+                        />
+                    ))}
 
-                            <Button
-                                isLoading={pending}
-                                type="submit"
-                                className="w-full mt-2"
-                            >
-                                Send Code
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
-            </div>
-        </div>
+                    <Button
+                        isLoading={pending}
+                        type="submit"
+                        size="lg"
+                        className="mt-1 w-full"
+                    >
+                        Send code
+                    </Button>
+                </form>
+            </Form>
+
+            <p className="mt-8 text-center text-sm text-ink-soft">
+                Remembered it?{" "}
+                <Link
+                    href="/sign-in"
+                    className="font-semibold text-cobalt underline-offset-4 hover:underline"
+                >
+                    Back to sign in
+                </Link>
+            </p>
+        </>
     );
 };
 

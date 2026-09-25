@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-    title: "ORDERS | DESIGNMYCASE",
+    title: "Orders",
     description:
         "View and manage your past phone case orders. Track order status, view details, and reorder your favorite designs.",
     robots: {

@@ -9,6 +9,7 @@ import { useFavorite } from "@/hooks/use-favorite";
 const push = jest.fn();
 jest.mock("next/navigation", () => ({
     useRouter: () => ({ push }),
+    usePathname: () => "/",
 }));
 
 const toggleFavorite = jest.fn();
@@ -49,7 +50,7 @@ jest.mock("@/components/utilities/phone", () => {
 });
 
 const baseProps = {
-    id: "design-1",
+    id: "design-1234",
     imgSrc: "/img.jpg",
     altText: "Cool case",
     caseName: "Aurora Borealis",
@@ -79,14 +80,15 @@ describe("<CaseDesignComponent />", () => {
             screen.getByRole("heading", { name: /Aurora Borealis/i })
         ).toBeInTheDocument();
 
-        expect(screen.getByText("Model:")).toBeInTheDocument();
+        expect(screen.getByText("Model")).toBeInTheDocument();
         expect(screen.getByText("iPhone 15 Pro")).toBeInTheDocument();
-        expect(screen.getByText("Color:")).toBeInTheDocument();
+        expect(screen.getByText("Colour")).toBeInTheDocument();
         expect(screen.getByText("Black")).toBeInTheDocument();
-        expect(screen.getByText("Material:")).toBeInTheDocument();
+        expect(screen.getByText("Material")).toBeInTheDocument();
         expect(screen.getByText("Polycarbonate")).toBeInTheDocument();
-        expect(screen.getByText("Finish:")).toBeInTheDocument();
+        expect(screen.getByText("Finish")).toBeInTheDocument();
         expect(screen.getByText("Matte")).toBeInTheDocument();
+        expect(screen.getByText(/No\. DESIGN/)).toBeInTheDocument();
 
         expect(screen.getByText("$39.99")).toBeInTheDocument();
 
@@ -107,7 +109,7 @@ describe("<CaseDesignComponent />", () => {
         );
 
         const buyBtn = screen.getByRole("button", {
-            name: /Buy Aurora Borealis/i,
+            name: /Buy now\s?: Aurora Borealis/i,
         });
         await user.click(buyBtn);
 
@@ -121,12 +123,44 @@ describe("<CaseDesignComponent />", () => {
         render(<CaseDesignComponent {...baseProps} user={null} />);
 
         const favBtn = screen.getByRole("button", {
-            name: /Favorite Aurora Borealis/i,
+            name: /Save\s?: Aurora Borealis/i,
         });
         await user.click(favBtn);
 
-        expect(push).toHaveBeenCalledWith("/sign-in");
+        expect(push).toHaveBeenCalledWith("/sign-in?redirectTo=%2F");
         expect(toggleFavorite).not.toHaveBeenCalled();
+    });
+
+    it("redirects to /sign-in instead of buying when there is no user", async () => {
+        const user = userEvent.setup();
+
+        render(<CaseDesignComponent {...baseProps} user={null} />);
+
+        await user.click(
+            screen.getByRole("button", { name: /Buy now\s?: Aurora Borealis/i })
+        );
+
+        expect(push).toHaveBeenCalledWith("/sign-in?redirectTo=%2F");
+        expect(buyNow).not.toHaveBeenCalled();
+    });
+
+    it("marks the save button as pressed when the design is favourited", () => {
+        (useFavorite as jest.Mock).mockReturnValueOnce({
+            isFavorited: true,
+            toggleFavorite,
+            loading: false,
+        });
+
+        render(
+            <CaseDesignComponent
+                {...baseProps}
+                user={{ id: "user-123" } as any}
+            />
+        );
+
+        expect(
+            screen.getByRole("button", { name: /Saved\s?: Aurora Borealis/i })
+        ).toHaveAttribute("aria-pressed", "true");
     });
 
     it("calls toggleFavorite and invalidates queries when user favorites", async () => {
@@ -140,7 +174,7 @@ describe("<CaseDesignComponent />", () => {
         );
 
         const favBtn = screen.getByRole("button", {
-            name: /Favorite Aurora Borealis/i,
+            name: /Save\s?: Aurora Borealis/i,
         });
         await userEv.click(favBtn);
 
@@ -175,10 +209,10 @@ describe("<CaseDesignComponent />", () => {
         );
 
         const buyBtn = screen.getByRole("button", {
-            name: /Buy Aurora Borealis/i,
+            name: /Buy now\s?: Aurora Borealis/i,
         });
         const favBtn = screen.getByRole("button", {
-            name: /Favorite Aurora Borealis/i,
+            name: /Save\s?: Aurora Borealis/i,
         });
 
         expect(buyBtn).toBeDisabled();

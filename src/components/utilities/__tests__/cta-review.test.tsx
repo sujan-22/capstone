@@ -2,55 +2,50 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import CalltoActionReviewDesign from "../cta-review";
-import userEvent from "@testing-library/user-event";
 
-jest.mock("../custom-image", () => {
-    return function MockCustomImage(props: any) {
+jest.mock("next/image", () => ({
+    __esModule: true,
+    // eslint-disable-next-line @next/next/no-img-element
+    default: (props: any) => <img src={props.src} alt={props.alt} />,
+}));
+
+jest.mock("../phone", () => {
+    return function MockPhone(props: any) {
         return (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-                data-testid={`img-${props.alt}`}
-                alt={props.alt}
-                src={props.src}
+            <div
+                data-testid="phone"
+                data-src={props.imgSrc}
+                aria-label={props.altText}
             />
         );
     };
 });
 
-jest.mock("../phone", () => {
-    return function MockPhone(props: any) {
-        return <div data-testid="phone" data-src={props.imgSrc} />;
-    };
-});
-
 describe("<CalltoActionReviewDesign />", () => {
-    it("renders heading, description, and visuals", () => {
+    it("renders heading, description, and the photo-to-case visual", () => {
         render(<CalltoActionReviewDesign />);
 
         expect(
             screen.getByRole("heading", {
-                name: /Turn your favorite photo into a one-of-a-kind phone case/i,
+                name: /Turn your favourite photo into a one-of-a-kind case/i,
                 level: 2,
             })
         ).toBeInTheDocument();
 
         expect(
-            screen.getByText(
-                /Upload any image - a memory, a design, or your artwork/i
-            )
+            screen.getByText(/Upload any image, a memory, a design or your own artwork/i)
         ).toBeInTheDocument();
 
-        expect(screen.getByTestId("img-uploaded preview")).toBeInTheDocument();
         expect(
-            screen.getByTestId("img-arrow connecting preview")
-        ).toBeInTheDocument();
+            screen.getByRole("img", { name: /The original photo/i })
+        ).toHaveAttribute("src", "/assets/homepage/gallery_16.jpg");
         expect(screen.getByTestId("phone")).toHaveAttribute(
             "data-src",
             "/assets/homepage/gallery_16.jpg"
         );
     });
 
-    it("lists product features", () => {
+    it("lists product specs", () => {
         render(<CalltoActionReviewDesign />);
         expect(
             screen.getByText(/Premium flexible silicone material/i)
@@ -64,17 +59,15 @@ describe("<CalltoActionReviewDesign />", () => {
         expect(
             screen.getByText(/5-year print durability guarantee/i)
         ).toBeInTheDocument();
+        expect(
+            screen.getByText(/Free with FedEx, up to 3 working days/i)
+        ).toBeInTheDocument();
     });
 
-    it('links to "/configure/upload" with the CTA', async () => {
+    it('links to "/configure/upload" with the CTA', () => {
         render(<CalltoActionReviewDesign />);
-        const link = screen.getByRole("link", {
-            name: /Start designing your case/i,
-        });
-        expect(link).toHaveAttribute("href", "/configure/upload");
-
-        const user = userEvent.setup();
-        await user.click(link);
-        expect(link).toBeInTheDocument();
+        expect(
+            screen.getByRole("link", { name: /Start designing your case/i })
+        ).toHaveAttribute("href", "/configure/upload");
     });
 });

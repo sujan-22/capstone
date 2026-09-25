@@ -75,7 +75,7 @@ export async function GET(req: Request) {
   series AS (
     SELECT generate_series(
       date_trunc('day', ($1::timestamptz AT TIME ZONE $3))::timestamptz,
-      date_trunc('day', (($2::timestamptz - interval '1 day') AT TIME ZONE $3))::timestamptz,
+      date_trunc('day', ($2::timestamptz AT TIME ZONE $3))::timestamptz,
       interval '1 day'
     ) AS day_start_local
   ),

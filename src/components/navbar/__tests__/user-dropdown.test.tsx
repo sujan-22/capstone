@@ -96,7 +96,7 @@ describe("<UserDropdown />", () => {
         ).toHaveAttribute("href", "/featured-designs");
 
         expect(
-            screen.getByRole("menuitem", { name: /Create Case/i })
+            screen.getByRole("menuitem", { name: /Create a case/i })
         ).toBeInTheDocument();
 
         expect(
@@ -104,11 +104,11 @@ describe("<UserDropdown />", () => {
         ).toBeInTheDocument();
     });
 
-    it("routes Create Case via router.push, and signs out for logged-in user", async () => {
+    it("routes Create a case via router.push, and signs out for logged-in user", async () => {
         const u = userEvent.setup();
         render(<UserDropdown user={user} />);
 
-        await u.click(screen.getByRole("menuitem", { name: /Create Case/i }));
+        await u.click(screen.getByRole("menuitem", { name: /Create a case/i }));
         expect(push).toHaveBeenCalledWith("/configure/upload");
 
         await u.click(screen.getByRole("menuitem", { name: /Sign out/i }));
@@ -119,7 +119,7 @@ describe("<UserDropdown />", () => {
         render(<UserDropdown user={admin} />);
 
         const menu = screen.getByTestId("dropdown-content");
-        expect(within(menu).getByText(/^Admin$/i)).toBeInTheDocument();
+        expect(within(menu).getByText("Admin")).toBeInTheDocument();
 
         const adminLink = screen.getByRole("link", {
             name: /Admin Dashboard/i,
@@ -132,6 +132,20 @@ describe("<UserDropdown />", () => {
         expect(
             screen.queryByRole("link", { name: /Admin Dashboard/i })
         ).toBeNull();
+    });
+
+    it("hides the Create a case item for admins", () => {
+        render(<UserDropdown user={admin} />);
+        expect(
+            screen.queryByRole("menuitem", { name: /Create a case/i })
+        ).toBeNull();
+    });
+
+    it("shows the signed-in user's name and email", () => {
+        render(<UserDropdown user={user} />);
+        const menu = screen.getByTestId("dropdown-content");
+        expect(within(menu).getByText("User One")).toBeInTheDocument();
+        expect(within(menu).getByText("u@example.com")).toBeInTheDocument();
     });
 
     it("renders Sign in and routes to /sign-in for anonymous user", async () => {

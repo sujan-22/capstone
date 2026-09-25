@@ -1,7 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import Phone from "@/components/utilities/phone";
+import { Button, buttonVariants } from "@/components/ui/button";
+import DesignRow from "../../components/design-row";
+import { Trash2 } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,67 +24,48 @@ const UnfinishedDesign = ({ design }: Props) => {
     });
 
     return (
-        <div
-            key={design.id}
-            className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
-        >
-            <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                <Phone
-                    imgSrc={design.croppedImgUrl ?? design.imgSrc}
-                    altText={design.caseName}
-                />
-            </div>
-
-            <div className="flex-1 flex flex-col gap-2">
-                <div className="flex-1 flex flex-col gap-2">
-                    <h4 className="text-lg font-semibold truncate">
-                        {design.caseName}
-                    </h4>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <p>
-                            <span className="font-medium">Model:</span>{" "}
-                            {design.modelName}
-                        </p>
-                        <p>
-                            <span className="font-medium">Color:</span>{" "}
-                            {design.color}
-                        </p>
-                        <p>
-                            <span className="font-medium">Material:</span>{" "}
-                            {design.material}
-                        </p>
-                        <p>
-                            <span className="font-medium">Finish:</span>{" "}
-                            {design.finish}
-                        </p>
-                    </div>
-
-                    <p className="text-sm">
-                        <span className="font-medium">Last modified on:</span>{" "}
+        <DesignRow
+            imgSrc={design.croppedImgUrl ?? design.imgSrc}
+            caseName={design.caseName}
+            modelName={design.modelName}
+            color={design.color}
+            material={design.material}
+            finish={design.finish}
+            meta={
+                <>
+                    Last edited{" "}
+                    <span className="font-medium text-ink">
                         {design.updatedAt
-                            ? new Date(design.updatedAt).toLocaleString()
+                            ? formatDate(design.updatedAt)
                             : "N/A"}
-                    </p>
-                </div>
-
-                <div className="mt-auto flex flex-wrap gap-2">
-                    <Link href={`/configure/customize/${design.id}`} passHref>
-                        <Button size="sm">Continue Customizing</Button>
+                    </span>
+                </>
+            }
+            actions={
+                <>
+                    <Link
+                        href={`/configure/customize/${design.id}`}
+                        className={buttonVariants({
+                            size: "sm",
+                            className: "h-9 px-4",
+                        })}
+                    >
+                        Continue customising
                     </Link>
-
                     <Button
                         size="sm"
-                        variant="destructive"
+                        variant="ghost"
+                        className="h-9 px-4 text-destructive hover:bg-destructive/10"
                         onClick={() => deleteMutation.mutate()}
                         disabled={deleteMutation.isPending}
                         isLoading={deleteMutation.isPending}
                     >
-                        Delete Design
+                        <Trash2 aria-hidden className="size-4" />
+                        Delete design
                     </Button>
-                </div>
-            </div>
-        </div>
+                </>
+            }
+        />
     );
 };
 

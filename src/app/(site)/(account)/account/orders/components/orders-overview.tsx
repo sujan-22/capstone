@@ -1,45 +1,34 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
 import OrderCard from "./order";
+import EmptyState from "../../components/empty-state";
 
-const OrderOverview = ({ orders, userId }: { orders: IUserOrderWithDesign[], userId: string }) => {
+const OrderOverview = ({
+    orders,
+    userId,
+}: {
+    orders: IUserOrderWithDesign[];
+    userId: string;
+}) => {
     if (orders?.length) {
         return (
-            <div className="flex flex-col gap-y-6 sm:gap-y-8 w-full">
+            <div className="flex w-full flex-col">
                 {orders.map((o) => (
-                    <div
-                        key={o.id}
-                        className="pb-2 last:pb-0 last:border-none h-full"
-                    >
-                        <OrderCard order={o} userId={userId} />
-                        <Separator />
-                    </div>
+                    <OrderCard key={o.id} order={o} userId={userId} />
                 ))}
             </div>
         );
     }
 
     return (
-        <div
-            className="w-full flex flex-col items-center gap-y-4"
+        <EmptyState
             data-testid="no-orders-container"
-        >
-            <h2 className="text-large-semi">Nothing to see here</h2>
-            <p className="text-base-regular">
-                You don&apos;t have any orders yet, let us change that {":)"}
-            </p>
-            <div className="mt-4">
-                <Link href="/" passHref>
-                    <Button data-testid="continue-shopping-button">
-                        Continue shopping
-                    </Button>
-                </Link>
-            </div>
-        </div>
+            title="No orders yet"
+            description="You haven't ordered a case yet. Upload a photo and your first one is a few minutes away."
+            href="/configure/upload"
+            cta="Start a case"
+        />
     );
 };
 

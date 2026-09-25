@@ -2,38 +2,26 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import SmallLogo from "../small-logo";
 
-jest.mock("next/font/google", () => ({
-    Italiana: () => ({ className: "font-italiana" }),
-}));
-
 jest.mock("@/lib/utils", () => ({
     cn: (...classes: string[]) => classes.filter(Boolean).join(" "),
 }));
 
 describe("<SmallLogo />", () => {
-    it("renders brand text with proper structure", () => {
+    it("renders the brand name with 'My' in the accent colour", () => {
         render(<SmallLogo />);
 
-        const logo = screen.getByText(/DESIGN/i);
-
-        expect(logo).toBeInTheDocument();
-        expect(logo).toHaveTextContent("DESIGNMYCASE");
-
-        const blueSpan = screen.getByText("MY");
-        expect(blueSpan).toHaveClass("text-blue-600");
+        const logo = screen.getByText(/Design/);
+        expect(logo).toHaveTextContent("DesignMyCase");
+        expect(screen.getByText("My")).toHaveClass("text-cobalt");
     });
 
-    it("applies Italiana font class and default styles", () => {
+    it("applies default styles", () => {
         render(<SmallLogo />);
-        const logo = screen.getByText(/DESIGN/i);
-
-        expect(logo.className).toMatch(/font-italiana/);
-        expect(logo.className).toMatch(/text-primary/);
+        expect(screen.getByText(/Design/).className).toMatch(/font-bold/);
     });
 
     it("applies custom className when provided", () => {
         render(<SmallLogo className="extra-style" />);
-        const logo = screen.getByText(/DESIGN/i);
-        expect(logo.className).toMatch(/extra-style/);
+        expect(screen.getByText(/Design/).className).toMatch(/extra-style/);
     });
 });

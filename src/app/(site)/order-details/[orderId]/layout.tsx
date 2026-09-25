@@ -1,19 +1,19 @@
 import LayoutHeader from "@/components/utilities/layout-header";
 
-interface FeaturedDesignsLayoutProps {
+interface OrderDetailsLayoutProps {
     children: React.ReactNode;
 }
 
-export default function FeaturedDesignsLayout({
+export default function OrderDetailsLayout({
     children,
-}: FeaturedDesignsLayoutProps) {
+}: OrderDetailsLayoutProps) {
     return (
         <LayoutHeader
-            heading="Order Details"
-            description="View the specifics of your order, including items purchased,
-                    shipping information, and order status."
+            eyebrow="Order details"
+            heading="Your order"
+            description="Everything about this order: the case you designed, where it's going, its status and what you paid."
         >
-            <div className="flex-1">{children}</div>
+            {children}
         </LayoutHeader>
     );
 }

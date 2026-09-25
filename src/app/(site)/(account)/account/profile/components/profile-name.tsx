@@ -96,21 +96,25 @@ const ProfileName = ({ currentUser }: { currentUser: IUser }) => {
                 <div className="flex gap-2">
                     <Input
                         name="fname"
-                        placeholder="First Name"
+                        aria-label="First name"
+                        autoComplete="given-name"
+                        placeholder="First name"
                         value={fname}
                         onChange={(e) => setFname(e.target.value)}
                         disabled={loading}
                     />
                     <Input
                         name="lname"
-                        placeholder="Last Name (optional)"
+                        aria-label="Last name (optional)"
+                        autoComplete="family-name"
+                        placeholder="Last name (optional)"
                         value={lname}
                         onChange={(e) => setLname(e.target.value)}
                         disabled={loading}
                     />
                 </div>
                 {errorState && (
-                    <p className="text-red-500 mt-2">{errorState}</p>
+                    <p className="text-destructive mt-2">{errorState}</p>
                 )}
             </AccountInfo>
         </form>

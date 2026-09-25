@@ -19,6 +19,15 @@ jest.mock("next/navigation", () => ({
 }));
 
 const toast = jest.fn();
+jest.mock("next/link", () => ({
+    __esModule: true,
+    default: ({ href, children, ...rest }: any) => (
+        <a href={href} {...rest}>
+            {children}
+        </a>
+    ),
+}));
+
 jest.mock("@/hooks/use-toast", () => ({
     useToast: () => ({ toast }),
 }));
@@ -57,10 +66,6 @@ jest.mock("../utilities/max-width-wrapper", () => {
         return <div data-testid="mw">{children}</div>;
     };
 });
-
-jest.mock("../utilities/icons", () => ({
-    Icons: { underlineDashed: () => <svg data-testid="icon" /> },
-}));
 
 jest.mock("@/components/ui/skeleton", () => ({
     Skeleton: jest.fn((props) => {
@@ -204,14 +209,14 @@ describe("<ImageGalleryComponent />", () => {
         );
     });
 
-    it("navigates to gallery page when Explore more is clicked", async () => {
+    it("links to the full gallery page", () => {
         mockUseQueryReturn = {
             isLoading: false,
             data: { images: [[{ id: "a", url: "/a.jpg" }]] },
         };
-        const user = userEvent.setup();
         render(<ImageGalleryComponent userId={"user-1"} />);
-        await user.click(screen.getByRole("button", { name: /Explore more/i }));
-        expect(push).toHaveBeenCalledWith("/gallery-images");
+        expect(
+            screen.getByRole("link", { name: /Browse the full gallery/i })
+        ).toHaveAttribute("href", "/gallery-images");
     });
 });

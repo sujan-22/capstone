@@ -1,129 +1,89 @@
 import React from "react";
+import Link from "next/link";
+import { ArrowRight, CircleCheck } from "lucide-react";
 import { IUserOrderWithDesign } from "../../../../../../lib/types/user-orders.types";
-import { formatPrice } from "@/lib/utils";
 import PhonePreview from "@/components/utilities/phone-preview";
 import SmallLogo from "@/components/utilities/small-logo";
+import OrderReceipt from "@/components/order/order-receipt";
+import RegistrationMark from "@/components/print/registration-mark";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const OrderConfirmation = ({ order }: { order: IUserOrderWithDesign }) => {
     return (
-        <div className="py-16">
-            <div className=" max-w-xl">
-                <p className=" text-base font-medium text-blue-600">
-                    Thank you!
-                </p>
-                <h1 className=" my-2 text-4xl font-bold tracking-tight sm:text-5xl">
-                    Your case is on the way!
-                </h1>
-                <p className="text-gray-700">
-                    We’ve received your order and it is being carefully
-                    processed.
-                </p>
-                <div className="mt-8 text-sm font-medium">
-                    <p>Order Reference Number</p>
-                    <p className=" text-muted-foreground">
-                        {order.orderNumber}
+        <div className="pb-20 pt-8 sm:pt-12">
+            <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+                <div className="lg:col-span-6">
+                    <p className="type-label flex items-center gap-2 text-success">
+                        <CircleCheck aria-hidden className="size-4" />
+                        Thank you · order confirmed
                     </p>
-                </div>
-            </div>
-            <div className=" mt-10 border-t border-zinc-200">
-                <div className=" mt-10 flex flex-auto flex-col">
-                    <h4 className=" font-semibold">
-                        You made a greate choice!
-                    </h4>
-                    <p className=" mt-2 text-sm text-muted-foreground">
-                        At <SmallLogo />, we craft every phone case with care
-                        and precision to match your unique style. Enjoy your
-                        personalized design, made to protect and enhance your
-                        device!
+                    <h1 className="type-display mt-6 !text-[clamp(3rem,7vw,6rem)]">
+                        Sent to press<span className="text-cobalt">.</span>
+                    </h1>
+                    <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-soft">
+                        We&rsquo;ve received your order and it&rsquo;s being
+                        carefully processed. We&rsquo;ll print your case and
+                        ship it free with FedEx.
                     </p>
-                </div>
-            </div>
-            <div className="flex space-x-6 overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
-                <PhonePreview
-                    croppedImageUrl={order.design.croppedImgUrl}
-                    color={order.design.colorHex}
-                />
-            </div>
-            <div>
-                <div className="grid grid-cols-2 gap-x-6 py-10 text-sm">
-                    <div>
-                        <p className="font-medium text-gray-900">
-                            Shipping address
-                        </p>
-                        <div className="mt-2 text-muted-foreground">
-                            <address className="not-italic">
-                                <span className="block">
-                                    {order.shippingAddress?.name}
-                                </span>
-                                <span className="block">
-                                    {order.shippingAddress?.street}
-                                </span>
-                                <span className="block">
-                                    {order.shippingAddress?.postal_code}{" "}
-                                    {order.shippingAddress?.city}
-                                </span>
-                            </address>
-                        </div>
+
+                    <div className="mt-8 inline-flex flex-col rounded-md border border-ink px-5 py-4">
+                        <span className="type-label text-ink-soft">
+                            Order reference number
+                        </span>
+                        <span className="mt-1.5 font-mono text-xl font-medium tracking-tight">
+                            {order.orderNumber}
+                        </span>
                     </div>
-                    <div>
-                        <p className="font-medium text-gray-900">
-                            Billing address
-                        </p>
-                        <div className="mt-2 text-muted-foreground">
-                            <address className="not-italic">
-                                <span className="block">
-                                    {order.billingAddress?.name}
-                                </span>
-                                <span className="block">
-                                    {order.billingAddress?.street}
-                                </span>
-                                <span className="block">
-                                    {order.billingAddress?.postal_code}{" "}
-                                    {order.billingAddress?.city}
-                                </span>
-                            </address>
-                        </div>
+
+                    <div className="mt-8 flex flex-wrap gap-3">
+                        <Link
+                            href={`/order-details/${order.id}`}
+                            className={buttonVariants({ variant: "ink", size: "lg" })}
+                        >
+                            View order details
+                            <ArrowRight
+                                aria-hidden
+                                className="size-4 transition-transform duration-300 ease-out-expo group-hover/button:translate-x-0.5"
+                            />
+                        </Link>
+                        <Link
+                            href="/configure/upload"
+                            className={cn(
+                                buttonVariants({ variant: "outline", size: "lg" })
+                            )}
+                        >
+                            Design another case
+                        </Link>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-6 border-t border-zinc-200 py-10 text-sm">
-                    <div>
-                        <p className="font-medium">Payment status</p>
-                        <p className="mt-2 text-muted-foreground">Paid</p>
-                    </div>
-
-                    <div>
-                        <p className="font-medium">Shipping Method</p>
-                        <p className="mt-2 text-muted-foreground">
-                            FedEx, takes up to 3 working days
-                        </p>
-                    </div>
+                <div className="lg:col-span-6">
+                    <figure className="relative overflow-hidden rounded-md bg-paper-sunken">
+                        <div className="halftone absolute inset-0 text-ink/[0.06]" />
+                        <PhonePreview
+                            croppedImageUrl={order.design.croppedImgUrl}
+                            color={order.design.colorHex}
+                        />
+                        <figcaption className="absolute inset-x-4 top-4 flex items-center justify-between">
+                            <span className="type-label rounded-full bg-paper-raised px-3 py-1.5 text-ink">
+                                {order.design.caseName}
+                            </span>
+                            <RegistrationMark size={16} />
+                        </figcaption>
+                    </figure>
                 </div>
             </div>
 
-            <div className="space-y-2 border-t border-zinc-200 pt-10 text-sm">
-                <div className="flex justify-between">
-                    <p className="font-medium">Subtotal</p>
-                    <p className="text-muted-foreground">
-                        {formatPrice(order.subtotal)}
+            <div className="mt-16 border-t border-ink pt-10">
+                <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+                    <h2 className="type-title">Your order</h2>
+                    <p className="text-sm text-ink-soft">
+                        At <SmallLogo />, every case is printed with care to
+                        match your style.
                     </p>
                 </div>
-                <div className="flex justify-between">
-                    <p className="font-medium">Shipping</p>
-                    <p className="text-muted-foreground">FREE</p>
-                </div>
-                <div className="flex justify-between">
-                    <p className="font-medium">Tax</p>
-                    <p className="text-muted-foreground">
-                        {formatPrice(order.tax)}
-                    </p>
-                </div>
-                <div className="flex justify-between">
-                    <p className="font-medium">Total</p>
-                    <p className="text-muted-foreground">
-                        {formatPrice(order.totalAmount)}
-                    </p>
-                </div>
+                <OrderReceipt order={order} />
             </div>
         </div>
     );

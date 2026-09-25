@@ -5,7 +5,7 @@ import CustomizeOverview from "./components/customize-overview";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-    title: "Customize Your Phone Case | DESIGNMYCASE",
+    title: "Customise your case",
     description:
         "Create a one-of-a-kind phone case by choosing your device model, selecting materials, colors, and finishes, and uploading or adjusting your own image. Preview your design in real-time before placing your order.",
     keywords: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         "design phone accessories",
     ],
     openGraph: {
-        title: "Customize Your Phone Case | DESIGNMYCASE",
+        title: "Customise your case · DesignMyCase",
         description:
             "Use our easy-to-use customization tool to design your perfect phone case. Choose your phone model, material, color, finish, and add your own images for a truly personal accessory.",
         type: "website",

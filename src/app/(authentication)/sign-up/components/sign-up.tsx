@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { safeRedirect } from "@/lib/utils";
+import AuthHeading from "../../components/auth-heading";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
-import Logo from "@/components/utilities/logo";
 import { authClient } from "../../../../../auth-client";
 import { useToast } from "@/hooks/use-toast";
 import { usernameSchema } from "@/schema/username";
@@ -70,7 +72,7 @@ const SignUpPage: React.FC = () => {
 
     useEffect(() => {
         const params = searchParams.get("redirectTo");
-        if (params) setRedirectTo(params);
+        if (params) setRedirectTo(safeRedirect(params));
     }, [searchParams]);
 
     const form = useForm<SignUpValues>({
@@ -211,106 +213,97 @@ const SignUpPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-transparent">
-            <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
-                <div className="mb-6 w-full flex flex-col items-center space-y-4">
-                    <Logo />
-                    <p className="text-md md:text-xl lg:text-xl sm:text-xl">
-                        Create an account
-                    </p>
-                    <p className="text-muted-foreground text-sm text-center">
-                        Enter your details below to create your account and get
-                        started.
-                    </p>
-                </div>
+        <>
+            <AuthHeading
+                eyebrow="New here"
+                title="Create an account"
+                description="Save designs, track orders and pick up unfinished cases later. We'll email you a code to verify your address."
+            />
 
-                <div className="w-full">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(handleSignUp)}
-                            className="grid gap-4"
-                        >
-                            {fields.map((f) => (
-                                <div key={f.name} className="py-1 relative">
-                                    <FormInput
-                                        name={f.name}
-                                        label={f.label}
-                                        placeHolder={f.placeHolder}
-                                        type={f.type}
-                                        {...(f.name === "username" && {
-                                            // Show username availability
-                                            suffix: checking
-                                                ? "Checking..."
-                                                : usernameAvailable === false
-                                                ? "Taken"
-                                                : usernameAvailable === true
-                                                ? "Available"
-                                                : "",
-                                            suffixClassName:
-                                                usernameAvailable === false
-                                                    ? "text-red-500"
-                                                    : usernameAvailable === true
-                                                    ? "text-green-500"
-                                                    : "",
-                                        })}
-                                    />
-                                    {f.name === "password" && (
-                                        <div className="mt-2">
-                                            <PasswordStrengthMeter
-                                                password={password}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(handleSignUp)}
+                    className="grid gap-5"
+                >
+                    {fields.map((f) => (
+                        <div key={f.name}>
+                            <FormInput
+                                name={f.name}
+                                label={f.label}
+                                placeHolder={f.placeHolder}
+                                type={f.type}
+                                autoComplete={
+                                    f.name === "username"
+                                        ? "username"
+                                        : f.name === "email"
+                                        ? "email"
+                                        : "new-password"
+                                }
+                                {...(f.name === "username" && {
+                                    suffix: checking
+                                        ? "Checking…"
+                                        : usernameAvailable === false
+                                        ? "Taken"
+                                        : usernameAvailable === true
+                                        ? "Available"
+                                        : "",
+                                    suffixClassName:
+                                        usernameAvailable === false
+                                            ? "text-destructive"
+                                            : usernameAvailable === true
+                                            ? "text-success"
+                                            : "",
+                                })}
+                            />
+                            {f.name === "password" && (
+                                <PasswordStrengthMeter password={password} />
+                            )}
+                        </div>
+                    ))}
 
-                            <div className="pt-2">
-                                <Button
-                                    isLoading={pending}
-                                    type="submit"
-                                    className="w-full"
-                                    disabled={
-                                        usernameAvailable === false ||
-                                        checking ||
-                                        strength.score < 2
-                                    }
-                                >
-                                    Sign Up & Verify Email
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
-
-                <div className="mt-3 w-full text-center">
-                    <p className="text-sm text-muted-foreground">
-                        Already have an account?{" "}
-                        <Button
-                            variant="link"
-                            className="text-blue-500 px-0"
-                            onClick={() =>
-                                router.push(
-                                    `/sign-in?redirectTo=${encodeURIComponent(
-                                        redirectTo
-                                    )}`
-                                )
-                            }
-                        >
-                            Sign In
-                        </Button>
-                    </p>
-                </div>
-                <div className="mt-3 w-full flex justify-center">
                     <Button
-                        className="w-full px-auto"
-                        variant={"outline"}
-                        onClick={handleGoogleSignUp}
+                        isLoading={pending}
+                        type="submit"
+                        size="lg"
+                        className="mt-1 w-full"
+                        disabled={
+                            usernameAvailable === false ||
+                            checking ||
+                            strength.score < 2
+                        }
                     >
-                        <FcGoogle size={26} className="pr-1" /> Google
+                        Create account &amp; verify email
                     </Button>
-                </div>
+                </form>
+            </Form>
+
+            <div className="my-7 flex items-center gap-4">
+                <span className="h-px flex-1 bg-rule" />
+                <span className="type-label text-ink-soft">or</span>
+                <span className="h-px flex-1 bg-rule" />
             </div>
-        </div>
+
+            <Button
+                className="w-full"
+                size="lg"
+                variant="outline"
+                onClick={handleGoogleSignUp}
+            >
+                <FcGoogle size={20} aria-hidden /> Continue with Google
+            </Button>
+
+            <p className="mt-8 text-center text-sm text-ink-soft">
+                Already have an account?{" "}
+                <Link
+                    href={`/sign-in?redirectTo=${encodeURIComponent(
+                        redirectTo
+                    )}`}
+                    className="font-semibold text-cobalt underline-offset-4 hover:underline"
+                >
+                    Sign in
+                </Link>
+            </p>
+        </>
     );
 };
 

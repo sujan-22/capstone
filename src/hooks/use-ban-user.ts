@@ -9,7 +9,7 @@ import { authClient } from "../../auth-client";
 import {
     adminCustomersKeys,
     type CustomersPage,
-} from "@/app/(site)/(admin)/admin-dashboard/customers/actions/actions";
+} from "@/app/(admin)/admin-dashboard/customers/actions/actions";
 
 type BanArgs = {
     userId: string;
