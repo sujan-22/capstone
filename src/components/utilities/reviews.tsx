@@ -1,10 +1,9 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
-import { useInView } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import MaxWidthWrapper from "./max-width-wrapper";
 import Phone from "./phone";
-import { Icons } from "./icons";
 
 const PHONES = [
     "/assets/testimonials/1.jpg",
@@ -13,160 +12,113 @@ const PHONES = [
     "/assets/testimonials/4.jpg",
     "/assets/testimonials/5.jpg",
     "/assets/testimonials/6.jpg",
+    "/assets/testimonials/7.jpg",
+    "/assets/homepage/feat1.jpg",
+    "/assets/homepage/anime.png",
 ];
 
-function splitArray<T>(array: Array<T>, numParts: number) {
-    const result: Array<Array<T>> = [];
+// Columns start at different points in the list so neighbours never match.
+const COLUMNS = [
+    { offset: 0, msPerPixel: 9, className: "" },
+    { offset: 3, msPerPixel: 12, className: "mt-24" },
+    { offset: 6, msPerPixel: 10.5, className: "hidden sm:flex mt-10" },
+];
 
-    for (let i = 0; i < array.length; i++) {
-        const index = i % numParts;
-        if (!result[index]) {
-            result[index] = [];
-        }
-        result[index].push(array[i]);
-    }
-
-    return result;
+function rotate<T>(list: T[], by: number) {
+    return [...list.slice(by), ...list.slice(0, by)];
 }
 
-function ReviewColumn({
-    reviews,
+function WallColumn({
+    images,
+    msPerPixel,
     className,
-    reviewClassName,
-    msPerPixel = 0,
 }: {
-    reviews: string[];
+    images: string[];
+    msPerPixel: number;
     className?: string;
-    reviewClassName?: (reviewIndex: number) => string;
-    msPerPixel?: number;
 }) {
     const columnRef = useRef<HTMLDivElement | null>(null);
     const [columnHeight, setColumnHeight] = useState(0);
-    const duration = `${columnHeight * msPerPixel}ms`;
 
     useEffect(() => {
         if (!columnRef.current) return;
-
-        const resizeObserver = new window.ResizeObserver(() => {
+        const observer = new window.ResizeObserver(() => {
             setColumnHeight(columnRef.current?.offsetHeight ?? 0);
         });
-
-        resizeObserver.observe(columnRef.current);
-
-        return () => {
-            resizeObserver.disconnect();
-        };
+        observer.observe(columnRef.current);
+        return () => observer.disconnect();
     }, []);
 
     return (
         <div
             ref={columnRef}
-            className={cn("animate-marquee space-y-8 py-4", className)}
-            style={{ "--marquee-duration": duration } as React.CSSProperties}
+            className={cn("animate-marquee flex flex-col gap-6 pb-6", className)}
+            style={
+                {
+                    "--marquee-duration": `${columnHeight * msPerPixel}ms`,
+                } as React.CSSProperties
+            }
         >
-            {reviews.concat(reviews).map((imgSrc, reviewIndex) => (
-                <Review
-                    key={reviewIndex}
-                    className={reviewClassName?.(reviewIndex % reviews.length)}
-                    imgSrc={imgSrc}
+            {images.concat(images).map((src, i) => (
+                <Phone
+                    key={`${src}-${i}`}
+                    imgSrc={src}
+                    altText=""
+                    aria-hidden
+                    sizes="(max-width: 640px) 45vw, 200px"
+                    className="drop-shadow-[0_24px_28px_rgb(10_14_80/0.45)]"
                 />
             ))}
         </div>
     );
 }
 
-interface ReviewProps extends HTMLAttributes<HTMLDivElement> {
-    imgSrc: string;
-}
-
-function Review({ imgSrc, className, ...props }: ReviewProps) {
-    const ANIMATIONS_DELAYS = ["0s", "0.1s", "0.2s", "0.3s", "0.4s", "0.5s"];
-
-    const animationDelay =
-        ANIMATIONS_DELAYS[Math.floor(Math.random() * ANIMATIONS_DELAYS.length)];
-
-    return (
-        <div
-            className={cn(
-                "animate-fade-in rounded-[3rem] bg-white p-6 opacity-0 shadow-xl shadow-slate-900/5",
-                className
-            )}
-            style={{ animationDelay }}
-            {...props}
-        >
-            <Phone imgSrc={imgSrc} />
-        </div>
-    );
-}
-
-function ReviewGrid() {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const isInView = useInView(containerRef, { once: true, amount: 0.4 });
-    const columns = splitArray(PHONES, 3);
-    const column1 = columns[0];
-    const column2 = columns[1];
-    const column3 = splitArray(columns[2], 2);
-
-    return (
-        <div
-            ref={containerRef}
-            className="relative max-w-[1200px] -mx-4 mt-16 grid h-[49rem] max-h-[150vh] grid-cols-1 items-start gap-4 overflow-hidden px-1 sm:mt-20 md:grid-cols-2 lg:grid-cols-3"
-        >
-            {isInView ? (
-                <>
-                    <ReviewColumn
-                        reviews={[...column1, ...column3.flat(), ...column2]}
-                        reviewClassName={(reviewIndex) =>
-                            cn({
-                                "md:hidden":
-                                    reviewIndex >=
-                                    column1.length + column3[0].length,
-                                "lg:hidden": reviewIndex >= column1.length,
-                            })
-                        }
-                        msPerPixel={10}
-                    />
-                    <ReviewColumn
-                        reviews={[...column2, ...column3[1]]}
-                        className="hidden md:block"
-                        reviewClassName={(reviewIndex) =>
-                            reviewIndex >= column2.length ? "lg:hidden" : ""
-                        }
-                        msPerPixel={15}
-                    />
-                    <ReviewColumn
-                        reviews={column3.flat()}
-                        className="hidden md:block"
-                        msPerPixel={10}
-                    />
-                </>
-            ) : null}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-100 rounded-xl" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-100 rounded-xl" />
-        </div>
-    );
-}
-
 export default function Reviews() {
     return (
-        <section className="py-16">
-            <div className="flex flex-col items-center gap-16">
-                <div className="flex flex-col items-center gap-4 sm:gap-6">
-                    <h2 className="tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl">
-                        See What Our Customers{" "}
-                        <span className="relative inline-block px-2">
-                            Love{" "}
-                            <Icons.underlineHand className="hidden sm:block pointer-events-none absolute w-full inset-x-0 -bottom-6 text-blue-600" />
-                        </span>{" "}
+        <section className="relative overflow-hidden bg-cobalt text-white">
+            <MaxWidthWrapper className="grid gap-12 py-20 sm:py-28 lg:grid-cols-12 lg:gap-8">
+                <div className="relative z-10 flex flex-col justify-center lg:col-span-5">
+                    <p className="type-label text-white/80">Recently printed</p>
+                    <h2 className="type-display mt-5 max-w-[10ch]">
+                        Every one&rsquo;s different.
                     </h2>
-                    <p className="text-center text-muted-foreground max-w-xl mx-auto mt-4">
-                        Check out real customer reviews and see how our custom
-                        phone cases bring style, personality, and protection
-                        together. Get inspired for your own unique design!
+                    <p className="mt-6 max-w-md text-lg leading-relaxed text-white/85">
+                        Pets, places, fandoms and everything in between. No two
+                        cases off our press come out the same, because no two
+                        photos are.
                     </p>
+                    <dl className="mt-10 grid max-w-sm grid-cols-2 border-t border-white/25 pt-5">
+                        <div>
+                            <dt className="type-label text-white/80">
+                                Print warranty
+                            </dt>
+                            <dd className="type-title mt-2">5 years</dd>
+                        </div>
+                        <div>
+                            <dt className="type-label text-white/80">
+                                Shipping
+                            </dt>
+                            <dd className="type-title mt-2">Free</dd>
+                        </div>
+                    </dl>
                 </div>
-                <ReviewGrid />
-            </div>
+
+                <div
+                    aria-hidden
+                    className="relative -mx-4 h-[34rem] overflow-hidden lg:-mr-[calc(max(0px,(100vw-1360px)/2)+2.5rem)] [mask-image:linear-gradient(to_bottom,transparent,black_14%,black_86%,transparent)] sm:mx-0 sm:h-[42rem] lg:col-span-7"
+                >
+                    <div className="absolute -inset-x-8 -top-16 grid origin-top rotate-[-7deg] grid-cols-2 gap-6 sm:grid-cols-3">
+                        {COLUMNS.map((col) => (
+                            <WallColumn
+                                key={col.offset}
+                                images={rotate(PHONES, col.offset)}
+                                msPerPixel={col.msPerPixel}
+                                className={col.className}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </MaxWidthWrapper>
         </section>
     );
 }

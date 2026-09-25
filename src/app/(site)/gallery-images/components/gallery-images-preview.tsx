@@ -110,16 +110,16 @@ export default function GalleryImagesPreview({
     };
 
     return (
-        <section className="pb-16">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        <section>
+            <div className="grid w-full grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4">
                 {isLoading
                     ? Array.from({ length: 8 }).map((_, i) => (
                           <Skeleton
                               key={i}
-                              className="h-64 w-full rounded-2xl"
+                              className="aspect-[4/5] w-full rounded-md"
                           />
                       ))
-                    : images.map((img) => {
+                    : images.map((img, i) => {
                           const isPending =
                               pendingImageId === img.id && mutation.isPending;
                           const anyPending = !!pendingImageId;
@@ -127,6 +127,7 @@ export default function GalleryImagesPreview({
                               <ImageComponent
                                   key={img.id}
                                   img={{ id: img.id, url: img.url }}
+                                  index={i}
                                   anyPending={anyPending}
                                   isPending={isPending}
                                   handleUseImage={handleUseImage}
@@ -136,15 +137,15 @@ export default function GalleryImagesPreview({
             </div>
 
             {hasNextPage && (
-                <div className="flex justify-center mt-10">
+                <div className="mt-16 flex justify-center">
                     <Button
                         onClick={() => fetchNextPage()}
                         disabled={isFetchingNextPage}
                         variant="outline"
-                        className="rounded-xl"
+                        size="lg"
                         isLoading={isFetchingNextPage}
                     >
-                        Load more
+                        Load more images
                     </Button>
                 </div>
             )}

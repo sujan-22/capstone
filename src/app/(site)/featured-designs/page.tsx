@@ -4,7 +4,7 @@ import FeaturedDesigns from "./components/featured-designs";
 import { getServerSideSession } from "@/hooks/use-session";
 
 export const metadata: Metadata = {
-    title: "Featured Designs | DESIGNMYCASE",
+    title: "Featured designs",
     description:
         "Explore our most popular and trending custom phone case designs, created and shared by our community. Get inspired and customize your own case today.",
     keywords: [

@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { safeRedirect } from "@/lib/utils";
+import AuthHeading from "../../components/auth-heading";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import FormInput from "@/components/utilities/auth-utilities/form-input";
-import Logo from "@/components/utilities/logo";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -48,7 +50,7 @@ const SignInPage: React.FC = () => {
 
     useEffect(() => {
         const params = searchParams.get("redirectTo");
-        if (params) setRedirectTo(params);
+        if (params) setRedirectTo(safeRedirect(params));
     }, [searchParams]);
 
     const { toast } = useToast();
@@ -113,107 +115,92 @@ const SignInPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-transparent">
-            <div className="w-full max-w-md mx-4 p-6 bg-white/0 rounded-lg flex flex-col items-center">
-                <div className="mb-6 w-full flex flex-col items-center space-y-4">
-                    <Logo />
-                    <p className="md:text-xl lg:text-xl sm:text-xl text-md">
-                        Sign in to your account
-                    </p>
-                    <p className="text-muted-foreground text-sm text-center">
-                        Enter your credentials below to access your account.
-                    </p>
-                </div>
+        <>
+            <AuthHeading
+                eyebrow="Welcome back"
+                title="Sign in"
+                description="Enter your username and password to pick up where you left off."
+            />
 
-                <div className="w-full">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(handleSignUp)}
-                            className="grid gap-4"
-                        >
-                            {fields.map((f) => (
-                                <div key={f.name} className="py-1">
-                                    <FormInput
-                                        name={f.name}
-                                        label={f.label}
-                                        placeHolder={f.placeHolder}
-                                        type={f.type}
-                                    />
-                                </div>
-                            ))}
-                            <div className="flex items-center mt-2">
-                                <Checkbox
-                                    id="remember-me"
-                                    className="mr-2"
-                                    checked={remember}
-                                    onCheckedChange={(val) =>
-                                        setRemember(Boolean(val))
-                                    }
-                                />
-                                <Label
-                                    htmlFor="remember-me"
-                                    className="text-sm"
-                                >
-                                    Remember me
-                                </Label>
-                            </div>
-
-                            <div className="mt-2 w-full text-right">
-                                <Button
-                                    variant="link"
-                                    className="text-blue-500 px-0"
-                                    onClick={() => {
-                                        router.push("/forgot-password");
-                                    }}
-                                >
-                                    Forgot Password?
-                                </Button>
-                            </div>
-
-                            <div className="pt-2">
-                                <Button
-                                    isLoading={pending}
-                                    type="submit"
-                                    className="w-full"
-                                >
-                                    Sign In
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
-                <div className="mt-4 w-full flex justify-center">
-                    Or continue with
-                </div>
-                <div className="mt-2 w-full text-center">
-                    <p className="text-sm text-muted-foreground">
-                        Don’t have an account?{" "}
-                        <Button
-                            variant="link"
-                            className="text-blue-500 px-0"
-                            onClick={() =>
-                                router.push(
-                                    `/sign-up?redirectTo=${encodeURIComponent(
-                                        redirectTo
-                                    )}`
-                                )
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(handleSignUp)}
+                    className="grid gap-5"
+                >
+                    {fields.map((f) => (
+                        <FormInput
+                            key={f.name}
+                            name={f.name}
+                            label={f.label}
+                            placeHolder={f.placeHolder}
+                            type={f.type}
+                            autoComplete={
+                                f.name === "password"
+                                    ? "current-password"
+                                    : "username"
                             }
+                        />
+                    ))}
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="remember-me"
+                                checked={remember}
+                                onCheckedChange={(val) =>
+                                    setRemember(Boolean(val))
+                                }
+                            />
+                            <Label htmlFor="remember-me" className="text-sm">
+                                Remember me
+                            </Label>
+                        </div>
+                        <Link
+                            href="/forgot-password"
+                            className="text-sm font-medium text-cobalt underline-offset-4 hover:underline"
                         >
-                            Sign Up
-                        </Button>
-                    </p>
-                </div>
-                <div className="mt-4 w-full flex justify-center">
+                            Forgot password?
+                        </Link>
+                    </div>
+
                     <Button
-                        className="w-full px-auto"
-                        variant={"outline"}
-                        onClick={handleGoogleSignUp}
+                        isLoading={pending}
+                        type="submit"
+                        size="lg"
+                        className="mt-1 w-full"
                     >
-                        <FcGoogle size={26} className="pr-1" /> Google
+                        Sign in
                     </Button>
-                </div>
+                </form>
+            </Form>
+
+            <div className="my-7 flex items-center gap-4">
+                <span className="h-px flex-1 bg-rule" />
+                <span className="type-label text-ink-soft">or</span>
+                <span className="h-px flex-1 bg-rule" />
             </div>
-        </div>
+
+            <Button
+                className="w-full"
+                size="lg"
+                variant="outline"
+                onClick={handleGoogleSignUp}
+            >
+                <FcGoogle size={20} aria-hidden /> Continue with Google
+            </Button>
+
+            <p className="mt-8 text-center text-sm text-ink-soft">
+                New to DesignMyCase?{" "}
+                <Link
+                    href={`/sign-up?redirectTo=${encodeURIComponent(
+                        redirectTo
+                    )}`}
+                    className="font-semibold text-cobalt underline-offset-4 hover:underline"
+                >
+                    Create an account
+                </Link>
+            </p>
+        </>
     );
 };
 

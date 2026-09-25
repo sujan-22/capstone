@@ -5,7 +5,7 @@ import FavoriteDesignOverview from "./components/favorite-designs-overview";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-    title: "FAVORITE DESIGNS | DESIGNMYCASE",
+    title: "Favourites",
     description:
         "Browse and manage your favorite phone case designs to quickly access and order your preferred styles.",
     robots: {

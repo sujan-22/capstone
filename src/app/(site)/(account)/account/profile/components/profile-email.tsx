@@ -104,7 +104,7 @@ const ProfileEmail = ({ currentUser }: { currentUser: IUser }) => {
                     </div>
 
                     {errorState && (
-                        <p className="text-red-500 mt-2 text-sm">
+                        <p className="text-destructive mt-2 text-sm">
                             {errorState}
                         </p>
                     )}

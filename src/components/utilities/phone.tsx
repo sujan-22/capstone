@@ -1,10 +1,21 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { HTMLAttributes } from "react";
 
+// The editor draws designs against this template, so cropped images share
+// its 896 × 1831 aspect ratio. Its corners are transparent, so it sits on any
+// background.
+export const CASE_TEMPLATE = "/assets/phone-template/phone-template.png";
+// The case's outer corner as a share of width / height.
+export const CASE_RADIUS = "13.5% / 6.6%";
+
 interface PhoneProps extends HTMLAttributes<HTMLDivElement> {
     imgSrc: string;
+    /** Placeholder tone behind the print while it loads, for dark grounds. */
     dark?: boolean;
     altText?: string;
+    sizes?: string;
+    priority?: boolean;
 }
 
 const Phone = ({
@@ -12,37 +23,46 @@ const Phone = ({
     className,
     dark = false,
     altText,
+    sizes = "(max-width: 640px) 60vw, 320px",
+    priority,
     ...props
 }: PhoneProps) => {
     return (
         <div
+            role="img"
+            aria-label={altText ?? "Phone case"}
             className={cn(
-                "relative pointer-events-none z-50 overflow-hidden",
+                "pointer-events-none relative isolate aspect-[896/1831] w-full select-none",
                 className
             )}
             {...props}
         >
-            {/*  eslint-disable-next-line @next/next/no-img-element */}
-            <img
-                src={
-                    dark
-                        ? "/assets/phone-template/phone-template-dark-edges.png"
-                        : "/assets/phone-template/phone-template-white-edges.png"
-                }
-                className="pointer-events-none z-50 select-none"
-                alt={altText ? altText : "phone image"}
-            />
-
-            {imgSrc && (
-                <div className="absolute -z-10 inset-0 right-[1px]">
-                    {/*  eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        className="object-cover min-w-full min-h-full"
+            <div
+                className={cn(
+                    "absolute inset-[0.5%] -z-10 overflow-hidden",
+                    dark ? "bg-ink-raised" : "bg-paper-sunken"
+                )}
+                style={{ borderRadius: CASE_RADIUS }}
+            >
+                {imgSrc ? (
+                    <Image
                         src={imgSrc}
-                        alt={altText ? altText : "overlaying phone image"}
+                        alt=""
+                        fill
+                        sizes={sizes}
+                        priority={priority}
+                        className="object-cover"
                     />
-                </div>
-            )}
+                ) : null}
+            </div>
+            <Image
+                src={CASE_TEMPLATE}
+                alt=""
+                fill
+                sizes={sizes}
+                priority={priority}
+                className="select-none"
+            />
         </div>
     );
 };

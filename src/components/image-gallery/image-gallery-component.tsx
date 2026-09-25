@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { HOME_PAGE_GALLERY_SIZE } from "@/lib/constants";
@@ -13,7 +14,6 @@ import {
 } from "@/app/(site)/gallery-images/actions/actions";
 import ImageComponent from "@/app/(site)/gallery-images/components/image";
 import MaxWidthWrapper from "../utilities/max-width-wrapper";
-import { Icons } from "../utilities/icons";
 
 export default function ImageGalleryComponent({
     userId,
@@ -93,61 +93,61 @@ export default function ImageGalleryComponent({
     };
 
     return (
-        <>
-            <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-blue-50 dark:bg-blue-950 text-foreground dark:text-secondary py-16">
-                <MaxWidthWrapper>
-                    <div className="flex flex-col items-center gap-16 sm:gap-32">
-                        <div className="flex flex-col items-center gap-4 sm:gap-6">
-                            <h2 className="tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl">
-                                Pick an image{" "}
-                                <span className="relative inline-block px-2">
-                                    to start{" "}
-                                    <Icons.underlineDashed className="hidden sm:block pointer-events-none absolute w-full inset-x-0 -bottom-6 text-blue-600" />
-                                </span>{" "}
-                                your case
-                            </h2>
-                            <p className="text-center text-muted-foreground max-w-xl mx-auto mt-4">
-                                Browse our image gallery and choose your
-                                favorite. We’ll create a case design instantly
-                                so you can jump right into customizing colors,
-                                finishes, and more.
-                            </p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-                            {isLoading
-                                ? Array.from({ length: 8 }).map((_, i) => (
-                                      <Skeleton
-                                          key={i}
-                                          className="h-64 w-full rounded-2xl"
-                                      />
-                                  ))
-                                : images.map((img) => {
-                                      const isPending =
-                                          pendingImageId === img.id &&
-                                          mutation.isPending;
-                                      const anyPending = !!pendingImageId;
-                                      return (
-                                          <ImageComponent
-                                              key={img.id}
-                                              img={{ id: img.id, url: img.url }}
-                                              anyPending={anyPending}
-                                              isPending={isPending}
-                                              handleUseImage={handleUseImage}
-                                          />
-                                      );
-                                  })}
-                        </div>
-                        <Button
-                            variant={"outline"}
-                            onClick={() => router.push("/gallery-images")}
-                            className="text-primary"
-                            size={"sm"}
-                        >
-                            Explore more
-                        </Button>
+        <section className="py-20 sm:py-28">
+            <MaxWidthWrapper>
+                <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+                    <div className="lg:col-span-7">
+                        <p className="type-label text-ink-soft">
+                            Image gallery
+                        </p>
+                        <h2 className="type-display mt-5 max-w-[13ch]">
+                            No photo? Start with one of ours.
+                        </h2>
                     </div>
-                </MaxWidthWrapper>
-            </section>
-        </>
+                    <div className="lg:col-span-4 lg:col-start-9">
+                        <p className="text-lg leading-relaxed text-ink-soft">
+                            Pick any image and we&rsquo;ll set up a case design
+                            with it, ready for you to place and customise.
+                        </p>
+                        <Link
+                            href="/gallery-images"
+                            className="group mt-5 inline-flex items-center gap-2 font-semibold underline decoration-ink/25 underline-offset-[6px] transition-colors hover:decoration-ink"
+                        >
+                            Browse the full gallery
+                            <ArrowRight
+                                aria-hidden
+                                className="size-4 transition-transform duration-300 ease-out-expo group-hover:translate-x-1"
+                            />
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="mt-14 grid w-full grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4">
+                    {isLoading
+                        ? Array.from({ length: 8 }).map((_, i) => (
+                              <Skeleton
+                                  key={i}
+                                  className="aspect-[4/5] w-full rounded-md"
+                              />
+                          ))
+                        : images.map((img, i) => {
+                              const isPending =
+                                  pendingImageId === img.id &&
+                                  mutation.isPending;
+                              const anyPending = !!pendingImageId;
+                              return (
+                                  <ImageComponent
+                                      key={img.id}
+                                      img={{ id: img.id, url: img.url }}
+                                      index={i}
+                                      anyPending={anyPending}
+                                      isPending={isPending}
+                                      handleUseImage={handleUseImage}
+                                  />
+                              );
+                          })}
+                </div>
+            </MaxWidthWrapper>
+        </section>
     );
 }

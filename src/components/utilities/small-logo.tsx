@@ -1,25 +1,14 @@
-import { Italiana } from "next/font/google";
 import { cn } from "@/lib/utils";
-
-const italiana = Italiana({
-    subsets: ["latin"],
-    weight: "400",
-});
 
 interface SmallLogoProps {
     className?: string;
 }
 
+/** The brand name set inline in running text. */
 const SmallLogo = ({ className }: SmallLogoProps) => {
     return (
-        <span
-            className={cn(
-                italiana.className,
-                "text-base tracking-wide font-bold text-primary",
-                className
-            )}
-        >
-            DESIGN<span className="text-blue-600 font-bold">MY</span>CASE
+        <span className={cn("font-bold tracking-[-0.02em]", className)}>
+            Design<span className="text-cobalt">My</span>Case
         </span>
     );
 };

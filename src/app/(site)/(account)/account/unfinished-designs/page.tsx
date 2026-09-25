@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import UnfinishedDesignsOverviewPage from "./components/unfinished-designs-overview";
 
 export const metadata: Metadata = {
-    title: "UNFINISHED DESIGNS | DESIGNMYCASE",
+    title: "Unfinished designs",
     description:
         "Manage your unfinished custom phone case designs and view upcoming reminders to complete them.",
     robots: {

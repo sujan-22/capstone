@@ -9,19 +9,16 @@ interface GalleryImagesProps {
 export default function GalleryImages({ children }: GalleryImagesProps) {
     return (
         <LayoutHeader
-            heading="Image Gallery"
-            description="Browse through a curated collection of phone case designs.
-                    Click on any image to start customizing your own case or
-                    explore different styles and inspirations."
+            eyebrow="Image gallery"
+            heading="Pick a photo, make it a case."
+            description="A curated collection of images ready to print. Choose one and we'll set up a case design with it, ready for you to place and customise."
+            aside={
+                <Suspense>
+                    <SortSidebar />
+                </Suspense>
+            }
         >
-            <div className="flex flex-col [@media(min-width:620px)]:flex-row-reverse [@media(min-width:620px)]:space-x-12 [@media(min-width:620px)]:space-y-0 gap-2">
-                <aside className="mb-4 [@media(min-width:620px)]:mb-0 space-y-8 m-0">
-                    <Suspense>
-                        <SortSidebar />
-                    </Suspense>
-                </aside>
-                <div className="flex-1">{children}</div>
-            </div>
+            {children}
         </LayoutHeader>
     );
 }

@@ -1,14 +1,11 @@
 "use client";
 import React from "react";
-import Phone from "../utilities/phone";
-import { Button } from "../ui/button";
-import { useFavorite } from "@/hooks/use-favorite";
-import { IUser } from "../../../auth-client";
-import { useRouter } from "next/navigation";
-import { formatPrice } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useFavorite } from "@/hooks/use-favorite";
 import { useBuyNow } from "@/hooks/use-buy-now";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { IUser } from "../../../auth-client";
+import DesignCard from "./design-card";
 
 export interface ICaseDesignProps {
     id: string;
@@ -23,11 +20,11 @@ export interface ICaseDesignProps {
     isFavorited: boolean;
     user: IUser | null | undefined;
     croppedImgUrl: string;
+    tone?: "ink" | "paper";
 }
 
 const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     id,
-    // imgSrc,
     altText,
     caseName,
     modelName,
@@ -38,8 +35,10 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     isFavorited: initialFavorited,
     user,
     croppedImgUrl,
+    tone = "ink",
 }) => {
     const router = useRouter();
+    const pathname = usePathname() ?? "/";
     const { isFavorited, toggleFavorite, loading } = useFavorite({
         caseDesignId: id,
         initialFavorited,
@@ -48,69 +47,34 @@ const CaseDesignComponent: React.FC<ICaseDesignProps> = ({
     const { buyNow, loading: isBuyNowLoading } = useBuyNow({ designId: id });
     const queryClient = useQueryClient();
 
+    const signIn = () =>
+        router.push(`/sign-in?redirectTo=${encodeURIComponent(pathname)}`);
+
     return (
-        <article className="max-w-xs mx-auto p-1">
-            <div className="flex justify-center">
-                <Phone
-                    imgSrc={croppedImgUrl}
-                    altText={altText ?? caseName}
-                    dark
-                />
-            </div>
-            <h2 className="mt-4 text-left text-md font-semibold line-clamp-2 h-14">
-                {caseName}
-            </h2>
-            <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
-                <dt className="text-muted">Model:</dt>
-                <dd className="text-right">{modelName}</dd>
-
-                <dt className="text-muted">Color:</dt>
-                <dd className="text-right">{color}</dd>
-
-                <dt className="text-muted">Material:</dt>
-                <dd className="text-right">{material}</dd>
-
-                <dt className="text-muted">Finish:</dt>
-                <dd className="text-right">{finish}</dd>
-
-                <dt className="text-muted">Price:</dt>
-                <dd className="text-right font-medium">{formatPrice(price)}</dd>
-            </dl>
-
-            <div className="mt-4 flex justify-between space-y-3">
-                <Button
-                    onClick={() => buyNow()}
-                    aria-label={`Buy ${caseName}`}
-                    disabled={isBuyNowLoading}
-                    isLoading={isBuyNowLoading}
-                    size={"sm"}
-                    variant={"secondary"}
-                >
-                    Buy Now
-                </Button>
-
-                {
-                    <Button
-                        onClick={() => {
-                            if (!user) {
-                                router.push("/sign-in");
-                                return;
-                            }
-                            toggleFavorite();
-                            queryClient.invalidateQueries();
-                        }}
-                        aria-label={`Favorite ${caseName}`}
-                        disabled={loading}
-                        isLoading={loading}
-                        variant={"secondary"}
-                        icon={isFavorited ? FaHeart : FaRegHeart}
-                        size={"sm"}
-                    >
-                        {isFavorited ? "Favorited" : "Favorite"}
-                    </Button>
-                }
-            </div>
-        </article>
+        <DesignCard
+            id={id}
+            caseName={caseName}
+            modelName={modelName}
+            color={color}
+            material={material}
+            finish={finish}
+            price={price}
+            croppedImgUrl={croppedImgUrl}
+            altText={altText}
+            tone={tone}
+            isFavorited={isFavorited}
+            isFavoriteLoading={loading}
+            isBuying={isBuyNowLoading}
+            onBuy={() => {
+                if (!user) return signIn();
+                buyNow();
+            }}
+            onFavorite={() => {
+                if (!user) return signIn();
+                toggleFavorite();
+                queryClient.invalidateQueries();
+            }}
+        />
     );
 };
 

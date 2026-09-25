@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -23,7 +22,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { MdDelete } from "react-icons/md";
 import AccountHeader from "../../components/account-header";
-import { User } from "lucide-react";
 
 export default function AccountProfilePage({ user }: { user: IUser }) {
     const { toast } = useToast();
@@ -67,37 +65,39 @@ export default function AccountProfilePage({ user }: { user: IUser }) {
     };
 
     return (
-        <div className="space-y-6">
+        <div>
             <AccountHeader
-                heading="Your Profile"
-                description="Update your profile information to personalize your shopping
-                    experience."
-                icon={User}
+                heading="Profile"
+                description="Your name, username and password. Changes apply everywhere you sign in."
             />
 
-            <div className="flex flex-col gap-y-8 w-full">
+            <div className="flex w-full flex-col">
                 <ProfileName currentUser={user} />
-                <Separator />
                 <ProfileUsername currentUser={user} />
-                <Separator />
-                {/* <ProfileEmail currentUser={user} />
-                <Separator /> */}
-                {showPassword && (
-                    <>
-                        <ProfilePassword />
-                        <Separator />
-                    </>
-                )}
+                {showPassword && <ProfilePassword />}
+            </div>
 
+            <section
+                aria-labelledby="danger-heading"
+                className="mt-12 flex flex-col gap-4 rounded-md border border-destructive/30 bg-destructive/[0.04] p-6 sm:flex-row sm:items-center sm:justify-between"
+            >
+                <div>
+                    <h3 id="danger-heading" className="type-heading">
+                        Delete your account
+                    </h3>
+                    <p className="mt-1.5 max-w-md text-sm text-ink-soft">
+                        Permanently removes your account, saved designs and
+                        favourites. This can&rsquo;t be undone.
+                    </p>
+                </div>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button
-                            size={"sm"}
-                            className="text-red-500 w-fit"
-                            variant={"outline"}
+                            variant="outline"
+                            className="shrink-0 border-destructive/40 text-destructive hover:border-destructive hover:bg-destructive/5"
                             icon={MdDelete}
                         >
-                            Delete Account
+                            Delete account
                         </Button>
                     </AlertDialogTrigger>
 
@@ -125,13 +125,13 @@ export default function AccountProfilePage({ user }: { user: IUser }) {
                                 disabled={isDeleting}
                             >
                                 <span className="inline-flex items-center gap-2">
-                                    {isDeleting ? "Deleting..." : "Continue"}
+                                    {isDeleting ? "Deleting..." : "Delete my account"}
                                 </span>
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
-            </div>
+            </section>
         </div>
     );
 }

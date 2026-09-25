@@ -2,13 +2,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import ErrorMessage from "@/components/utilities/error";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import EmptyState from "../../components/empty-state";
 import { getReminders } from "../actions/actions";
 import Reminder from "./reminder";
 import ReminderSkeleton from "./skeleton/reminder-skeleton";
 import AccountHeader from "../../components/account-header";
-import { Bell } from "lucide-react";
 
 interface RemindersOverviewPageProps {
     userId: string;
@@ -57,18 +55,12 @@ const RemindersOverviewPage: React.FC<RemindersOverviewPageProps> = ({
 
         if (!reminders.length) {
             return (
-                <div className="w-full flex flex-col items-center gap-4 col-span-full text-center">
-                    <h2 className="text-2xl font-semibold">
-                        No reminders sent yet
-                    </h2>
-                    <p className="text-base text-muted-foreground max-w-md">
-                        You currently have no reminders that have been sent.
-                        Once a design triggers a reminder, it will appear here.
-                    </p>
-                    <Link href="/" passHref>
-                        <Button className="mt-2">Explore Designs</Button>
-                    </Link>
-                </div>
+                <EmptyState
+                    title="No reminders sent yet"
+                    description="If you leave a design unfinished, we'll email you a reminder and it will show up here."
+                    href="/account/unfinished-designs"
+                    cta="See unfinished designs"
+                />
             );
         }
 
@@ -78,15 +70,12 @@ const RemindersOverviewPage: React.FC<RemindersOverviewPageProps> = ({
     };
 
     return (
-        <div className="space-y-6">
+        <div>
             <AccountHeader
-                heading="Your Reminders"
-                description="Here is a history of reminders that have already been sent
-                    to your email for unfinished case designs."
-                icon={Bell}
+                heading="Reminders"
+                description="Reminders we've emailed you about designs you haven't finished yet."
             />
-
-            <section className="flex flex-col gap-4">{renderContent()}</section>
+            <section className="flex flex-col">{renderContent()}</section>
         </div>
     );
 };

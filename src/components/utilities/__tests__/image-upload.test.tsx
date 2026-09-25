@@ -52,10 +52,10 @@ describe("<ImageUpload />", () => {
     it("renders default idle state", () => {
         render(<ImageUpload {...baseProps()} />);
 
-        expect(screen.getByText(/Click to upload/i)).toBeInTheDocument();
-        expect(screen.getByText(/or drag and drop/i)).toBeInTheDocument();
+        expect(screen.getByText(/Drop your photo here/i)).toBeInTheDocument();
+        expect(screen.getByText(/click to browse/i)).toBeInTheDocument();
         expect(screen.getByTestId("icon-image")).toBeInTheDocument();
-        expect(screen.getByText(/PNG, JPG, JPEG/i)).toBeInTheDocument();
+        expect(screen.getByText(/PNG, JPG or JPEG · up to 10 MB/i)).toBeInTheDocument();
     });
 
     it("shows drag-over state and toggles via Dropzone events", async () => {
@@ -73,7 +73,7 @@ describe("<ImageUpload />", () => {
     it("renders drag-over UI when isDragOver is true", () => {
         render(<ImageUpload {...baseProps()} isDragOver />);
         expect(screen.getByTestId("icon-pointer")).toBeInTheDocument();
-        expect(screen.getByText(/Drop file/i)).toBeInTheDocument();
+        expect(screen.getByText(/Drop file to upload/i)).toBeInTheDocument();
     });
 
     it("renders uploading UI with progress", () => {
@@ -86,6 +86,7 @@ describe("<ImageUpload />", () => {
             "data-value",
             "57"
         );
+        expect(screen.getByText(/57% sent/i)).toBeInTheDocument();
     });
 
     it("renders pending UI and hides filetype hint", () => {
@@ -93,7 +94,7 @@ describe("<ImageUpload />", () => {
         expect(
             screen.getByText(/Redirecting, please wait/i)
         ).toBeInTheDocument();
-        expect(screen.queryByText(/PNG, JPG, JPEG/i)).toBeNull();
+        expect(screen.queryByText(/PNG, JPG or JPEG/i)).toBeNull();
     });
 
     it("invokes onDropAccepted with files", async () => {
@@ -111,6 +112,11 @@ describe("<ImageUpload />", () => {
         const rejects = [{ file: new File(["x"], "bad.txt"), errors: [] }];
         await lastDZProps.onDropRejected(rejects);
         expect(props.onDropRejected).toHaveBeenCalledWith(rejects);
+    });
+
+    it("disables the dropzone while an upload is in flight", () => {
+        render(<ImageUpload {...baseProps()} isUploading />);
+        expect(lastDZProps.disabled).toBe(true);
     });
 
     it("passes maxSize and accept to Dropzone", () => {

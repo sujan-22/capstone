@@ -1,12 +1,12 @@
-// components/order-details/order.tsx
 "use client";
 
 import React from "react";
 import { IUserOrderWithDesign } from "@/lib/types/user-orders.types";
 import OrderInfo from "./order-info";
 import { IUser } from "../../../../../../auth-client";
-import OrderSecondayInfo from "./order-secondary-info";
+import OrderSecondaryInfo from "./order-secondary-info";
 import PhonePreview from "@/components/utilities/phone-preview";
+import OrderReceipt from "@/components/order/order-receipt";
 
 const Order = ({
     order,
@@ -16,17 +16,24 @@ const Order = ({
     user: IUser;
 }) => {
     return (
-        <div className="flex flex-col gap-6 w-full">
+        <div className="flex w-full flex-col gap-12">
             <OrderInfo order={order} />
-            <div className="flex space-x-6 overflow-hidden bg-muted px-4 py-2.5 rounded-md ring-1 ring-inset ring-gray-900/10">
-                <PhonePreview
-                    croppedImageUrl={order.design.croppedImgUrl}
-                    color={order.design.colorHex}
-                />
+            <div className="grid gap-10 lg:grid-cols-12">
+                <figure className="relative overflow-hidden rounded-md bg-paper-sunken lg:col-span-7">
+                    <div className="halftone absolute inset-0 text-ink/[0.06]" />
+                    <PhonePreview
+                        croppedImageUrl={order.design.croppedImgUrl}
+                        color={order.design.colorHex}
+                    />
+                </figure>
+                <div className="lg:col-span-5">
+                    <OrderSecondaryInfo order={order} user={user} />
+                </div>
             </div>
-            <div className="flex flex-col md:flex-row gap-6">
-                <OrderSecondayInfo order={order} user={user} />
-            </div>
+            <OrderReceipt
+                order={order}
+                contact={{ name: user.name, email: user.email }}
+            />
         </div>
     );
 };

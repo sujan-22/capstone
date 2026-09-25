@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import Navbar from "../navbar";
 import Link from "next/link";
 
-const push = jest.fn();
+let mockPathname = "/";
 jest.mock("next/navigation", () => ({
-    useRouter: () => ({ push }),
+    usePathname: () => mockPathname,
 }));
 
 jest.mock("../../utilities/max-width-wrapper", () => {
@@ -46,9 +45,10 @@ const userFixture = { id: "user-123", email: "u@example.com" } as any;
 describe("<Navbar />", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockPathname = "/";
     });
 
-    it("renders Logo and UserDropdown (no user)", () => {
+    it("renders Logo, main links and UserDropdown (no user)", () => {
         render(<Navbar user={null} />);
 
         expect(screen.getByLabelText("logo")).toBeInTheDocument();
@@ -58,23 +58,53 @@ describe("<Navbar />", () => {
             "false"
         );
 
+        expect(screen.getByRole("link", { name: /^Gallery$/i })).toHaveAttribute(
+            "href",
+            "/gallery-images"
+        );
         expect(
-            screen.getByRole("button", { name: /Sign in/i })
-        ).toBeInTheDocument();
-        expect(
-            screen.queryByRole("button", { name: /Create Case/i })
-        ).toBeNull();
+            screen.getByRole("link", { name: /Featured designs/i })
+        ).toHaveAttribute("href", "/featured-designs");
     });
 
-    it('navigates to "/configure/upload" when "Create Case" is clicked', async () => {
-        const user = userEvent.setup();
+    it("sends signed-out visitors to sign in, then on to the editor", () => {
+        render(<Navbar user={null} />);
+
+        expect(screen.getByRole("link", { name: /^Sign in$/i })).toHaveAttribute(
+            "href",
+            "/sign-in"
+        );
+        expect(
+            screen.getByRole("link", { name: /Create a case/i })
+        ).toHaveAttribute("href", "/sign-in?redirectTo=%2Fconfigure%2Fupload");
+    });
+
+    it('links signed-in users straight to "/configure/upload"', () => {
         render(<Navbar user={userFixture} />);
 
-        const createBtn = screen.getByRole("button", { name: /Create Case/i });
-        await user.click(createBtn);
+        expect(
+            screen.getByRole("link", { name: /Create a case/i })
+        ).toHaveAttribute("href", "/configure/upload");
+        expect(screen.queryByRole("link", { name: /^Sign in$/i })).toBeNull();
+    });
 
-        expect(push).toHaveBeenCalledTimes(1);
-        expect(push).toHaveBeenCalledWith("/configure/upload");
+    it("shows no create link for admins", () => {
+        render(<Navbar user={{ ...userFixture, role: "admin" }} />);
+
+        expect(screen.queryByRole("link", { name: /Create a case/i })).toBeNull();
+    });
+
+    it("marks the current section with aria-current", () => {
+        mockPathname = "/gallery-images";
+        render(<Navbar user={userFixture} />);
+
+        expect(screen.getByRole("link", { name: /^Gallery$/i })).toHaveAttribute(
+            "aria-current",
+            "page"
+        );
+        expect(
+            screen.getByRole("link", { name: /Featured designs/i })
+        ).not.toHaveAttribute("aria-current");
     });
 
     it("passes user to UserDropdown when user is provided", () => {

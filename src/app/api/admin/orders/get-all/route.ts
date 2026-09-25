@@ -10,8 +10,10 @@ export type OrderListItem = {
         id: string;
         hasRequestedToSharePublicly: boolean;
         isSharedPublicly: boolean;
+        croppedImageUrl: string | null;
     };
     status: string;
+    totalAmount: number;
     createdAt: string;
     customer: {
         id: string;
@@ -37,6 +39,10 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const q = (url.searchParams.get("q") || "").trim();
     const userId = url.searchParams.get("userId") || null;
+    const statusParam = (url.searchParams.get("status") || "").toUpperCase();
+    const status = ["PENDING", "SHIPPED", "FULFILLED"].includes(statusParam)
+        ? statusParam
+        : null;
     const limit = parseLimit(url.searchParams.get("limit"));
     const { createdAt: cursorCreatedAt, id: cursorId } = decodeCursor(
         url.searchParams.get("cursor")
@@ -64,6 +70,11 @@ export async function GET(req: Request) {
         params.push(userId);
     }
 
+    if (status) {
+        whereParts.push(`UPPER(o.order_status) = $${++p}`);
+        params.push(status);
+    }
+
     if (cursorCreatedAt && cursorId) {
         whereParts.push(
             `(o.created_at < $${++p}::timestamptz OR (o.created_at = $${p}::timestamptz AND o.id < $${++p}))`
@@ -77,12 +88,14 @@ export async function GET(req: Request) {
       o.order_number,
       o.case_design_id,
       o.order_status,
+      o.total_amount,
       o.created_at,
       u.id  AS user_id,
       COALESCE(u.name, u.username, u.email, u.id::text) AS user_name,
       u.email AS user_email,
       cd.has_requested_to_share_publicly AS has_requested_to_share_publicly,
-      cd.is_shared_publicly              AS is_shared_publicly
+      cd.is_shared_publicly              AS is_shared_publicly,
+      cd.cropped_image_url               AS cropped_image_url
     FROM "order" o
     LEFT JOIN "user" u ON u.id = o.user_id
     LEFT JOIN case_design cd ON cd.id = o.case_design_id
@@ -107,8 +120,10 @@ export async function GET(req: Request) {
                 id: r.case_design_id,
                 hasRequestedToSharePublicly: r.has_requested_to_share_publicly,
                 isSharedPublicly: r.is_shared_publicly,
+                croppedImageUrl: r.cropped_image_url ?? null,
             },
             status: r.order_status,
+            totalAmount: Number(r.total_amount ?? 0),
             createdAt: new Date(r.created_at).toISOString(),
             customer: {
                 id: r.user_id,

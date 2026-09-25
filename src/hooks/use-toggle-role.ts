@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "../../auth-client";
-import { adminCustomersKeys } from "@/app/(site)/(admin)/admin-dashboard/customers/actions/actions";
+import { adminCustomersKeys } from "@/app/(admin)/admin-dashboard/customers/actions/actions";
 
 export type UserRole = "admin" | "user";
 

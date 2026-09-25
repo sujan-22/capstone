@@ -42,7 +42,12 @@ export default async function authMiddleware(request: NextRequest) {
         }
 
         if (isProtectedRoute) {
-            return NextResponse.redirect(new URL("/sign-in", request.url));
+            const signIn = new URL("/sign-in", request.url);
+            signIn.searchParams.set(
+                "redirectTo",
+                `${pathname}${request.nextUrl.search}`
+            );
+            return NextResponse.redirect(signIn);
         }
 
         return NextResponse.next();

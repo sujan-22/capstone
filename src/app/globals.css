@@ -1,153 +1,257 @@
 @import "tailwindcss";
 
-body {
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
-.font-sans {
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * DesignMyCase prints people's photos onto cases, so the interface borrows
+ * from a printer's proof sheet: warm paper, dense ink, one cobalt accent for
+ * anything you can act on, and the four process inks (C, M, Y, K) kept for
+ * print marks only. Magenta and yellow never carry text; they fail contrast.
+ */
 @theme inline {
+    --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+        monospace;
+
+    --color-paper: var(--paper);
+    --color-paper-raised: var(--paper-raised);
+    --color-paper-sunken: var(--paper-sunken);
+    --color-ink: var(--ink);
+    --color-ink-raised: var(--ink-raised);
+    --color-ink-soft: var(--ink-soft);
+    --color-rule: var(--rule);
+    --color-cobalt: var(--cobalt);
+    --color-cobalt-deep: var(--cobalt-deep);
+    --color-cobalt-tint: var(--cobalt-tint);
+    --color-cobalt-light: var(--cobalt-light);
+    --color-process-c: var(--process-c);
+    --color-process-m: var(--process-m);
+    --color-process-y: var(--process-y);
+    --color-process-k: var(--process-k);
+    --color-success: var(--success);
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
     --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
-    --radius: 0.625rem;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-    --marquee-duration: 10000ms;
-}
+    --radius: 0.5rem;
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --paper: #f2efe8;
+    --paper-raised: #fbfaf7;
+    --paper-sunken: #e7e3d9;
+    --ink: #141414;
+    --ink-raised: #1f1f1e;
+    /* 5.9:1 on paper, 6.5:1 on raised paper */
+    --ink-soft: #5e5b53;
+    --rule: #d9d4c9;
+    /* 6.3:1 on paper as text; white on it is 7.3:1 */
+    --cobalt: #2a36f0;
+    --cobalt-deep: #1c25c4;
+    --cobalt-tint: #e2e4fc;
+    /* for cobalt on ink: 6.9:1 */
+    --cobalt-light: #8c95ff;
+    --process-c: #00a3e0;
+    --process-m: #e6007e;
+    --process-y: #ffe500;
+    --process-k: #141414;
+    --success: #18794e;
+
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--paper-raised);
+    --card-foreground: var(--ink);
+    --popover: var(--paper-raised);
+    --popover-foreground: var(--ink);
+    --primary: var(--cobalt);
+    --primary-foreground: #ffffff;
+    --secondary: var(--paper-sunken);
+    --secondary-foreground: var(--ink);
+    --muted: #ebe7de;
+    --muted-foreground: var(--ink-soft);
+    --accent: #e9e5dc;
+    --accent-foreground: var(--ink);
+    --destructive: #c8281e;
+    --destructive-foreground: #ffffff;
+    --border: var(--rule);
+    --input: #cdc8bc;
+    --ring: var(--cobalt);
+
+    --chart-1: var(--cobalt);
+    --chart-2: #00a3e0;
+    --chart-3: #e6007e;
+    --chart-4: #d4a900;
+    --chart-5: #5e5b53;
+
+    --marquee-duration: 10000ms;
 }
 
 @layer base {
     * {
         @apply border-border outline-ring/50;
     }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-rendering: optimizeLegibility;
+        scroll-padding-top: 5rem;
+    }
+
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
+        font-family: var(--font-sans);
+    }
+
+    ::selection {
+        background: var(--cobalt);
+        color: #ffffff;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--cobalt);
+        outline-offset: 2px;
     }
 }
+
+/* ---------------------------------------------------------------- type */
+
+/* Archivo's width axis does the work: expanded and heavy for display,
+   standard width for reading. */
+@utility type-mega {
+    font-weight: 800;
+    font-variation-settings: "wdth" 125;
+    font-size: clamp(3.5rem, 10.2vw, 9.75rem);
+    line-height: 0.84;
+    letter-spacing: -0.055em;
+}
+
+@utility type-display {
+    font-weight: 800;
+    font-variation-settings: "wdth" 118;
+    font-size: clamp(2.5rem, 5.6vw, 5.25rem);
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+}
+
+@utility type-title {
+    font-weight: 750;
+    font-variation-settings: "wdth" 112;
+    font-size: clamp(1.625rem, 2.6vw, 2.25rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+@utility type-heading {
+    font-weight: 700;
+    font-variation-settings: "wdth" 108;
+    font-size: 1.125rem;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+@utility type-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+@utility wdth-expanded {
+    font-variation-settings: "wdth" 125;
+}
+
+@utility text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px currentColor;
+}
+
+/* ------------------------------------------------------------- texture */
+
+@utility halftone {
+    background-image: radial-gradient(
+        circle at center,
+        currentColor 1.1px,
+        transparent 1.3px
+    );
+    background-size: 9px 9px;
+}
+
+/* A cutting mat: faint centimetre grid with a heavier line every fifth. */
+@utility cutting-mat {
+    background-color: var(--paper-sunken);
+    background-image:
+        linear-gradient(rgb(20 20 20 / 0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(20 20 20 / 0.09) 1px, transparent 1px),
+        linear-gradient(rgb(20 20 20 / 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(20 20 20 / 0.04) 1px, transparent 1px);
+    background-size:
+        120px 120px,
+        120px 120px,
+        24px 24px,
+        24px 24px;
+    background-position: center;
+}
+
+/* Tear-off edge for tickets and receipts. */
+@utility perforated {
+    --perf: 7px;
+    -webkit-mask:
+        radial-gradient(circle at 50% 0, transparent 3.5px, #000 4px) top /
+            calc(var(--perf) * 2) 51% repeat-x,
+        radial-gradient(circle at 50% 100%, transparent 3.5px, #000 4px) bottom /
+            calc(var(--perf) * 2) 51% repeat-x;
+    mask:
+        radial-gradient(circle at 50% 0, transparent 3.5px, #000 4px) top /
+            calc(var(--perf) * 2) 51% repeat-x,
+        radial-gradient(circle at 50% 100%, transparent 3.5px, #000 4px) bottom /
+            calc(var(--perf) * 2) 51% repeat-x;
+}
+
+@utility scrollbar-none {
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------ products */
 
 .phone-skew {
     transform: perspective(400px) rotateY(3deg) skewX(11.1deg) skewY(-10.9deg);
 }
 
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.animate-fade-in {
-    animation: fade-in 0.5s linear forwards;
-}
+/* ------------------------------------------------------------- motion */
 
 @keyframes marquee {
     0% {
@@ -162,6 +266,36 @@ body {
     transform: translateZ(0);
 }
 
+@keyframes ticker {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+.animate-ticker {
+    animation: ticker var(--ticker-duration, 48s) linear infinite;
+}
+.animate-ticker:hover {
+    animation-play-state: paused;
+}
+
+@keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+        opacity: 1;
+    }
+    20%,
+    50% {
+        opacity: 0;
+    }
+}
+.animate-caret-blink {
+    animation: caret-blink 1.2s ease-out infinite;
+}
+
 @keyframes flashing {
     0%,
     100% {
@@ -173,4 +307,16 @@ body {
 }
 .animate-flashing {
     animation: flashing 1.4s infinite linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-marquee,
+    .animate-ticker,
+    .animate-flashing,
+    .animate-caret-blink {
+        animation: none;
+    }
+    html {
+        scroll-behavior: auto;
+    }
 }

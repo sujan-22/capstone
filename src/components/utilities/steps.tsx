@@ -2,30 +2,13 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
-import { Inspect, Settings, Upload } from "lucide-react";
 
 const steps = [
-    {
-        id: 1,
-        label: "Choose an Image",
-        href: "/configure/upload",
-        icon: Upload,
-    },
-    {
-        id: 2,
-        label: "Customize Your Case",
-        href: "/configure/customize",
-        icon: Settings,
-    },
-    {
-        id: 3,
-        label: "Review Your Selections",
-        href: "/configure/preview",
-        icon: Inspect,
-    },
+    { id: 1, label: "Upload your photo", href: "/configure/upload" },
+    { id: 2, label: "Place & customise", href: "/configure/customize" },
+    { id: 3, label: "Review your proof", href: "/configure/preview" },
 ];
 
 export default function Steps() {
@@ -33,78 +16,65 @@ export default function Steps() {
     const currentIndex = steps.findIndex((s) => pathname.startsWith(s.href));
 
     return (
-        <div className="w-full">
-            <nav aria-label="Configure steps" className="group my-4">
-                <ol
-                    role="tablist"
-                    className="flex flex-row items-baseline max-w-5xl mx-auto px-1 sm:px-4"
-                >
-                    {steps.map((step, index, array) => {
-                        const completed = index < currentIndex;
-                        const active = index === currentIndex;
+        <nav aria-label="Design progress">
+            <ol className="grid grid-cols-3 gap-2 sm:gap-4">
+                {steps.map((step, index) => {
+                    const completed = index < currentIndex;
+                    const active = index === currentIndex;
 
-                        return (
-                            <React.Fragment key={step.id}>
-                                <li
-                                    role="presentation"
+                    return (
+                        <li
+                            key={step.id}
+                            aria-current={active ? "step" : undefined}
+                            className="min-w-0"
+                        >
+                            <span
+                                aria-hidden
+                                className={cn(
+                                    "block h-1 rounded-full transition-colors duration-500",
+                                    completed
+                                        ? "bg-ink"
+                                        : active
+                                        ? "bg-cobalt"
+                                        : "bg-ink/10"
+                                )}
+                            />
+                            <span className="mt-3 flex items-center gap-2">
+                                <span
+                                    aria-hidden
                                     className={cn(
-                                        "flex flex-col items-center flex-shrink-0",
-                                        "max-[640px]:flex-shrink max-[640px]:min-w-0 max-[640px]:px-1",
-                                        "gap-1 sm:gap-2"
+                                        "flex size-5 shrink-0 items-center justify-center rounded-full font-mono text-[0.625rem] font-medium",
+                                        completed
+                                            ? "bg-ink text-paper"
+                                            : active
+                                            ? "bg-cobalt text-white"
+                                            : "border border-ink/20 text-ink-soft"
                                     )}
                                 >
-                                    <Button
-                                        aria-selected={active}
-                                        aria-current={
-                                            active ? "step" : undefined
-                                        }
-                                        aria-posinset={index + 1}
-                                        aria-setsize={steps.length}
-                                        variant={
-                                            completed || active
-                                                ? "default"
-                                                : "secondary"
-                                        }
-                                        className={cn(
-                                            "flex items-center justify-center rounded-full w-8 h-8 p-0 hover:cursor-default",
-                                            active ? "shadow-sm" : ""
-                                        )}
-                                    >
-                                        <step.icon className="w-4 h-4" />
-                                    </Button>
-
-                                    <span
-                                        className={cn(
-                                            "text-sm font-medium text-center leading-tight",
-                                            "max-[640px]:whitespace-normal max-[640px]:break-words",
-                                            active
-                                                ? "text-primary"
-                                                : completed
-                                                ? "text-blue-600"
-                                                : "text-muted-foreground"
-                                        )}
-                                    >
-                                        {step.label}
-                                    </span>
-                                </li>
-
-                                {index < array.length - 1 && (
-                                    <Separator
-                                        className={cn(
-                                            "h-0.5 flex-1 transition-colors duration-200 min-w-6 self-center",
-                                            "sm:mx-3 max-[640px]:mx-1 max-[640px]:max-w-[60px]",
-                                            completed
-                                                ? "bg-blue-600"
-                                                : "bg-muted-foreground/30"
-                                        )}
-                                        aria-hidden
-                                    />
-                                )}
-                            </React.Fragment>
-                        );
-                    })}
-                </ol>
-            </nav>
-        </div>
+                                    {completed ? (
+                                        <Check className="size-3" strokeWidth={3} />
+                                    ) : (
+                                        step.id
+                                    )}
+                                </span>
+                                <span
+                                    className={cn(
+                                        "truncate text-xs font-semibold sm:text-sm",
+                                        active || completed
+                                            ? "text-ink"
+                                            : "text-ink-soft"
+                                    )}
+                                >
+                                    {step.label}
+                                    {completed ? (
+                                        <span className="sr-only"> (done)</span>
+                                    ) : null}
+                                </span>
+                            </span>
+                        </li>
+                    );
+                })}
+            </ol>
+        </nav>
     );
 }

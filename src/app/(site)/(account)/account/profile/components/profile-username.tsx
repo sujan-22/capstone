@@ -143,13 +143,15 @@ const ProfileUsername = ({ currentUser }: { currentUser: IUser }) => {
             >
                 <Input
                     name="username"
+                    aria-label="Username"
+                    autoComplete="username"
                     placeholder="Enter your username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     disabled={loading}
                 />
                 {errorState && (
-                    <p className="text-red-500 mt-2">{errorState}</p>
+                    <p className="text-destructive mt-2">{errorState}</p>
                 )}
             </AccountInfo>
         </form>

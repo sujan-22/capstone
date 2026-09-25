@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { authClient } from "../../../../../../../auth-client";
@@ -83,11 +84,11 @@ const ProfilePassword = () => {
                 isLoading={loading}
                 disabled={strength.score < 2}
             >
-                <div className="mb-1">
-                    <p className="text-sm text-muted-foreground">
-                        Current Password
-                    </p>
+                <div className="grid gap-2">
+                    <Label htmlFor="current-password">Current password</Label>
                     <Input
+                        id="current-password"
+                        autoComplete="current-password"
                         name="current-password"
                         type="password"
                         value={currentPassword}
@@ -96,11 +97,11 @@ const ProfilePassword = () => {
                         data-testid="current-password-input"
                     />
                 </div>
-                <div>
-                    <p className="text-sm text-muted-foreground">
-                        New Password
-                    </p>
+                <div className="grid gap-2">
+                    <Label htmlFor="new-password">New password</Label>
                     <Input
+                        id="new-password"
+                        autoComplete="new-password"
                         name="password"
                         type="password"
                         value={newPassword}
@@ -111,7 +112,7 @@ const ProfilePassword = () => {
                     <PasswordStrengthMeter password={newPassword} />
                 </div>
                 {errorState && (
-                    <p className="text-red-500 mt-2">{errorState}</p>
+                    <p className="text-destructive mt-2">{errorState}</p>
                 )}
             </AccountInfo>
         </form>

@@ -1,90 +1,38 @@
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
 
 const PreviewInfoSkeleton = () => {
     return (
-        <div className="flex-1 w-full flex flex-col gap-4">
-            <section className="bg-muted px-4 py-2.5 rounded-md">
-                <Skeleton className="h-6 w-1/3  mb-4" />
-
-                <div className="mt-2 grid gap-y-1">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div className="flex justify-between" key={i}>
-                            <Skeleton className="h-4 w-1/4 " />
-                            <Skeleton className="h-4 w-1/4 " />
-                        </div>
-                    ))}
+        <div className="flex w-full flex-col gap-8">
+            <div>
+                <Skeleton className="mb-3 h-3 w-40" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                        key={i}
+                        className="flex justify-between border-b border-rule py-3.5"
+                    >
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-28" />
+                    </div>
+                ))}
+            </div>
+            <div className="flex gap-2">
+                <Skeleton className="h-8 w-44 rounded-full" />
+                <Skeleton className="h-8 w-36 rounded-full" />
+            </div>
+            <div className="space-y-3 bg-paper-raised px-6 py-7">
+                <Skeleton className="mx-auto h-3 w-28" />
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex justify-between">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-16" />
+                    </div>
+                ))}
+                <div className="flex justify-between border-t border-rule pt-4">
+                    <Skeleton className="h-4 w-14" />
+                    <Skeleton className="h-6 w-24" />
                 </div>
-            </section>
-
-            {/* Billing & Shipping */}
-            <section className="bg-muted px-4 py-2.5 rounded-md">
-                <Skeleton className="h-6 w-1/3  mb-4" />
-
-                <div className="grid gap-1">
-                    <Skeleton className="h-4 w-1/3 " />
-                    <Skeleton className="h-4 w-1/5 " />
-                    <Skeleton className="h-4 w-1/4 " />
-                </div>
-            </section>
-
-            {/* Pricing Summary */}
-            <section className="bg-muted px-4 py-2.5 rounded-md">
-                <Skeleton className="h-6 w-1/4  mb-4" />
-
-                <dl className="grid grid-cols-2 gap-x-4 text-sm gap-y-1 sm:text-base">
-                    <dt>
-                        <Skeleton className="h-4 w-32 " />
-                    </dt>
-                    <dd className="text-right">
-                        <Skeleton className="h-4 w-24  ml-auto" />
-                    </dd>
-
-                    <dt>
-                        <Skeleton className="h-4 w-24 " />
-                    </dt>
-                    <dd className="text-right">
-                        <Skeleton className="h-4 w-20  ml-auto" />
-                    </dd>
-                </dl>
-
-                <Separator className="my-4" />
-
-                <dl className="grid grid-cols-2 gap-x-4 text-sm gap-y-1 sm:text-base">
-                    <dt>
-                        <Skeleton className="h-4 w-24 " />
-                    </dt>
-                    <dd className="text-right">
-                        <Skeleton className="h-4 w-12  ml-auto" />
-                    </dd>
-
-                    <dt>
-                        <Skeleton className="h-4 w-24 " />
-                    </dt>
-                    <dd className="text-right">
-                        <Skeleton className="h-4 w-12  ml-auto" />
-                    </dd>
-
-                    <dt>
-                        <Skeleton className="h-4 w-24 " />
-                    </dt>
-                    <dd className="text-right">
-                        <Skeleton className="h-4 w-20  ml-auto" />
-                    </dd>
-                </dl>
-
-                <Separator className="my-4" />
-
-                <dl className="grid grid-cols-2 gap-x-4 text-sm sm:text-base">
-                    <dt>
-                        <Skeleton className="h-5 w-28 " />
-                    </dt>
-                    <dd className="text-right">
-                        <Skeleton className="h-5 w-24  ml-auto" />
-                    </dd>
-                </dl>
-            </section>
+            </div>
         </div>
     );
 };

@@ -198,7 +198,7 @@ export default function EmailOtpDialog({
                         />
 
                         {form.formState.errors.verificationCode && (
-                            <p className="text-sm text-red-500">
+                            <p className="text-sm text-destructive">
                                 {form.formState.errors.verificationCode.message}
                             </p>
                         )}

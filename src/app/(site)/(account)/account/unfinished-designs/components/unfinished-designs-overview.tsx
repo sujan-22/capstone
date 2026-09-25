@@ -2,13 +2,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import ErrorMessage from "@/components/utilities/error";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import EmptyState from "../../components/empty-state";
 import { getUnfinishedDesigns } from "../actions/actions";
 import UnfinishedDesign from "./unfinished-design";
 import UnfinishedDesignSkeleton from "./skeleton/unfinished-design-skeleton";
 import AccountHeader from "../../components/account-header";
-import { FileClock } from "lucide-react";
 
 interface UnfinishedDesignsOverviewPageProps {
     userId: string;
@@ -57,19 +55,12 @@ const UnfinishedDesignsOverviewPage: React.FC<
 
         if (!designs.length) {
             return (
-                <div className="w-full flex flex-col items-center gap-4 col-span-full text-center">
-                    <h2 className="text-2xl font-semibold">
-                        No unfinished designs
-                    </h2>
-                    <p className="text-base text-muted-foreground max-w-md">
-                        You don’t have any unfinished custom case designs yet.
-                        Once you start creating a design, it will appear here
-                        for you to continue working on it.
-                    </p>
-                    <Link href="/" passHref>
-                        <Button className="mt-2">Start a New Design</Button>
-                    </Link>
-                </div>
+                <EmptyState
+                    title="No unfinished designs"
+                    description="Designs you start but don't order are saved here, so you can come back to them any time."
+                    href="/configure/upload"
+                    cta="Start a new design"
+                />
             );
         }
 
@@ -79,16 +70,19 @@ const UnfinishedDesignsOverviewPage: React.FC<
     };
 
     return (
-        <div className="space-y-6">
+        <div>
             <AccountHeader
-                heading="Your Unfinished Designs"
-                description="Here are all your ongoing custom case designs. You can
-                    continue customizing them or dismiss reminders for designs
-                    you’ve completed."
-                icon={FileClock}
+                heading="Unfinished designs"
+                description="Cases you've started but not ordered. Pick one up where you left off, or clear it out."
+                aside={
+                    designs.length ? (
+                        <span className="type-label text-ink-soft">
+                            {designs.length} in progress
+                        </span>
+                    ) : null
+                }
             />
-
-            <section className="flex flex-col gap-4">{renderContent()}</section>
+            <section className="flex flex-col">{renderContent()}</section>
         </div>
     );
 };

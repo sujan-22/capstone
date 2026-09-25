@@ -11,77 +11,61 @@ jest.mock("@/lib/utils", () => ({
     cn: (...classes: string[]) => classes.filter(Boolean).join(" "),
 }));
 
-jest.mock("../../ui/button", () => ({
-    Button: ({ children, ...rest }: any) => (
-        <button {...rest}>{children}</button>
-    ),
-}));
-
-jest.mock("../../ui/separator", () => ({
-    Separator: (props: any) => <hr data-testid="separator" {...props} />,
-}));
-
 jest.mock("lucide-react", () => ({
-    Upload: (props: any) => <svg data-testid="icon-upload" {...props} />,
-    Settings: (props: any) => <svg data-testid="icon-settings" {...props} />,
-    Inspect: (props: any) => <svg data-testid="icon-inspect" {...props} />,
+    Check: (props: any) => <svg data-testid="icon-check" {...props} />,
 }));
 
 const { usePathname } = jest.requireMock("next/navigation");
 
+const stepFor = (label: string) => screen.getByText(label).closest("li")!;
+
 describe("<Steps />", () => {
-    it("renders all steps", () => {
+    it("renders all three steps in a labelled list", () => {
         usePathname.mockReturnValue("/configure/upload");
         render(<Steps />);
 
-        expect(screen.getByText("Choose an Image")).toBeInTheDocument();
-        expect(screen.getByText("Customize Your Case")).toBeInTheDocument();
-        expect(screen.getByText("Review Your Selections")).toBeInTheDocument();
-        expect(screen.getAllByTestId("separator").length).toBe(2);
+        expect(
+            screen.getByRole("navigation", { name: /Design progress/i })
+        ).toBeInTheDocument();
+        expect(screen.getAllByRole("listitem")).toHaveLength(3);
+        expect(screen.getByText("Upload your photo")).toBeInTheDocument();
+        expect(screen.getByText("Place & customise")).toBeInTheDocument();
+        expect(screen.getByText("Review your proof")).toBeInTheDocument();
     });
 
-    it("marks the current step as active and previous as completed", () => {
-        usePathname.mockReturnValue("/configure/customize");
-        render(<Steps />);
-
-        const activeButton = screen
-            .getAllByRole("button")
-            .find((b) => b.getAttribute("aria-current") === "step");
-        expect(activeButton).toBeTruthy();
-
-        const prevLabel = screen.getByText("Choose an Image");
-        expect(prevLabel.className).toContain("text-blue-600");
-
-        const activeLabel = screen.getByText("Customize Your Case");
-        expect(activeLabel.className).toContain("text-primary");
-
-        const nextLabel = screen.getByText("Review Your Selections");
-        expect(nextLabel.className).toContain("text-muted-foreground");
-    });
-
-    it("renders separators between steps", () => {
+    it("marks the current step and nothing as done on the first step", () => {
         usePathname.mockReturnValue("/configure/upload");
         render(<Steps />);
-        expect(screen.getAllByTestId("separator").length).toBe(2);
+
+        expect(stepFor("Upload your photo")).toHaveAttribute(
+            "aria-current",
+            "step"
+        );
+        expect(screen.queryAllByTestId("icon-check")).toHaveLength(0);
     });
 
-    it("marks all previous steps completed and last active when on last step", () => {
-        usePathname.mockReturnValue("/configure/preview");
+    it("marks earlier steps as done when customising", () => {
+        usePathname.mockReturnValue("/configure/customize/abc");
         render(<Steps />);
 
-        expect(screen.getByText("Choose an Image").className).toContain(
-            "text-blue-600"
+        expect(stepFor("Place & customise")).toHaveAttribute(
+            "aria-current",
+            "step"
         );
-        expect(screen.getByText("Customize Your Case").className).toContain(
-            "text-blue-600"
+        expect(stepFor("Upload your photo")).not.toHaveAttribute("aria-current");
+        expect(stepFor("Upload your photo")).toHaveTextContent("(done)");
+        expect(stepFor("Review your proof")).not.toHaveTextContent("(done)");
+        expect(screen.getAllByTestId("icon-check")).toHaveLength(1);
+    });
+
+    it("marks both earlier steps done on the proof", () => {
+        usePathname.mockReturnValue("/configure/preview/abc");
+        render(<Steps />);
+
+        expect(stepFor("Review your proof")).toHaveAttribute(
+            "aria-current",
+            "step"
         );
-
-        const lastLabel = screen.getByText("Review Your Selections");
-        expect(lastLabel.className).toContain("text-primary");
-
-        const activeButton = screen
-            .getAllByRole("button")
-            .find((b) => b.getAttribute("aria-current") === "step");
-        expect(activeButton).toBeTruthy();
+        expect(screen.getAllByTestId("icon-check")).toHaveLength(2);
     });
 });

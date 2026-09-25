@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import DesignPreviewOverview from "./components/design-preview-overview";
 
 export const metadata: Metadata = {
-    title: "Preview Your Custom Phone Case | DESIGNMYCASE",
+    title: "Review your proof",
     description:
         "Review your personalized phone case before checkout. Preview your selected phone model, material, finish, color, and adjusted image to ensure your design is perfect.",
     keywords: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         "review custom phone cover",
     ],
     openGraph: {
-        title: "Preview Your Custom Phone Case | DESIGNMYCASE",
+        title: "Review your proof · DesignMyCase",
         description:
             "See a live preview of your personalized phone case before placing your order. Confirm your phone model, material, color, finish, and uploaded image design.",
         type: "website",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Preview Your Custom Phone Case | DESIGNMYCASE",
+        title: "Review your proof · DesignMyCase",
         description:
             "Confirm your custom phone case design before checkout — review model, material, finish, color, and uploaded image.",
     },

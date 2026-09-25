@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
 import { AspectRatio } from "../ui/aspect-ratio";
 import CustomImage from "./custom-image";
 
+// The design composited onto a photo of the case in someone's hand. The
+// offsets are measured against the 3000 × 2001 hand photo.
 const PhonePreview = ({
     croppedImageUrl,
     color,
@@ -19,47 +21,50 @@ const PhonePreview = ({
         width: 0,
     });
 
-    const handleResize = () => {
-        if (!ref.current) return;
-        const { width, height } = ref.current.getBoundingClientRect();
-        setRenderedDimensions({ width, height });
-    };
-
     useEffect(() => {
-        handleResize();
-
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
+        const el = ref.current;
+        if (!el) return;
+        const observer = new ResizeObserver(() => {
+            const { width, height } = el.getBoundingClientRect();
+            setRenderedDimensions({ width, height });
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
     }, []);
 
     return (
-        <AspectRatio ref={ref} ratio={3000 / 2001} className="relative">
-            <div
-                className="absolute z-20"
-                style={{
-                    left:
-                        renderedDimensions.width / 2 -
-                        renderedDimensions.width / (1216 / 125),
-                    top: renderedDimensions.height / 6.5,
-                }}
-            >
-                <CustomImage
-                    alt=""
-                    width={renderedDimensions.width / (3000 / 655)}
-                    className={cn(
-                        "phone-skew relative z-20 rounded-t-[15px] rounded-b-[10px] md:rounded-t-[30px] md:rounded-b-[20px]"
-                    )}
-                    style={{ background: color }}
-                    src={croppedImageUrl}
-                />
-            </div>
+        <AspectRatio
+            ref={ref}
+            ratio={3000 / 2001}
+            className="relative isolate overflow-hidden"
+        >
+            {renderedDimensions.width ? (
+                <div
+                    className="absolute z-20"
+                    style={{
+                        left:
+                            renderedDimensions.width / 2 -
+                            renderedDimensions.width / (1216 / 125),
+                        top: renderedDimensions.height / 6.5,
+                    }}
+                >
+                    <CustomImage
+                        alt=""
+                        width={renderedDimensions.width / (3000 / 655)}
+                        className="phone-skew relative z-20 rounded-b-[10px] rounded-t-[15px] md:rounded-b-[20px] md:rounded-t-[30px]"
+                        style={{ background: color }}
+                        src={croppedImageUrl}
+                    />
+                </div>
+            ) : null}
 
-            <div className="relative h-full w-full z-40">
-                <CustomImage
-                    alt="phone"
+            <div className="relative z-40 h-full w-full">
+                <Image
                     src="/assets/phone-template/clearphone.png"
-                    className="pointer-events-none h-full w-full rounded-md"
+                    alt="Your case, held in a hand"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 720px"
+                    className="pointer-events-none select-none"
                 />
             </div>
         </AspectRatio>

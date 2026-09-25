@@ -1,4 +1,3 @@
-// src/components/navbar/user-dropdown.tsx
 "use client";
 
 import Link from "next/link";
@@ -15,11 +14,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown";
-import { Badge } from "@/components/ui/badge";
 import { useSignOut } from "@/hooks/use-sign-out";
 import { getActiveHref, getInitials } from "@/lib/utils";
 import { IUser } from "../../../auth-client";
-import { MdKeyboardArrowDown } from "react-icons/md";
 import {
     User as UserIcon,
     UserCircle,
@@ -28,7 +25,10 @@ import {
     ImageIcon,
     Star,
     LogOut,
+    LogIn,
     Plus,
+    ChevronDown,
+    Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,13 +66,46 @@ function MenuLink({
                 href={href}
                 className={cn(
                     "flex w-full items-center gap-2",
-                    active && "bg-muted/60 font-medium"
+                    active && "bg-ink/[0.06] font-medium text-ink"
                 )}
                 prefetch
             >
                 {children}
             </Link>
         </DropdownMenuItem>
+    );
+}
+
+function Avatar({
+    user,
+    size,
+}: {
+    user: IUser | null | undefined;
+    size: number;
+}) {
+    return (
+        <span
+            className="relative inline-flex shrink-0 overflow-hidden rounded-full bg-cobalt text-white ring-1 ring-ink/10"
+            style={{ width: size, height: size }}
+        >
+            {user?.image ? (
+                <Image
+                    src={user.image}
+                    alt=""
+                    fill
+                    sizes={`${size}px`}
+                    referrerPolicy="no-referrer"
+                    className="object-cover"
+                />
+            ) : (
+                <span
+                    aria-hidden
+                    className="flex size-full items-center justify-center text-[11px] font-bold tracking-wide"
+                >
+                    {getInitials(user)}
+                </span>
+            )}
+        </span>
     );
 }
 
@@ -89,111 +122,97 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
     const activeExplore = getActiveHref(pathname ?? "", exploreHrefs);
     const activeAdmin = getActiveHref(pathname ?? "", adminHrefs);
 
+    const displayName = user?.name || user?.username || "Guest";
+
     return (
         <DropdownMenu onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
-                    className="h-10 py-0 pl-1 pr-2 rounded-full gap-2 hover:bg-accent/60 data-[state=open]:bg-accent"
+                    className="h-10 gap-2 py-0 pl-1 pr-2.5 data-[state=open]:bg-ink/[0.06]"
                     aria-expanded={isOpen}
-                    aria-label="Open user menu"
+                    aria-label={user ? "Open account menu" : "Open menu"}
                 >
-                    <span className="relative inline-flex w-8 h-8 rounded-full ring-1 ring-border overflow-hidden">
-                        {user?.image ? (
-                            <Image
-                                src={user.image}
-                                alt=""
-                                fill
-                                sizes="32px"
-                                priority
-                                referrerPolicy="no-referrer"
-                                className="object-cover"
-                            />
-                        ) : (
-                            // decorative initials only
-                            <span
-                                aria-hidden
-                                className="flex w-full h-full items-center justify-center text-[11px] font-semibold bg-muted text-muted-foreground"
-                            >
-                                {getInitials(user)}
-                            </span>
-                        )}
-                    </span>
-                    <span className="hidden sm:flex flex-col items-start min-w-0">
-                        <span className="text-sm font-medium leading-none truncate max-w-[9rem]">
-                            {user?.name || user?.username || "Guest"}
+                    {user ? (
+                        <Avatar user={user} size={32} />
+                    ) : (
+                        <span className="flex size-8 items-center justify-center rounded-full border border-ink/15">
+                            <Menu className="size-4" aria-hidden />
                         </span>
-                        <span className="text-xs text-muted-foreground leading-none truncate max-w-[9rem]">
-                            {user?.email}
+                    )}
+                    {user ? (
+                        <span className="hidden max-w-[9rem] truncate text-sm font-medium sm:block">
+                            {displayName}
                         </span>
-                    </span>
-                    {user?.role ? (
-                        <Badge
-                            variant="secondary"
-                            className="hidden md:inline-flex h-5 text-[10px]"
-                        >
-                            {user.role}
-                        </Badge>
                     ) : null}
-                    <MdKeyboardArrowDown
+                    <ChevronDown
                         className={cn(
-                            "w-5 h-5 transition-transform",
+                            "size-4 text-ink-soft transition-transform duration-300",
                             isOpen && "rotate-180"
                         )}
                         aria-hidden="true"
                     />
-                    <span className="sr-only">
-                        {isOpen ? "Close user menu" : "Open user menu"}
-                    </span>
                 </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-                className="w-64"
+                className="w-72"
                 align="end"
-                sideOffset={8}
-                collisionPadding={8}
+                sideOffset={10}
+                collisionPadding={12}
             >
-                <DropdownMenuLabel className="flex items-center gap-2">
-                    <span className="sr-only">
-                        {user?.name || user?.username || "User"} menu
-                    </span>
-                    <span
-                        aria-hidden
-                        className="inline-flex h-6 w-6 items-center justify-center rounded bg-muted text-xs font-semibold"
-                    >
-                        {getInitials(user)}
-                    </span>
-                    <span className="truncate">
-                        {user?.name || user?.username || "Guest"}
-                    </span>
-                </DropdownMenuLabel>
+                {user ? (
+                    <>
+                        <div className="flex items-center gap-3 px-2.5 pb-2.5 pt-2">
+                            <Avatar user={user} size={36} />
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-semibold">
+                                    {displayName}
+                                </p>
+                                <p className="truncate text-xs text-ink-soft">
+                                    {user.email}
+                                </p>
+                            </div>
+                            {user.role ? (
+                                <span className="type-label rounded-full border border-rule px-2 py-0.5 text-[0.625rem]">
+                                    {user.role}
+                                </span>
+                            ) : null}
+                        </div>
 
-                <DropdownMenuGroup>
-                    {MY_ACCOUNT_LINKS.map(({ href, label, icon: Icon }) => (
-                        <MenuLink
-                            key={href}
-                            href={href}
-                            active={href === activeAccount}
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuGroup>
+                            {MY_ACCOUNT_LINKS.map(
+                                ({ href, label, icon: Icon }) => (
+                                    <MenuLink
+                                        key={href}
+                                        href={href}
+                                        active={href === activeAccount}
+                                    >
+                                        <Icon aria-hidden />
+                                        <span>{label}</span>
+                                    </MenuLink>
+                                )
+                            )}
+                        </DropdownMenuGroup>
+
+                        <DropdownMenuSeparator />
+                    </>
+                ) : null}
+
+                {user?.role !== "admin" ? (
+                    <>
+                        <DropdownMenuItem
+                            className="font-semibold text-cobalt focus:text-cobalt sm:hidden [&_svg]:text-cobalt"
+                            onClick={() => router.push("/configure/upload")}
                         >
-                            <Icon className="h-4 w-4" />
-                            <span>{label}</span>
-                        </MenuLink>
-                    ))}
-                </DropdownMenuGroup>
-
-                <DropdownMenuSeparator />
-
-                {/* Mobile-only quick action */}
-                <DropdownMenuItem
-                    className="sm:hidden"
-                    onClick={() => router.push("/configure/upload")}
-                >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Case
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator className="sm:hidden" />
+                            <Plus aria-hidden />
+                            Create a case
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="sm:hidden" />
+                    </>
+                ) : null}
 
                 <DropdownMenuLabel>Explore</DropdownMenuLabel>
                 <DropdownMenuGroup>
@@ -203,7 +222,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                             href={href}
                             active={href === activeExplore}
                         >
-                            <Icon className="h-4 w-4" />
+                            <Icon aria-hidden />
                             <span>{label}</span>
                         </MenuLink>
                     ))}
@@ -220,7 +239,7 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                                     href={href}
                                     active={href === activeAdmin}
                                 >
-                                    <Icon className="h-4 w-4" />
+                                    <Icon aria-hidden />
                                     <span>{label}</span>
                                 </MenuLink>
                             ))}
@@ -235,11 +254,12 @@ export function UserDropdown({ user }: { user: IUser | null | undefined }) {
                         else router.push("/sign-in");
                     }}
                     className={cn(
-                        user ? "text-destructive focus:text-destructive" : "",
-                        "cursor-pointer"
+                        "cursor-pointer",
+                        user &&
+                            "text-destructive focus:text-destructive [&_svg]:text-destructive"
                     )}
                 >
-                    <LogOut className="h-4 w-4 mr-2" />
+                    {user ? <LogOut aria-hidden /> : <LogIn aria-hidden />}
                     {user ? "Sign out" : "Sign in"}
                 </DropdownMenuItem>
             </DropdownMenuContent>

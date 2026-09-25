@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 
 import FeaturedDesigns from "../featured-designs";
 
-const push = jest.fn();
-jest.mock("next/navigation", () => ({
-    useRouter: () => ({ push }),
+jest.mock("next/link", () => ({
+    __esModule: true,
+    default: ({ href, children, ...rest }: any) => (
+        <a href={href} {...rest}>
+            {children}
+        </a>
+    ),
 }));
 
 const useQueryMock = jest.fn();
@@ -29,14 +32,6 @@ jest.mock("../../utilities/max-width-wrapper", () => {
         return <div data-testid="max-width-wrapper">{children}</div>;
     };
 });
-
-jest.mock("../../utilities/icons", () => ({
-    Icons: {
-        underlineDashed: (props: any) => (
-            <span data-testid="underline-icon" {...props} />
-        ),
-    },
-}));
 
 jest.mock("../skeletons/case-design-skeleton", () => {
     return function CaseDesignSkeleton(props: { isDark?: boolean }) {
@@ -109,9 +104,7 @@ describe("<FeaturedDesigns />", () => {
         expect(screen.queryByTestId("case-design-skeleton")).toBeNull();
     });
 
-    it('navigates to "/featured-designs" when "Explore more" is clicked', async () => {
-        const user = userEvent.setup();
-
+    it('links to "/featured-designs" to see every featured design', () => {
         useQueryMock.mockReturnValueOnce({
             isLoading: false,
             data: {
@@ -125,11 +118,11 @@ describe("<FeaturedDesigns />", () => {
 
         render(<FeaturedDesigns user={userFixture} />);
 
-        const exploreBtn = screen.getByRole("button", {
-            name: /Explore more/i,
-        });
-        await user.click(exploreBtn);
-
-        expect(push).toHaveBeenCalledWith("/featured-designs");
+        expect(
+            screen.getByRole("link", { name: /See all featured designs/i })
+        ).toHaveAttribute("href", "/featured-designs");
+        expect(
+            screen.getByRole("heading", { name: /Off the press/i, level: 2 })
+        ).toBeInTheDocument();
     });
 });

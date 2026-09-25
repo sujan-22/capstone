@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import Phone from "@/components/utilities/phone";
+import { Button, buttonVariants } from "@/components/ui/button";
+import DesignRow from "../../components/design-row";
 import { IReminder } from "@/lib/types/reminders.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -26,69 +26,47 @@ const Reminder = ({ reminder }: Props) => {
         },
     });
     return (
-        <div
-            key={reminder.id}
-            className="border rounded-lg p-3 flex flex-col sm:flex-row gap-3 bg-white shadow-sm duration-200"
-        >
-            <div className="flex-shrink-0 w-24 h-auto relative rounded-md bg-muted overflow-hidden flex items-center justify-center">
-                <Phone
-                    imgSrc={reminder.croppedImgUrl ?? reminder.imgSrc}
-                    altText={reminder.caseName}
-                />
-            </div>
-
-            <div className="flex-1 flex flex-col gap-2">
-                <div className="flex-1 flex flex-col gap-2">
-                    <h4 className="text-lg font-semibold truncate">
-                        {reminder.caseName}
-                    </h4>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <p>
-                            <span className="font-medium">Model:</span>{" "}
-                            {reminder.modelName}
-                        </p>
-                        <p>
-                            <span className="font-medium">Color:</span>{" "}
-                            {reminder.color}
-                        </p>
-                        <p>
-                            <span className="font-medium">Material:</span>{" "}
-                            {reminder.material}
-                        </p>
-                        <p>
-                            <span className="font-medium">Finish:</span>{" "}
-                            {reminder.finish}
-                        </p>
-                    </div>
-
-                    <p className="text-sm">
-                        <span className="font-medium">Reminder sent on:</span>{" "}
+        <DesignRow
+            imgSrc={reminder.croppedImgUrl ?? reminder.imgSrc}
+            caseName={reminder.caseName}
+            modelName={reminder.modelName}
+            color={reminder.color}
+            material={reminder.material}
+            finish={reminder.finish}
+            meta={
+                <>
+                    Reminder sent on{" "}
+                    <span className="font-medium text-ink">
                         {reminder.lastSentAt
                             ? formatDate(reminder.lastSentAt)
                             : "N/A"}
-                    </p>
-                </div>
-
-                <div className="mt-auto flex flex-wrap gap-2">
+                    </span>
+                </>
+            }
+            actions={
+                <>
+                    <Link
+                        href={`/configure/customize/${reminder.caseDesignId}`}
+                        className={buttonVariants({
+                            size: "sm",
+                            className: "h-9 px-4",
+                        })}
+                    >
+                        Continue customising
+                    </Link>
                     <Button
                         size="sm"
                         variant="outline"
+                        className="h-9 px-4"
                         onClick={() => mutation.mutate()}
                         disabled={mutation.isPending}
                         isLoading={mutation.isPending}
                     >
                         Dismiss
                     </Button>
-                    <Link
-                        href={`/configure/customize/${reminder.caseDesignId}`}
-                        passHref
-                    >
-                        <Button size="sm">Continue Customizing</Button>
-                    </Link>
-                </div>
-            </div>
-        </div>
+                </>
+            }
+        />
     );
 };
 

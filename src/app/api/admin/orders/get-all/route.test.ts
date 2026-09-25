@@ -117,8 +117,10 @@ describe("GET /admin/orders/get-all", () => {
                         id: "cd2",
                         hasRequestedToSharePublicly: true,
                         isSharedPublicly: false,
+                        croppedImageUrl: null,
                     },
                     status: "processing",
+                    totalAmount: 0,
                     createdAt: "2025-02-02T12:00:00.000Z",
                     customer: {
                         id: "u2",
@@ -133,8 +135,10 @@ describe("GET /admin/orders/get-all", () => {
                         id: "cd1",
                         hasRequestedToSharePublicly: false,
                         isSharedPublicly: false,
+                        croppedImageUrl: null,
                     },
                     status: "paid",
+                    totalAmount: 0,
                     createdAt: "2025-02-01T10:00:00.000Z",
                     customer: {
                         id: "u1",
@@ -194,8 +198,10 @@ describe("GET /admin/orders/get-all", () => {
                     id: "cd9",
                     hasRequestedToSharePublicly: false,
                     isSharedPublicly: true,
+                    croppedImageUrl: null,
                 },
                 status: "paid",
+                totalAmount: 0,
                 createdAt: "2025-03-03T10:00:00.000Z",
                 customer: { id: "u9", name: "Nina", email: "nina@example.com" },
             },
@@ -241,6 +247,72 @@ describe("GET /admin/orders/get-all", () => {
         const [_sql, params] = query.mock.calls[0] as [string, unknown[]];
         expect(params).toContain("u123");
         expect(params[params.length - 1]).toBe(6); // limit+1
+    });
+
+    it("filters by a known status, case-insensitively", async () => {
+        setSession("admin");
+
+        const release = jest.fn();
+        const query = jest.fn().mockResolvedValue({ rows: [] });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
+
+        const { GET } = await import("./route");
+        const res = await GET(makeReq({ status: "shipped", limit: 5 }));
+        expect(res.status).toBe(200);
+        await res.json();
+
+        const [sql, params] = query.mock.calls[0] as [string, unknown[]];
+        expect(params).toContain("SHIPPED");
+        expect(sql).toContain("UPPER(o.order_status)");
+    });
+
+    it("ignores unknown status values", async () => {
+        setSession("admin");
+
+        const release = jest.fn();
+        const query = jest.fn().mockResolvedValue({ rows: [] });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
+
+        const { GET } = await import("./route");
+        const res = await GET(makeReq({ status: "'; DROP TABLE", limit: 5 }));
+        expect(res.status).toBe(200);
+        await res.json();
+
+        const [sql, params] = query.mock.calls[0] as [string, unknown[]];
+        expect(sql).not.toContain("UPPER(o.order_status)");
+        expect(params).toEqual([6]);
+    });
+
+    it("maps the design thumbnail and order total", async () => {
+        setSession("admin");
+
+        const release = jest.fn();
+        const rows = [
+            {
+                id: "o5",
+                order_number: "DMC-0005",
+                case_design_id: "cd5",
+                order_status: "PENDING",
+                total_amount: "28.23",
+                created_at: "2025-04-01T10:00:00.000Z",
+                user_id: "u5",
+                user_name: "Kai",
+                user_email: "kai@example.com",
+                has_requested_to_share_publicly: false,
+                is_shared_publicly: false,
+                cropped_image_url: "https://example.com/c.png",
+            },
+        ];
+        const query = jest.fn().mockResolvedValue({ rows });
+        (pool.connect as jest.Mock).mockResolvedValue({ query, release });
+
+        const { GET } = await import("./route");
+        const body = await (await GET(makeReq({ limit: 5 }))).json();
+
+        expect(body.orders[0].totalAmount).toBe(28.23);
+        expect(body.orders[0].caseDesign.croppedImageUrl).toBe(
+            "https://example.com/c.png"
+        );
     });
 
     it("returns 500 on DB error", async () => {

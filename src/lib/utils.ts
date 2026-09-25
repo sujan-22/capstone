@@ -71,11 +71,11 @@ export function getOrderStatus(status: string) {
 
     const tone =
         label === "Fulfilled"
-            ? "bg-emerald-500 text-white dark:bg-emerald-600"
+            ? "bg-success text-white"
             : label === "Shipped"
-            ? "bg-blue-500 text-white dark:bg-blue-600"
+            ? "bg-cobalt text-white"
             : label === "Pending"
-            ? "bg-amber-500 text-white dark:bg-amber-600"
+            ? "bg-process-y text-ink"
             : "bg-muted text-foreground";
 
     return { label, tone };
@@ -122,4 +122,15 @@ export function getActiveHref(pathname: string, hrefs: readonly string[]) {
         (h) => pathname === h || pathname.startsWith(h + "/")
     );
     return matches.sort((a, b) => b.length - a.length)[0] ?? "";
+}
+
+/**
+ * Only follow redirects to paths on this site. Anything else (absolute URLs,
+ * protocol-relative "//host" paths) falls back to `fallback`.
+ */
+export function safeRedirect(target: string | null | undefined, fallback = "/") {
+    if (!target || !target.startsWith("/") || target.startsWith("//")) {
+        return fallback;
+    }
+    return target;
 }

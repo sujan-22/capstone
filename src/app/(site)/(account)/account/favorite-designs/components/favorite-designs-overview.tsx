@@ -2,13 +2,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import ErrorMessage from "@/components/utilities/error";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import EmptyState from "../../components/empty-state";
 import { getFavoriteDesignsByUser } from "../actions/actions";
 import UnfinishedDesignSkeleton from "../../unfinished-designs/components/skeleton/unfinished-design-skeleton";
 import FavoriteDesign from "./favorite-design";
 import AccountHeader from "../../components/account-header";
-import { Heart } from "lucide-react";
 
 interface FavoriteDesignOverviewProps {
     userId: string;
@@ -57,20 +55,12 @@ const FavoriteDesignOverview: React.FC<FavoriteDesignOverviewProps> = ({
 
         if (!designs.length) {
             return (
-                <div className="w-full flex flex-col items-center gap-4 col-span-full text-center">
-                    <h2 className="text-2xl font-semibold">
-                        No favorite designs
-                    </h2>
-                    <p className="text-base text-muted-foreground max-w-md">
-                        You don’t have any favorite custom case designs yet.
-                        Once you mark a design as favorite, it will appear here.
-                    </p>
-                    <Link href="/featured-designs" passHref>
-                        <Button className="mt-2">
-                            Explore our featured designs
-                        </Button>
-                    </Link>
-                </div>
+                <EmptyState
+                    title="No favourites yet"
+                    description="Save designs you like from our featured designs and they'll wait for you here."
+                    href="/featured-designs"
+                    cta="Explore featured designs"
+                />
             );
         }
 
@@ -80,15 +70,19 @@ const FavoriteDesignOverview: React.FC<FavoriteDesignOverviewProps> = ({
     };
 
     return (
-        <div className="space-y-6">
+        <div>
             <AccountHeader
-                heading="Your Favorite Designs"
-                description="Here are all your favorite custom case designs. You can
-                    continue customizing them or remove them from favorites if
-                    you’ve completed them."
-                icon={Heart}
+                heading="Favourites"
+                description="Designs you've saved. Buy one as it is, or remove it once you're done with it."
+                aside={
+                    designs.length ? (
+                        <span className="type-label text-ink-soft">
+                            {designs.length} saved
+                        </span>
+                    ) : null
+                }
             />
-            <section className="flex flex-col gap-4">{renderContent()}</section>
+            <section className="flex flex-col">{renderContent()}</section>
         </div>
     );
 };
